@@ -1,0 +1,56 @@
+# ============================================
+# OLIST BI/DSS GROUP 08
+# ============================================
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# macOS
+.DS_Store
+
+# Visual Studio
+.vs/
+bin/
+obj/
+*.user
+*.suo
+
+# Visual Studio temporary files
+*.tmp
+*.log
+
+# SSIS / SSDT temporary files
+*.dtproj.user
+
+# Python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# Python virtual environments
+venv/
+.venv/
+env/
+
+# Environment / credentials
+.env
+*.env
+secrets.*
+credentials.*
+
+# SQL Server local database files
+*.mdf
+*.ldf
+
+# Temporary files
+temp/
+tmp/
+
+# Raw Olist dataset
+# Không upload dữ liệu raw lên GitHub
+data/raw/*
+!data/raw/.gitkeep
+
+# Processed/generated data
+data/processed/
