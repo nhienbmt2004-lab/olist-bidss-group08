@@ -11,8 +11,8 @@
   DTS:LocaleID="1033"
   DTS:ObjectName="STG_Payments"
   DTS:PackageType="5"
-  DTS:VersionBuild="28"
-  DTS:VersionGUID="{1D3AE2CB-9ADB-4B1D-8ECB-5BB37F048A9A}">
+  DTS:VersionBuild="30"
+  DTS:VersionGUID="{8885019A-96A0-43FD-99F1-A36CE009A895}">
   <DTS:Property
     DTS:Name="PackageFormatVersion">8</DTS:Property>
   <DTS:ConnectionManagers>
@@ -40,7 +40,7 @@
               DTS:DataType="130"
               DTS:TextQualified="True"
               DTS:ObjectName="order_id"
-              DTS:DTSID="{B72D00E0-BD71-45FB-B021-42EC5CFF0888}"
+              DTS:DTSID="{ADC46CB2-3C44-4371-A774-20476FB66C7C}"
               DTS:CreationName="" />
             <DTS:FlatFileColumn
               DTS:ColumnType="Delimited"
@@ -48,7 +48,7 @@
               DTS:DataType="3"
               DTS:TextQualified="True"
               DTS:ObjectName="payment_sequential"
-              DTS:DTSID="{0562E618-79E8-49FF-A470-4F55C73798FB}"
+              DTS:DTSID="{FEBD6557-741F-4260-935C-4708E6A08D0E}"
               DTS:CreationName="" />
             <DTS:FlatFileColumn
               DTS:ColumnType="Delimited"
@@ -57,7 +57,7 @@
               DTS:DataType="130"
               DTS:TextQualified="True"
               DTS:ObjectName="payment_type"
-              DTS:DTSID="{F75CC5EA-F8CC-45B8-B58E-935065BA3562}"
+              DTS:DTSID="{D228162E-2DF3-4188-A2C1-7597988311B9}"
               DTS:CreationName="" />
             <DTS:FlatFileColumn
               DTS:ColumnType="Delimited"
@@ -65,7 +65,7 @@
               DTS:DataType="3"
               DTS:TextQualified="True"
               DTS:ObjectName="payment_installments"
-              DTS:DTSID="{BE46A831-7DC4-41C1-821F-8C47BC4A40C0}"
+              DTS:DTSID="{459989D9-B119-47CD-9050-A5877269CC89}"
               DTS:CreationName="" />
             <DTS:FlatFileColumn
               DTS:ColumnType="Delimited"
@@ -75,7 +75,7 @@
               DTS:DataScale="2"
               DTS:TextQualified="True"
               DTS:ObjectName="payment_value"
-              DTS:DTSID="{9154B4DE-A163-4EE6-96B5-E0EACE070E43}"
+              DTS:DTSID="{10490831-4535-4CD2-BF74-4F1B99B65529}"
               DTS:CreationName="" />
           </DTS:FlatFileColumns>
         </DTS:ConnectionManager>
@@ -554,13 +554,13 @@
       <GraphLayout
         Capacity="4" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml">
         <NodeLayout
-          Size="150.4,41.6"
-          Id="Package\Load Payments Raw to Staging\Flat File Source"
-          TopLeft="86.4285716125552,57.3529411261985" />
-        <NodeLayout
           Size="170.4,41.6"
           Id="Package\Load Payments Raw to Staging\OLE DB Destination"
           TopLeft="90.0000001915864,143.764705756338" />
+        <NodeLayout
+          Size="150.4,41.6"
+          Id="Package\Load Payments Raw to Staging\Flat File Source"
+          TopLeft="86.4285716125552,57.3529411261985" />
         <EdgeLayout
           Id="Package\Load Payments Raw to Staging.Paths[Flat File Source Output]"
           TopLeft="161.628571612555,98.9529411261985">
