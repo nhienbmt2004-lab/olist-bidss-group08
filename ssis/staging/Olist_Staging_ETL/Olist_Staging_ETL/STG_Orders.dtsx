@@ -1,0 +1,751 @@
+﻿<?xml version="1.0"?>
+<DTS:Executable xmlns:DTS="www.microsoft.com/SqlServer/Dts"
+  DTS:refId="Package"
+  DTS:CreationDate="10/11/2026 10:04:18 AM"
+  DTS:CreationName="Microsoft.Package"
+  DTS:CreatorComputerName="LAPTOP-JDU04DGQ"
+  DTS:CreatorName="LAPTOP-JDU04DGQ\Admin"
+  DTS:DTSID="{D252307D-55F0-41BD-A5F4-86D6E2603CA4}"
+  DTS:ExecutableType="Microsoft.Package"
+  DTS:LastModifiedProductVersion="17.0.1016.0"
+  DTS:LocaleID="1033"
+  DTS:ObjectName="STG_Orders"
+  DTS:PackageType="5"
+  DTS:VersionBuild="23"
+  DTS:VersionGUID="{D20F29F2-066F-4DD4-AC26-1085C82B0C38}">
+  <DTS:Property
+    DTS:Name="PackageFormatVersion">8</DTS:Property>
+  <DTS:ConnectionManagers>
+    <DTS:ConnectionManager
+      DTS:refId="Package.ConnectionManagers[FF_Orders]"
+      DTS:CreationName="FLATFILE"
+      DTS:Description="Olist orders raw CSV"
+      DTS:DTSID="{3B57ABE0-2D32-4333-9ACA-859AD3B679B3}"
+      DTS:ObjectName="FF_Orders">
+      <DTS:ObjectData>
+        <DTS:ConnectionManager
+          DTS:Format="Delimited"
+          DTS:LocaleID="1033"
+          DTS:HeaderRowDelimiter="_x000A_"
+          DTS:ColumnNamesInFirstDataRow="True"
+          DTS:RowDelimiter=""
+          DTS:TextQualifier="_x0022_"
+          DTS:CodePage="65001"
+          DTS:ConnectionString="E:\BIDSS-Group08\olist-bidss-group08\data\raw\olist\olist_orders_dataset.csv">
+          <DTS:FlatFileColumns>
+            <DTS:FlatFileColumn
+              DTS:ColumnType="Delimited"
+              DTS:ColumnDelimiter="_x002C_"
+              DTS:MaximumWidth="32"
+              DTS:DataType="130"
+              DTS:TextQualified="True"
+              DTS:ObjectName="order_id"
+              DTS:DTSID="{9A2BBDF1-BA96-4397-A34B-6C81692C878F}"
+              DTS:CreationName="" />
+            <DTS:FlatFileColumn
+              DTS:ColumnType="Delimited"
+              DTS:ColumnDelimiter="_x002C_"
+              DTS:MaximumWidth="32"
+              DTS:DataType="130"
+              DTS:TextQualified="True"
+              DTS:ObjectName="customer_id"
+              DTS:DTSID="{899EB618-E2FF-4B06-BC6D-8B2F8DA2C7AE}"
+              DTS:CreationName="" />
+            <DTS:FlatFileColumn
+              DTS:ColumnType="Delimited"
+              DTS:ColumnDelimiter="_x002C_"
+              DTS:MaximumWidth="20"
+              DTS:DataType="130"
+              DTS:TextQualified="True"
+              DTS:ObjectName="order_status"
+              DTS:DTSID="{F5A11E52-9A48-46A4-9D19-2B9B8D014A4A}"
+              DTS:CreationName="" />
+            <DTS:FlatFileColumn
+              DTS:ColumnType="Delimited"
+              DTS:ColumnDelimiter="_x002C_"
+              DTS:MaximumWidth="19"
+              DTS:DataType="130"
+              DTS:TextQualified="True"
+              DTS:ObjectName="order_purchase_timestamp"
+              DTS:DTSID="{AD63EE39-3751-4723-A327-0FE3DFD5025C}"
+              DTS:CreationName="" />
+            <DTS:FlatFileColumn
+              DTS:ColumnType="Delimited"
+              DTS:ColumnDelimiter="_x002C_"
+              DTS:MaximumWidth="19"
+              DTS:DataType="130"
+              DTS:TextQualified="True"
+              DTS:ObjectName="order_approved_at"
+              DTS:DTSID="{F6C0E38F-1172-4C86-8199-2F0D08B44EA9}"
+              DTS:CreationName="" />
+            <DTS:FlatFileColumn
+              DTS:ColumnType="Delimited"
+              DTS:ColumnDelimiter="_x002C_"
+              DTS:MaximumWidth="19"
+              DTS:DataType="130"
+              DTS:TextQualified="True"
+              DTS:ObjectName="order_delivered_carrier_date"
+              DTS:DTSID="{CF524DA2-6A25-45CA-9F66-3E77D31DD832}"
+              DTS:CreationName="" />
+            <DTS:FlatFileColumn
+              DTS:ColumnType="Delimited"
+              DTS:ColumnDelimiter="_x002C_"
+              DTS:MaximumWidth="19"
+              DTS:DataType="130"
+              DTS:TextQualified="True"
+              DTS:ObjectName="order_delivered_customer_date"
+              DTS:DTSID="{972FD0F3-9F7C-412C-9156-D56DA4A71191}"
+              DTS:CreationName="" />
+            <DTS:FlatFileColumn
+              DTS:ColumnType="Delimited"
+              DTS:ColumnDelimiter="_x000A_"
+              DTS:MaximumWidth="19"
+              DTS:DataType="130"
+              DTS:TextQualified="True"
+              DTS:ObjectName="order_estimated_delivery_date"
+              DTS:DTSID="{12293D49-E498-4D64-BA34-D79192381DAA}"
+              DTS:CreationName="" />
+          </DTS:FlatFileColumns>
+        </DTS:ConnectionManager>
+      </DTS:ObjectData>
+    </DTS:ConnectionManager>
+    <DTS:ConnectionManager
+      DTS:refId="Package.ConnectionManagers[OLEDB_Olist_Staging]"
+      DTS:CreationName="OLEDB"
+      DTS:DTSID="{CFA6CD00-EC7B-436D-9438-B0C2EE54E8C3}"
+      DTS:ObjectName="OLEDB_Olist_Staging">
+      <DTS:ObjectData>
+        <DTS:ConnectionManager
+          DTS:ConnectRetryCount="1"
+          DTS:ConnectRetryInterval="5"
+          DTS:ConnectionString="Data Source=localhost;User ID=;Initial Catalog=Olist_Staging;Provider=MSOLEDBSQL19.1;Persist Security Info=False;Integrated Security=SSPI;Initial File Name=;Trust Server Certificate=True;Server SPN=;Authentication=;Access Token=;Host Name In Certificate=;Server Certificate=;Application Name=SSIS-STG_Customers-{CFA6CD00-EC7B-436D-9438-B0C2EE54E8C3}localhost.Olist_Staging;Auto Translate=False;" />
+      </DTS:ObjectData>
+    </DTS:ConnectionManager>
+  </DTS:ConnectionManagers>
+  <DTS:Variables />
+  <DTS:Executables>
+    <DTS:Executable
+      DTS:refId="Package\Load Orders Raw to Staging"
+      DTS:CreationName="Microsoft.Pipeline"
+      DTS:Description="Data Flow Task"
+      DTS:DTSID="{FD95B43E-0C3C-492B-A3B9-F7D76310F047}"
+      DTS:ExecutableType="Microsoft.Pipeline"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="Load Orders Raw to Staging"
+      DTS:TaskContact="Performs high-performance data extraction, transformation and loading;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <pipeline
+          version="1">
+          <components>
+            <component
+              refId="Package\Load Orders Raw to Staging\Flat File Source"
+              componentClassID="Microsoft.FlatFileSource"
+              contactInfo="Flat File Source;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;1"
+              description="Flat File Source"
+              localeId="1033"
+              name="Flat File Source"
+              usesDispositions="true"
+              version="1">
+              <properties>
+                <property
+                  dataType="System.Boolean"
+                  description="Specifies whether zero-length columns are treated as null."
+                  name="RetainNulls">false</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the name of an output column containing the file name. If no name is specified, no output column containing the file name will be generated."
+                  name="FileNameColumnName"></property>
+              </properties>
+              <connections>
+                <connection
+                  refId="Package\Load Orders Raw to Staging\Flat File Source.Connections[FlatFileConnection]"
+                  connectionManagerID="Package.ConnectionManagers[FF_Orders]"
+                  connectionManagerRefId="Package.ConnectionManagers[FF_Orders]"
+                  name="FlatFileConnection" />
+              </connections>
+              <outputs>
+                <output
+                  refId="Package\Load Orders Raw to Staging\Flat File Source.Outputs[Flat File Source Output]"
+                  name="Flat File Source Output">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\Load Orders Raw to Staging\Flat File Source.Outputs[Flat File Source Output].Columns[customer_id]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\Load Orders Raw to Staging\Flat File Source.Outputs[Flat File Source Output].ExternalColumns[customer_id]"
+                      length="32"
+                      lineageId="Package\Load Orders Raw to Staging\Flat File Source.Outputs[Flat File Source Output].Columns[customer_id]"
+                      name="customer_id"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          dataType="System.Boolean"
+                          description="Indicates whether the column uses the faster, locale-neutral parsing routines."
+                          name="FastParse">false</property>
+                        <property
+                          dataType="System.Boolean"
+                          description="Indicates whether the data is in binary format."
+                          name="UseBinaryFormat">false</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\Load Orders Raw to Staging\Flat File Source.Outputs[Flat File Source Output].Columns[order_status]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\Load Orders Raw to Staging\Flat File Source.Outputs[Flat File Source Output].ExternalColumns[order_status]"
+                      length="20"
+                      lineageId="Package\Load Orders Raw to Staging\Flat File Source.Outputs[Flat File Source Output].Columns[order_status]"
+                      name="order_status"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          dataType="System.Boolean"
+                          description="Indicates whether the column uses the faster, locale-neutral parsing routines."
+                          name="FastParse">false</property>
+                        <property
+                          dataType="System.Boolean"
+                          description="Indicates whether the data is in binary format."
+                          name="UseBinaryFormat">false</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\Load Orders Raw to Staging\Flat File Source.Outputs[Flat File Source Output].Columns[order_purchase_timestamp]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\Load Orders Raw to Staging\Flat File Source.Outputs[Flat File Source Output].ExternalColumns[order_purchase_timestamp]"
+                      length="19"
+                      lineageId="Package\Load Orders Raw to Staging\Flat File Source.Outputs[Flat File Source Output].Columns[order_purchase_timestamp]"
+                      name="order_purchase_timestamp"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          dataType="System.Boolean"
+                          description="Indicates whether the column uses the faster, locale-neutral parsing routines."
+                          name="FastParse">false</property>
+                        <property
+                          dataType="System.Boolean"
+                          description="Indicates whether the data is in binary format."
+                          name="UseBinaryFormat">false</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\Load Orders Raw to Staging\Flat File Source.Outputs[Flat File Source Output].Columns[order_approved_at]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\Load Orders Raw to Staging\Flat File Source.Outputs[Flat File Source Output].ExternalColumns[order_approved_at]"
+                      length="19"
+                      lineageId="Package\Load Orders Raw to Staging\Flat File Source.Outputs[Flat File Source Output].Columns[order_approved_at]"
+                      name="order_approved_at"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          dataType="System.Boolean"
+                          description="Indicates whether the column uses the faster, locale-neutral parsing routines."
+                          name="FastParse">false</property>
+                        <property
+                          dataType="System.Boolean"
+                          description="Indicates whether the data is in binary format."
+                          name="UseBinaryFormat">false</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\Load Orders Raw to Staging\Flat File Source.Outputs[Flat File Source Output].Columns[order_delivered_carrier_date]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\Load Orders Raw to Staging\Flat File Source.Outputs[Flat File Source Output].ExternalColumns[order_delivered_carrier_date]"
+                      length="19"
+                      lineageId="Package\Load Orders Raw to Staging\Flat File Source.Outputs[Flat File Source Output].Columns[order_delivered_carrier_date]"
+                      name="order_delivered_carrier_date"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          dataType="System.Boolean"
+                          description="Indicates whether the column uses the faster, locale-neutral parsing routines."
+                          name="FastParse">false</property>
+                        <property
+                          dataType="System.Boolean"
+                          description="Indicates whether the data is in binary format."
+                          name="UseBinaryFormat">false</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\Load Orders Raw to Staging\Flat File Source.Outputs[Flat File Source Output].Columns[order_delivered_customer_date]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\Load Orders Raw to Staging\Flat File Source.Outputs[Flat File Source Output].ExternalColumns[order_delivered_customer_date]"
+                      length="19"
+                      lineageId="Package\Load Orders Raw to Staging\Flat File Source.Outputs[Flat File Source Output].Columns[order_delivered_customer_date]"
+                      name="order_delivered_customer_date"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          dataType="System.Boolean"
+                          description="Indicates whether the column uses the faster, locale-neutral parsing routines."
+                          name="FastParse">false</property>
+                        <property
+                          dataType="System.Boolean"
+                          description="Indicates whether the data is in binary format."
+                          name="UseBinaryFormat">false</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\Load Orders Raw to Staging\Flat File Source.Outputs[Flat File Source Output].Columns[order_estimated_delivery_date]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\Load Orders Raw to Staging\Flat File Source.Outputs[Flat File Source Output].ExternalColumns[order_estimated_delivery_date]"
+                      length="19"
+                      lineageId="Package\Load Orders Raw to Staging\Flat File Source.Outputs[Flat File Source Output].Columns[order_estimated_delivery_date]"
+                      name="order_estimated_delivery_date"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          dataType="System.Boolean"
+                          description="Indicates whether the column uses the faster, locale-neutral parsing routines."
+                          name="FastParse">false</property>
+                        <property
+                          dataType="System.Boolean"
+                          description="Indicates whether the data is in binary format."
+                          name="UseBinaryFormat">false</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\Load Orders Raw to Staging\Flat File Source.Outputs[Flat File Source Output].Columns[order_id]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\Load Orders Raw to Staging\Flat File Source.Outputs[Flat File Source Output].ExternalColumns[order_id]"
+                      length="32"
+                      lineageId="Package\Load Orders Raw to Staging\Flat File Source.Outputs[Flat File Source Output].Columns[order_id]"
+                      name="order_id"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          dataType="System.Boolean"
+                          description="Indicates whether the column uses the faster, locale-neutral parsing routines."
+                          name="FastParse">false</property>
+                        <property
+                          dataType="System.Boolean"
+                          description="Indicates whether the data is in binary format."
+                          name="UseBinaryFormat">false</property>
+                      </properties>
+                    </outputColumn>
+                  </outputColumns>
+                  <externalMetadataColumns
+                    isUsed="True">
+                    <externalMetadataColumn
+                      refId="Package\Load Orders Raw to Staging\Flat File Source.Outputs[Flat File Source Output].ExternalColumns[order_id]"
+                      dataType="wstr"
+                      length="32"
+                      name="order_id" />
+                    <externalMetadataColumn
+                      refId="Package\Load Orders Raw to Staging\Flat File Source.Outputs[Flat File Source Output].ExternalColumns[customer_id]"
+                      dataType="wstr"
+                      length="32"
+                      name="customer_id" />
+                    <externalMetadataColumn
+                      refId="Package\Load Orders Raw to Staging\Flat File Source.Outputs[Flat File Source Output].ExternalColumns[order_status]"
+                      dataType="wstr"
+                      length="20"
+                      name="order_status" />
+                    <externalMetadataColumn
+                      refId="Package\Load Orders Raw to Staging\Flat File Source.Outputs[Flat File Source Output].ExternalColumns[order_purchase_timestamp]"
+                      dataType="wstr"
+                      length="19"
+                      name="order_purchase_timestamp" />
+                    <externalMetadataColumn
+                      refId="Package\Load Orders Raw to Staging\Flat File Source.Outputs[Flat File Source Output].ExternalColumns[order_approved_at]"
+                      dataType="wstr"
+                      length="19"
+                      name="order_approved_at" />
+                    <externalMetadataColumn
+                      refId="Package\Load Orders Raw to Staging\Flat File Source.Outputs[Flat File Source Output].ExternalColumns[order_delivered_carrier_date]"
+                      dataType="wstr"
+                      length="19"
+                      name="order_delivered_carrier_date" />
+                    <externalMetadataColumn
+                      refId="Package\Load Orders Raw to Staging\Flat File Source.Outputs[Flat File Source Output].ExternalColumns[order_delivered_customer_date]"
+                      dataType="wstr"
+                      length="19"
+                      name="order_delivered_customer_date" />
+                    <externalMetadataColumn
+                      refId="Package\Load Orders Raw to Staging\Flat File Source.Outputs[Flat File Source Output].ExternalColumns[order_estimated_delivery_date]"
+                      dataType="wstr"
+                      length="19"
+                      name="order_estimated_delivery_date" />
+                  </externalMetadataColumns>
+                </output>
+                <output
+                  refId="Package\Load Orders Raw to Staging\Flat File Source.Outputs[Flat File Source Error Output]"
+                  isErrorOut="true"
+                  name="Flat File Source Error Output">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\Load Orders Raw to Staging\Flat File Source.Outputs[Flat File Source Error Output].Columns[Flat File Source Error Output Column]"
+                      codePage="65001"
+                      dataType="text"
+                      description="Flat File Source Error Output Column"
+                      lineageId="Package\Load Orders Raw to Staging\Flat File Source.Outputs[Flat File Source Error Output].Columns[Flat File Source Error Output Column]"
+                      name="Flat File Source Error Output Column" />
+                    <outputColumn
+                      refId="Package\Load Orders Raw to Staging\Flat File Source.Outputs[Flat File Source Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\Load Orders Raw to Staging\Flat File Source.Outputs[Flat File Source Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\Load Orders Raw to Staging\Flat File Source.Outputs[Flat File Source Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\Load Orders Raw to Staging\Flat File Source.Outputs[Flat File Source Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\Load Orders Raw to Staging\OLE DB Destination"
+              componentClassID="Microsoft.OLEDBDestination"
+              contactInfo="OLE DB Destination;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;4"
+              description="OLE DB Destination"
+              name="OLE DB Destination"
+              usesDispositions="true"
+              version="4">
+              <properties>
+                <property
+                  dataType="System.Int32"
+                  description="The number of seconds before a command times out.  A value of 0 indicates an infinite time-out."
+                  name="CommandTimeout">0</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the name of the database object used to open a rowset."
+                  name="OpenRowset">[dbo].[stg_Orders]</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the variable that contains the name of the database object used to open a rowset."
+                  name="OpenRowsetVariable"></property>
+                <property
+                  dataType="System.String"
+                  description="The SQL command to be executed."
+                  name="SqlCommand"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor"></property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the column code page to use when code page information is unavailable from the data source."
+                  name="DefaultCodePage">1252</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Forces the use of the DefaultCodePage property value when describing character data."
+                  name="AlwaysUseDefaultCodePage">false</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the mode used to access the database."
+                  name="AccessMode"
+                  typeConverter="AccessMode">3</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Indicates whether the values supplied for identity columns will be copied to the destination. If false, values for identity columns will be auto-generated at the destination. Applies only if fast load is turned on."
+                  name="FastLoadKeepIdentity">false</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Indicates whether the columns containing null will have null inserted in the destination. If false, columns containing null will have their default values inserted at the destination. Applies only if fast load is turned on."
+                  name="FastLoadKeepNulls">false</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies options to be used with fast load.  Applies only if fast load is turned on."
+                  name="FastLoadOptions">TABLOCK,CHECK_CONSTRAINTS</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies when commits are issued during data insertion.  A value of 0 specifies that one commit will be issued at the end of data insertion.  Applies only if fast load is turned on."
+                  name="FastLoadMaxInsertCommitSize">2147483647</property>
+              </properties>
+              <connections>
+                <connection
+                  refId="Package\Load Orders Raw to Staging\OLE DB Destination.Connections[OleDbConnection]"
+                  connectionManagerID="Package.ConnectionManagers[OLEDB_Olist_Staging]"
+                  connectionManagerRefId="Package.ConnectionManagers[OLEDB_Olist_Staging]"
+                  description="The OLE DB runtime connection used to access the database."
+                  name="OleDbConnection" />
+              </connections>
+              <inputs>
+                <input
+                  refId="Package\Load Orders Raw to Staging\OLE DB Destination.Inputs[OLE DB Destination Input]"
+                  errorOrTruncationOperation="Insert"
+                  errorRowDisposition="FailComponent"
+                  hasSideEffects="true"
+                  name="OLE DB Destination Input">
+                  <inputColumns>
+                    <inputColumn
+                      refId="Package\Load Orders Raw to Staging\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[customer_id]"
+                      cachedDataType="wstr"
+                      cachedLength="32"
+                      cachedName="customer_id"
+                      externalMetadataColumnId="Package\Load Orders Raw to Staging\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[customer_id]"
+                      lineageId="Package\Load Orders Raw to Staging\Flat File Source.Outputs[Flat File Source Output].Columns[customer_id]" />
+                    <inputColumn
+                      refId="Package\Load Orders Raw to Staging\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[order_status]"
+                      cachedDataType="wstr"
+                      cachedLength="20"
+                      cachedName="order_status"
+                      externalMetadataColumnId="Package\Load Orders Raw to Staging\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[order_status]"
+                      lineageId="Package\Load Orders Raw to Staging\Flat File Source.Outputs[Flat File Source Output].Columns[order_status]" />
+                    <inputColumn
+                      refId="Package\Load Orders Raw to Staging\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[order_purchase_timestamp]"
+                      cachedDataType="wstr"
+                      cachedLength="19"
+                      cachedName="order_purchase_timestamp"
+                      externalMetadataColumnId="Package\Load Orders Raw to Staging\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[order_purchase_timestamp]"
+                      lineageId="Package\Load Orders Raw to Staging\Flat File Source.Outputs[Flat File Source Output].Columns[order_purchase_timestamp]" />
+                    <inputColumn
+                      refId="Package\Load Orders Raw to Staging\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[order_approved_at]"
+                      cachedDataType="wstr"
+                      cachedLength="19"
+                      cachedName="order_approved_at"
+                      externalMetadataColumnId="Package\Load Orders Raw to Staging\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[order_approved_at]"
+                      lineageId="Package\Load Orders Raw to Staging\Flat File Source.Outputs[Flat File Source Output].Columns[order_approved_at]" />
+                    <inputColumn
+                      refId="Package\Load Orders Raw to Staging\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[order_delivered_carrier_date]"
+                      cachedDataType="wstr"
+                      cachedLength="19"
+                      cachedName="order_delivered_carrier_date"
+                      externalMetadataColumnId="Package\Load Orders Raw to Staging\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[order_delivered_carrier_date]"
+                      lineageId="Package\Load Orders Raw to Staging\Flat File Source.Outputs[Flat File Source Output].Columns[order_delivered_carrier_date]" />
+                    <inputColumn
+                      refId="Package\Load Orders Raw to Staging\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[order_delivered_customer_date]"
+                      cachedDataType="wstr"
+                      cachedLength="19"
+                      cachedName="order_delivered_customer_date"
+                      externalMetadataColumnId="Package\Load Orders Raw to Staging\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[order_delivered_customer_date]"
+                      lineageId="Package\Load Orders Raw to Staging\Flat File Source.Outputs[Flat File Source Output].Columns[order_delivered_customer_date]" />
+                    <inputColumn
+                      refId="Package\Load Orders Raw to Staging\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[order_estimated_delivery_date]"
+                      cachedDataType="wstr"
+                      cachedLength="19"
+                      cachedName="order_estimated_delivery_date"
+                      externalMetadataColumnId="Package\Load Orders Raw to Staging\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[order_estimated_delivery_date]"
+                      lineageId="Package\Load Orders Raw to Staging\Flat File Source.Outputs[Flat File Source Output].Columns[order_estimated_delivery_date]" />
+                    <inputColumn
+                      refId="Package\Load Orders Raw to Staging\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[order_id]"
+                      cachedDataType="wstr"
+                      cachedLength="32"
+                      cachedName="order_id"
+                      externalMetadataColumnId="Package\Load Orders Raw to Staging\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[order_id]"
+                      lineageId="Package\Load Orders Raw to Staging\Flat File Source.Outputs[Flat File Source Output].Columns[order_id]" />
+                  </inputColumns>
+                  <externalMetadataColumns
+                    isUsed="True">
+                    <externalMetadataColumn
+                      refId="Package\Load Orders Raw to Staging\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[order_id]"
+                      dataType="wstr"
+                      length="32"
+                      name="order_id" />
+                    <externalMetadataColumn
+                      refId="Package\Load Orders Raw to Staging\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[customer_id]"
+                      dataType="wstr"
+                      length="32"
+                      name="customer_id" />
+                    <externalMetadataColumn
+                      refId="Package\Load Orders Raw to Staging\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[order_status]"
+                      dataType="wstr"
+                      length="20"
+                      name="order_status" />
+                    <externalMetadataColumn
+                      refId="Package\Load Orders Raw to Staging\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[order_purchase_timestamp]"
+                      dataType="wstr"
+                      length="19"
+                      name="order_purchase_timestamp" />
+                    <externalMetadataColumn
+                      refId="Package\Load Orders Raw to Staging\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[order_approved_at]"
+                      dataType="wstr"
+                      length="19"
+                      name="order_approved_at" />
+                    <externalMetadataColumn
+                      refId="Package\Load Orders Raw to Staging\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[order_delivered_carrier_date]"
+                      dataType="wstr"
+                      length="19"
+                      name="order_delivered_carrier_date" />
+                    <externalMetadataColumn
+                      refId="Package\Load Orders Raw to Staging\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[order_delivered_customer_date]"
+                      dataType="wstr"
+                      length="19"
+                      name="order_delivered_customer_date" />
+                    <externalMetadataColumn
+                      refId="Package\Load Orders Raw to Staging\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[order_estimated_delivery_date]"
+                      dataType="wstr"
+                      length="19"
+                      name="order_estimated_delivery_date" />
+                  </externalMetadataColumns>
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\Load Orders Raw to Staging\OLE DB Destination.Outputs[OLE DB Destination Error Output]"
+                  exclusionGroup="1"
+                  isErrorOut="true"
+                  name="OLE DB Destination Error Output"
+                  synchronousInputId="Package\Load Orders Raw to Staging\OLE DB Destination.Inputs[OLE DB Destination Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\Load Orders Raw to Staging\OLE DB Destination.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\Load Orders Raw to Staging\OLE DB Destination.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\Load Orders Raw to Staging\OLE DB Destination.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\Load Orders Raw to Staging\OLE DB Destination.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+          </components>
+          <paths>
+            <path
+              refId="Package\Load Orders Raw to Staging.Paths[Flat File Source Output]"
+              endId="Package\Load Orders Raw to Staging\OLE DB Destination.Inputs[OLE DB Destination Input]"
+              name="Flat File Source Output"
+              startId="Package\Load Orders Raw to Staging\Flat File Source.Outputs[Flat File Source Output]" />
+          </paths>
+        </pipeline>
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\TRUNCATE stg_Orders"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:Description="Execute SQL Task"
+      DTS:DTSID="{67A1B3D4-4AFD-42D3-B9D9-2E68ACD688AF}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="TRUNCATE stg_Orders"
+      DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2025; © 2025 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{CFA6CD00-EC7B-436D-9438-B0C2EE54E8C3}"
+          SQLTask:SqlStatementSource="TRUNCATE TABLE dbo.stg_Orders;" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+      </DTS:ObjectData>
+    </DTS:Executable>
+  </DTS:Executables>
+  <DTS:PrecedenceConstraints>
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint]"
+      DTS:CreationName=""
+      DTS:DTSID="{00B8FE66-EBFE-4707-BC54-518AA4255808}"
+      DTS:From="Package\TRUNCATE stg_Orders"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint"
+      DTS:To="Package\Load Orders Raw to Staging" />
+  </DTS:PrecedenceConstraints>
+  <DTS:DesignTimeProperties><![CDATA[<?xml version="1.0"?>
+<!--This CDATA section contains the layout information of the package. The section includes information such as (x,y) coordinates, width, and height.-->
+<!--If you manually edit this section and make a mistake, you can delete it. -->
+<!--The package will still be able to load normally but the previous layout information will be lost and the designer will automatically re-arrange the elements on the design surface.-->
+<Objects
+  Version="8">
+  <!--Each node below will contain properties that do not affect runtime behavior.-->
+  <Package
+    design-time-name="Package">
+    <LayoutInfo>
+      <GraphLayout
+        Capacity="4" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml">
+        <NodeLayout
+          Size="210.4,41.6"
+          Id="Package\Load Orders Raw to Staging"
+          TopLeft="44.0714286535371,117.147058725666" />
+        <NodeLayout
+          Size="185.6,41.6"
+          Id="Package\TRUNCATE stg_Orders"
+          TopLeft="61.4285715593366,25.99999997721" />
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint]"
+          TopLeft="151.750000106437,67.59999997721">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,49.547058748456"
+              Start="0,0"
+              End="0,42.047058748456">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,42.047058748456" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+      </GraphLayout>
+    </LayoutInfo>
+  </Package>
+  <TaskHost
+    design-time-name="Package\Load Orders Raw to Staging">
+    <LayoutInfo>
+      <GraphLayout
+        Capacity="4" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:mssgm="clr-namespace:Microsoft.SqlServer.Graph.Model;assembly=Microsoft.SqlServer.Graph">
+        <NodeLayout
+          Size="150.4,41.6"
+          Id="Package\Load Orders Raw to Staging\Flat File Source"
+          TopLeft="105.714285939324,66.5294117063903" />
+        <NodeLayout
+          Size="170.4,41.6"
+          Id="Package\Load Orders Raw to Staging\OLE DB Destination"
+          TopLeft="90.7142859073926,155.235293981577" />
+        <EdgeLayout
+          Id="Package\Load Orders Raw to Staging.Paths[Flat File Source Output]"
+          TopLeft="178.414285923358,108.12941170639">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,47.105882275187"
+              Start="0,0"
+              End="0,39.605882275187">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,39.605882275187" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <mssgm:EdgeLabel
+              BoundingBox="0,0,0,0"
+              RelativePosition="Any" />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+      </GraphLayout>
+    </LayoutInfo>
+  </TaskHost>
+  <PipelineComponentMetadata
+    design-time-name="Package\Load Orders Raw to Staging\OLE DB Destination">
+    <Properties>
+      <Property>
+        <Name>DataSourceViewID</Name>
+      </Property>
+      <Property>
+        <Name>TableInfoObjectType</Name>
+        <Value
+          type="q2:string">Table</Value>
+      </Property>
+    </Properties>
+  </PipelineComponentMetadata>
+</Objects>]]></DTS:DesignTimeProperties>
+</DTS:Executable>

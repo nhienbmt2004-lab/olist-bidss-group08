@@ -54,3 +54,5 @@ data/raw/*
 
 # Processed/generated data
 data/processed/
+
+*.ispac

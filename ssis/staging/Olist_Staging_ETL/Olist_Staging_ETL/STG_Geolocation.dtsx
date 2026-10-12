@@ -1,0 +1,759 @@
+﻿<?xml version="1.0"?>
+<DTS:Executable xmlns:DTS="www.microsoft.com/SqlServer/Dts"
+  DTS:refId="Package"
+  DTS:CreationDate="10/11/2026 10:04:18 AM"
+  DTS:CreationName="Microsoft.Package"
+  DTS:CreatorComputerName="LAPTOP-JDU04DGQ"
+  DTS:CreatorName="LAPTOP-JDU04DGQ\Admin"
+  DTS:DTSID="{0CBE995A-4569-48BE-9C6D-4773B724C085}"
+  DTS:ExecutableType="Microsoft.Package"
+  DTS:LastModifiedProductVersion="17.0.1016.0"
+  DTS:LocaleID="1033"
+  DTS:ObjectName="STG_Geolocation"
+  DTS:PackageType="5"
+  DTS:VersionBuild="25"
+  DTS:VersionGUID="{05E17833-E6B2-47AB-AABB-795DB4430E27}">
+  <DTS:Property
+    DTS:Name="PackageFormatVersion">8</DTS:Property>
+  <DTS:ConnectionManagers>
+    <DTS:ConnectionManager
+      DTS:refId="Package.ConnectionManagers[FF_Geolocation]"
+      DTS:CreationName="FLATFILE"
+      DTS:Description="Olist geolocation raw CSV"
+      DTS:DTSID="{B1184ADF-9B3C-4AA2-9B55-92D84EDE52B6}"
+      DTS:ObjectName="FF_Geolocation">
+      <DTS:ObjectData>
+        <DTS:ConnectionManager
+          DTS:Format="Delimited"
+          DTS:LocaleID="1033"
+          DTS:HeaderRowDelimiter="_x000A_"
+          DTS:ColumnNamesInFirstDataRow="True"
+          DTS:RowDelimiter=""
+          DTS:TextQualifier="_x0022_"
+          DTS:CodePage="65001"
+          DTS:ConnectionString="E:\BIDSS-Group08\olist-bidss-group08\data\raw\olist\olist_geolocation_dataset.csv">
+          <DTS:FlatFileColumns>
+            <DTS:FlatFileColumn
+              DTS:ColumnType="Delimited"
+              DTS:ColumnDelimiter="_x002C_"
+              DTS:MaximumWidth="5"
+              DTS:DataType="129"
+              DTS:TextQualified="True"
+              DTS:ObjectName="geolocation_zip_code_prefix"
+              DTS:DTSID="{ADF306AC-B8C7-4CBA-A72D-3111DA95C116}"
+              DTS:CreationName="" />
+            <DTS:FlatFileColumn
+              DTS:ColumnType="Delimited"
+              DTS:ColumnDelimiter="_x002C_"
+              DTS:DataType="131"
+              DTS:DataPrecision="18"
+              DTS:DataScale="15"
+              DTS:TextQualified="True"
+              DTS:ObjectName="geolocation_lat"
+              DTS:DTSID="{9DE0CC07-9D67-455D-B9EB-608EEDDFF0AA}"
+              DTS:CreationName="" />
+            <DTS:FlatFileColumn
+              DTS:ColumnType="Delimited"
+              DTS:ColumnDelimiter="_x002C_"
+              DTS:DataType="131"
+              DTS:DataPrecision="18"
+              DTS:DataScale="15"
+              DTS:TextQualified="True"
+              DTS:ObjectName="geolocation_lng"
+              DTS:DTSID="{F8404086-34F9-455E-817B-E40DBB1F7E68}"
+              DTS:CreationName="" />
+            <DTS:FlatFileColumn
+              DTS:ColumnType="Delimited"
+              DTS:ColumnDelimiter="_x002C_"
+              DTS:MaximumWidth="100"
+              DTS:DataType="130"
+              DTS:TextQualified="True"
+              DTS:ObjectName="geolocation_city"
+              DTS:DTSID="{8EB688C3-B3AB-462B-9A22-5FFF92FD60E3}"
+              DTS:CreationName="" />
+            <DTS:FlatFileColumn
+              DTS:ColumnType="Delimited"
+              DTS:ColumnDelimiter="_x000A_"
+              DTS:MaximumWidth="2"
+              DTS:DataType="129"
+              DTS:TextQualified="True"
+              DTS:ObjectName="geolocation_state"
+              DTS:DTSID="{596A1A8B-F7A1-488D-B307-089DC9679179}"
+              DTS:CreationName="" />
+          </DTS:FlatFileColumns>
+        </DTS:ConnectionManager>
+      </DTS:ObjectData>
+    </DTS:ConnectionManager>
+    <DTS:ConnectionManager
+      DTS:refId="Package.ConnectionManagers[OLEDB_Olist_Staging]"
+      DTS:CreationName="OLEDB"
+      DTS:DTSID="{97C8195D-BC89-4CD7-A09E-6FB640398D48}"
+      DTS:ObjectName="OLEDB_Olist_Staging">
+      <DTS:ObjectData>
+        <DTS:ConnectionManager
+          DTS:ConnectRetryCount="1"
+          DTS:ConnectRetryInterval="5"
+          DTS:ConnectionString="Data Source=localhost;User ID=;Initial Catalog=Olist_Staging;Provider=MSOLEDBSQL19.1;Persist Security Info=False;Integrated Security=SSPI;Initial File Name=;Trust Server Certificate=True;Server SPN=;Authentication=;Access Token=;Host Name In Certificate=;Server Certificate=;Application Name=SSIS-STG_Customers-{97C8195D-BC89-4CD7-A09E-6FB640398D48}localhost.Olist_Staging;Auto Translate=False;" />
+      </DTS:ObjectData>
+    </DTS:ConnectionManager>
+  </DTS:ConnectionManagers>
+  <DTS:Variables />
+  <DTS:Executables>
+    <DTS:Executable
+      DTS:refId="Package\Load Geolocation Raw to Staging"
+      DTS:CreationName="Microsoft.Pipeline"
+      DTS:Description="Data Flow Task"
+      DTS:DTSID="{B2E33F51-BFB4-43ED-9622-E89943E18130}"
+      DTS:ExecutableType="Microsoft.Pipeline"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="Load Geolocation Raw to Staging"
+      DTS:TaskContact="Performs high-performance data extraction, transformation and loading;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <pipeline
+          version="1">
+          <components>
+            <component
+              refId="Package\Load Geolocation Raw to Staging\Data Conversion"
+              componentClassID="Microsoft.DataConvert"
+              contactInfo="Data Conversion;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;0"
+              description="Data Conversion"
+              name="Data Conversion"
+              usesDispositions="true">
+              <inputs>
+                <input
+                  refId="Package\Load Geolocation Raw to Staging\Data Conversion.Inputs[Data Conversion Input]"
+                  name="Data Conversion Input">
+                  <inputColumns>
+                    <inputColumn
+                      refId="Package\Load Geolocation Raw to Staging\Data Conversion.Inputs[Data Conversion Input].Columns[geolocation_zip_code_prefix]"
+                      cachedCodepage="65001"
+                      cachedDataType="str"
+                      cachedLength="5"
+                      cachedName="geolocation_zip_code_prefix"
+                      lineageId="Package\Load Geolocation Raw to Staging\FF_Geolocation.Outputs[Flat File Source Output].Columns[geolocation_zip_code_prefix]" />
+                    <inputColumn
+                      refId="Package\Load Geolocation Raw to Staging\Data Conversion.Inputs[Data Conversion Input].Columns[geolocation_state]"
+                      cachedCodepage="65001"
+                      cachedDataType="str"
+                      cachedLength="2"
+                      cachedName="geolocation_state"
+                      lineageId="Package\Load Geolocation Raw to Staging\FF_Geolocation.Outputs[Flat File Source Output].Columns[geolocation_state]" />
+                  </inputColumns>
+                  <externalMetadataColumns />
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\Load Geolocation Raw to Staging\Data Conversion.Outputs[Data Conversion Output]"
+                  exclusionGroup="1"
+                  name="Data Conversion Output"
+                  synchronousInputId="Package\Load Geolocation Raw to Staging\Data Conversion.Inputs[Data Conversion Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\Load Geolocation Raw to Staging\Data Conversion.Outputs[Data Conversion Output].Columns[geolocation_zip_code_prefix_unicode]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      length="5"
+                      lineageId="Package\Load Geolocation Raw to Staging\Data Conversion.Outputs[Data Conversion Output].Columns[geolocation_zip_code_prefix_unicode]"
+                      name="geolocation_zip_code_prefix_unicode"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Specifies the input column used as the source of data for the conversion."
+                          name="SourceInputColumnLineageID">#{Package\Load Geolocation Raw to Staging\FF_Geolocation.Outputs[Flat File Source Output].Columns[geolocation_zip_code_prefix]}</property>
+                        <property
+                          dataType="System.Boolean"
+                          description="Indicates whether the column uses the faster, locale-neutral parsing routines."
+                          name="FastParse">false</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\Load Geolocation Raw to Staging\Data Conversion.Outputs[Data Conversion Output].Columns[geolocation_state_unicode]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      length="2"
+                      lineageId="Package\Load Geolocation Raw to Staging\Data Conversion.Outputs[Data Conversion Output].Columns[geolocation_state_unicode]"
+                      name="geolocation_state_unicode"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Specifies the input column used as the source of data for the conversion."
+                          name="SourceInputColumnLineageID">#{Package\Load Geolocation Raw to Staging\FF_Geolocation.Outputs[Flat File Source Output].Columns[geolocation_state]}</property>
+                        <property
+                          dataType="System.Boolean"
+                          description="Indicates whether the column uses the faster, locale-neutral parsing routines."
+                          name="FastParse">false</property>
+                      </properties>
+                    </outputColumn>
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+                <output
+                  refId="Package\Load Geolocation Raw to Staging\Data Conversion.Outputs[Data Conversion Error Output]"
+                  exclusionGroup="1"
+                  isErrorOut="true"
+                  name="Data Conversion Error Output"
+                  synchronousInputId="Package\Load Geolocation Raw to Staging\Data Conversion.Inputs[Data Conversion Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\Load Geolocation Raw to Staging\Data Conversion.Outputs[Data Conversion Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\Load Geolocation Raw to Staging\Data Conversion.Outputs[Data Conversion Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\Load Geolocation Raw to Staging\Data Conversion.Outputs[Data Conversion Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\Load Geolocation Raw to Staging\Data Conversion.Outputs[Data Conversion Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\Load Geolocation Raw to Staging\FF_Geolocation"
+              componentClassID="Microsoft.FlatFileSource"
+              contactInfo="Flat File Source;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;1"
+              description="Flat File Source"
+              localeId="1033"
+              name="FF_Geolocation"
+              usesDispositions="true"
+              version="1">
+              <properties>
+                <property
+                  dataType="System.Boolean"
+                  description="Specifies whether zero-length columns are treated as null."
+                  name="RetainNulls">false</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the name of an output column containing the file name. If no name is specified, no output column containing the file name will be generated."
+                  name="FileNameColumnName"></property>
+              </properties>
+              <connections>
+                <connection
+                  refId="Package\Load Geolocation Raw to Staging\FF_Geolocation.Connections[FlatFileConnection]"
+                  connectionManagerID="Package.ConnectionManagers[FF_Geolocation]"
+                  connectionManagerRefId="Package.ConnectionManagers[FF_Geolocation]"
+                  name="FlatFileConnection" />
+              </connections>
+              <outputs>
+                <output
+                  refId="Package\Load Geolocation Raw to Staging\FF_Geolocation.Outputs[Flat File Source Output]"
+                  name="Flat File Source Output">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\Load Geolocation Raw to Staging\FF_Geolocation.Outputs[Flat File Source Output].Columns[geolocation_zip_code_prefix]"
+                      codePage="65001"
+                      dataType="str"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\Load Geolocation Raw to Staging\FF_Geolocation.Outputs[Flat File Source Output].ExternalColumns[geolocation_zip_code_prefix]"
+                      length="5"
+                      lineageId="Package\Load Geolocation Raw to Staging\FF_Geolocation.Outputs[Flat File Source Output].Columns[geolocation_zip_code_prefix]"
+                      name="geolocation_zip_code_prefix"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          dataType="System.Boolean"
+                          description="Indicates whether the column uses the faster, locale-neutral parsing routines."
+                          name="FastParse">false</property>
+                        <property
+                          dataType="System.Boolean"
+                          description="Indicates whether the data is in binary format."
+                          name="UseBinaryFormat">false</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\Load Geolocation Raw to Staging\FF_Geolocation.Outputs[Flat File Source Output].Columns[geolocation_lat]"
+                      dataType="numeric"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\Load Geolocation Raw to Staging\FF_Geolocation.Outputs[Flat File Source Output].ExternalColumns[geolocation_lat]"
+                      lineageId="Package\Load Geolocation Raw to Staging\FF_Geolocation.Outputs[Flat File Source Output].Columns[geolocation_lat]"
+                      name="geolocation_lat"
+                      precision="18"
+                      scale="15"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          dataType="System.Boolean"
+                          description="Indicates whether the column uses the faster, locale-neutral parsing routines."
+                          name="FastParse">false</property>
+                        <property
+                          dataType="System.Boolean"
+                          description="Indicates whether the data is in binary format."
+                          name="UseBinaryFormat">false</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\Load Geolocation Raw to Staging\FF_Geolocation.Outputs[Flat File Source Output].Columns[geolocation_lng]"
+                      dataType="numeric"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\Load Geolocation Raw to Staging\FF_Geolocation.Outputs[Flat File Source Output].ExternalColumns[geolocation_lng]"
+                      lineageId="Package\Load Geolocation Raw to Staging\FF_Geolocation.Outputs[Flat File Source Output].Columns[geolocation_lng]"
+                      name="geolocation_lng"
+                      precision="18"
+                      scale="15"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          dataType="System.Boolean"
+                          description="Indicates whether the column uses the faster, locale-neutral parsing routines."
+                          name="FastParse">false</property>
+                        <property
+                          dataType="System.Boolean"
+                          description="Indicates whether the data is in binary format."
+                          name="UseBinaryFormat">false</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\Load Geolocation Raw to Staging\FF_Geolocation.Outputs[Flat File Source Output].Columns[geolocation_city]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\Load Geolocation Raw to Staging\FF_Geolocation.Outputs[Flat File Source Output].ExternalColumns[geolocation_city]"
+                      length="100"
+                      lineageId="Package\Load Geolocation Raw to Staging\FF_Geolocation.Outputs[Flat File Source Output].Columns[geolocation_city]"
+                      name="geolocation_city"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          dataType="System.Boolean"
+                          description="Indicates whether the column uses the faster, locale-neutral parsing routines."
+                          name="FastParse">false</property>
+                        <property
+                          dataType="System.Boolean"
+                          description="Indicates whether the data is in binary format."
+                          name="UseBinaryFormat">false</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\Load Geolocation Raw to Staging\FF_Geolocation.Outputs[Flat File Source Output].Columns[geolocation_state]"
+                      codePage="65001"
+                      dataType="str"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\Load Geolocation Raw to Staging\FF_Geolocation.Outputs[Flat File Source Output].ExternalColumns[geolocation_state]"
+                      length="2"
+                      lineageId="Package\Load Geolocation Raw to Staging\FF_Geolocation.Outputs[Flat File Source Output].Columns[geolocation_state]"
+                      name="geolocation_state"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          dataType="System.Boolean"
+                          description="Indicates whether the column uses the faster, locale-neutral parsing routines."
+                          name="FastParse">false</property>
+                        <property
+                          dataType="System.Boolean"
+                          description="Indicates whether the data is in binary format."
+                          name="UseBinaryFormat">false</property>
+                      </properties>
+                    </outputColumn>
+                  </outputColumns>
+                  <externalMetadataColumns
+                    isUsed="True">
+                    <externalMetadataColumn
+                      refId="Package\Load Geolocation Raw to Staging\FF_Geolocation.Outputs[Flat File Source Output].ExternalColumns[geolocation_zip_code_prefix]"
+                      codePage="65001"
+                      dataType="str"
+                      length="5"
+                      name="geolocation_zip_code_prefix" />
+                    <externalMetadataColumn
+                      refId="Package\Load Geolocation Raw to Staging\FF_Geolocation.Outputs[Flat File Source Output].ExternalColumns[geolocation_lat]"
+                      dataType="numeric"
+                      name="geolocation_lat"
+                      precision="18"
+                      scale="15" />
+                    <externalMetadataColumn
+                      refId="Package\Load Geolocation Raw to Staging\FF_Geolocation.Outputs[Flat File Source Output].ExternalColumns[geolocation_lng]"
+                      dataType="numeric"
+                      name="geolocation_lng"
+                      precision="18"
+                      scale="15" />
+                    <externalMetadataColumn
+                      refId="Package\Load Geolocation Raw to Staging\FF_Geolocation.Outputs[Flat File Source Output].ExternalColumns[geolocation_city]"
+                      dataType="wstr"
+                      length="100"
+                      name="geolocation_city" />
+                    <externalMetadataColumn
+                      refId="Package\Load Geolocation Raw to Staging\FF_Geolocation.Outputs[Flat File Source Output].ExternalColumns[geolocation_state]"
+                      codePage="65001"
+                      dataType="str"
+                      length="2"
+                      name="geolocation_state" />
+                  </externalMetadataColumns>
+                </output>
+                <output
+                  refId="Package\Load Geolocation Raw to Staging\FF_Geolocation.Outputs[Flat File Source Error Output]"
+                  isErrorOut="true"
+                  name="Flat File Source Error Output">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\Load Geolocation Raw to Staging\FF_Geolocation.Outputs[Flat File Source Error Output].Columns[Flat File Source Error Output Column]"
+                      codePage="65001"
+                      dataType="text"
+                      description="Flat File Source Error Output Column"
+                      lineageId="Package\Load Geolocation Raw to Staging\FF_Geolocation.Outputs[Flat File Source Error Output].Columns[Flat File Source Error Output Column]"
+                      name="Flat File Source Error Output Column" />
+                    <outputColumn
+                      refId="Package\Load Geolocation Raw to Staging\FF_Geolocation.Outputs[Flat File Source Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\Load Geolocation Raw to Staging\FF_Geolocation.Outputs[Flat File Source Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\Load Geolocation Raw to Staging\FF_Geolocation.Outputs[Flat File Source Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\Load Geolocation Raw to Staging\FF_Geolocation.Outputs[Flat File Source Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\Load Geolocation Raw to Staging\OLE DB Destination"
+              componentClassID="Microsoft.OLEDBDestination"
+              contactInfo="OLE DB Destination;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;4"
+              description="OLE DB Destination"
+              name="OLE DB Destination"
+              usesDispositions="true"
+              version="4">
+              <properties>
+                <property
+                  dataType="System.Int32"
+                  description="The number of seconds before a command times out.  A value of 0 indicates an infinite time-out."
+                  name="CommandTimeout">0</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the name of the database object used to open a rowset."
+                  name="OpenRowset">[dbo].[stg_Geolocation]</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the variable that contains the name of the database object used to open a rowset."
+                  name="OpenRowsetVariable"></property>
+                <property
+                  dataType="System.String"
+                  description="The SQL command to be executed."
+                  name="SqlCommand"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor"></property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the column code page to use when code page information is unavailable from the data source."
+                  name="DefaultCodePage">1252</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Forces the use of the DefaultCodePage property value when describing character data."
+                  name="AlwaysUseDefaultCodePage">false</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the mode used to access the database."
+                  name="AccessMode"
+                  typeConverter="AccessMode">3</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Indicates whether the values supplied for identity columns will be copied to the destination. If false, values for identity columns will be auto-generated at the destination. Applies only if fast load is turned on."
+                  name="FastLoadKeepIdentity">false</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Indicates whether the columns containing null will have null inserted in the destination. If false, columns containing null will have their default values inserted at the destination. Applies only if fast load is turned on."
+                  name="FastLoadKeepNulls">false</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies options to be used with fast load.  Applies only if fast load is turned on."
+                  name="FastLoadOptions">TABLOCK,CHECK_CONSTRAINTS</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies when commits are issued during data insertion.  A value of 0 specifies that one commit will be issued at the end of data insertion.  Applies only if fast load is turned on."
+                  name="FastLoadMaxInsertCommitSize">2147483647</property>
+              </properties>
+              <connections>
+                <connection
+                  refId="Package\Load Geolocation Raw to Staging\OLE DB Destination.Connections[OleDbConnection]"
+                  connectionManagerID="Package.ConnectionManagers[OLEDB_Olist_Staging]"
+                  connectionManagerRefId="Package.ConnectionManagers[OLEDB_Olist_Staging]"
+                  description="The OLE DB runtime connection used to access the database."
+                  name="OleDbConnection" />
+              </connections>
+              <inputs>
+                <input
+                  refId="Package\Load Geolocation Raw to Staging\OLE DB Destination.Inputs[OLE DB Destination Input]"
+                  errorOrTruncationOperation="Insert"
+                  errorRowDisposition="FailComponent"
+                  hasSideEffects="true"
+                  name="OLE DB Destination Input">
+                  <inputColumns>
+                    <inputColumn
+                      refId="Package\Load Geolocation Raw to Staging\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[geolocation_lat]"
+                      cachedDataType="numeric"
+                      cachedName="geolocation_lat"
+                      cachedPrecision="18"
+                      cachedScale="15"
+                      externalMetadataColumnId="Package\Load Geolocation Raw to Staging\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[geolocation_lat]"
+                      lineageId="Package\Load Geolocation Raw to Staging\FF_Geolocation.Outputs[Flat File Source Output].Columns[geolocation_lat]" />
+                    <inputColumn
+                      refId="Package\Load Geolocation Raw to Staging\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[geolocation_lng]"
+                      cachedDataType="numeric"
+                      cachedName="geolocation_lng"
+                      cachedPrecision="18"
+                      cachedScale="15"
+                      externalMetadataColumnId="Package\Load Geolocation Raw to Staging\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[geolocation_lng]"
+                      lineageId="Package\Load Geolocation Raw to Staging\FF_Geolocation.Outputs[Flat File Source Output].Columns[geolocation_lng]" />
+                    <inputColumn
+                      refId="Package\Load Geolocation Raw to Staging\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[geolocation_city]"
+                      cachedDataType="wstr"
+                      cachedLength="100"
+                      cachedName="geolocation_city"
+                      externalMetadataColumnId="Package\Load Geolocation Raw to Staging\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[geolocation_city]"
+                      lineageId="Package\Load Geolocation Raw to Staging\FF_Geolocation.Outputs[Flat File Source Output].Columns[geolocation_city]" />
+                    <inputColumn
+                      refId="Package\Load Geolocation Raw to Staging\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[geolocation_zip_code_prefix_unicode]"
+                      cachedDataType="wstr"
+                      cachedLength="5"
+                      cachedName="geolocation_zip_code_prefix_unicode"
+                      externalMetadataColumnId="Package\Load Geolocation Raw to Staging\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[geolocation_zip_code_prefix]"
+                      lineageId="Package\Load Geolocation Raw to Staging\Data Conversion.Outputs[Data Conversion Output].Columns[geolocation_zip_code_prefix_unicode]" />
+                    <inputColumn
+                      refId="Package\Load Geolocation Raw to Staging\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[geolocation_state_unicode]"
+                      cachedDataType="wstr"
+                      cachedLength="2"
+                      cachedName="geolocation_state_unicode"
+                      externalMetadataColumnId="Package\Load Geolocation Raw to Staging\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[geolocation_state]"
+                      lineageId="Package\Load Geolocation Raw to Staging\Data Conversion.Outputs[Data Conversion Output].Columns[geolocation_state_unicode]" />
+                  </inputColumns>
+                  <externalMetadataColumns
+                    isUsed="True">
+                    <externalMetadataColumn
+                      refId="Package\Load Geolocation Raw to Staging\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[geolocation_zip_code_prefix]"
+                      dataType="wstr"
+                      length="5"
+                      name="geolocation_zip_code_prefix" />
+                    <externalMetadataColumn
+                      refId="Package\Load Geolocation Raw to Staging\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[geolocation_lat]"
+                      dataType="numeric"
+                      name="geolocation_lat"
+                      precision="18"
+                      scale="15" />
+                    <externalMetadataColumn
+                      refId="Package\Load Geolocation Raw to Staging\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[geolocation_lng]"
+                      dataType="numeric"
+                      name="geolocation_lng"
+                      precision="18"
+                      scale="15" />
+                    <externalMetadataColumn
+                      refId="Package\Load Geolocation Raw to Staging\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[geolocation_city]"
+                      dataType="wstr"
+                      length="100"
+                      name="geolocation_city" />
+                    <externalMetadataColumn
+                      refId="Package\Load Geolocation Raw to Staging\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[geolocation_state]"
+                      dataType="wstr"
+                      length="2"
+                      name="geolocation_state" />
+                  </externalMetadataColumns>
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\Load Geolocation Raw to Staging\OLE DB Destination.Outputs[OLE DB Destination Error Output]"
+                  exclusionGroup="1"
+                  isErrorOut="true"
+                  name="OLE DB Destination Error Output"
+                  synchronousInputId="Package\Load Geolocation Raw to Staging\OLE DB Destination.Inputs[OLE DB Destination Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\Load Geolocation Raw to Staging\OLE DB Destination.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\Load Geolocation Raw to Staging\OLE DB Destination.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\Load Geolocation Raw to Staging\OLE DB Destination.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\Load Geolocation Raw to Staging\OLE DB Destination.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+          </components>
+          <paths>
+            <path
+              refId="Package\Load Geolocation Raw to Staging.Paths[Data Conversion Output]"
+              endId="Package\Load Geolocation Raw to Staging\OLE DB Destination.Inputs[OLE DB Destination Input]"
+              name="Data Conversion Output"
+              startId="Package\Load Geolocation Raw to Staging\Data Conversion.Outputs[Data Conversion Output]" />
+            <path
+              refId="Package\Load Geolocation Raw to Staging.Paths[Flat File Source Output]"
+              endId="Package\Load Geolocation Raw to Staging\Data Conversion.Inputs[Data Conversion Input]"
+              name="Flat File Source Output"
+              startId="Package\Load Geolocation Raw to Staging\FF_Geolocation.Outputs[Flat File Source Output]" />
+          </paths>
+        </pipeline>
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\TRUNCATE stg_Geolocation"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:Description="Execute SQL Task"
+      DTS:DTSID="{E2BFF0B0-ECBB-4559-9B1F-6A648D346292}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="TRUNCATE stg_Geolocation"
+      DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2025; © 2025 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{97C8195D-BC89-4CD7-A09E-6FB640398D48}"
+          SQLTask:SqlStatementSource="TRUNCATE TABLE dbo.stg_Geolocation;" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+      </DTS:ObjectData>
+    </DTS:Executable>
+  </DTS:Executables>
+  <DTS:PrecedenceConstraints>
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint]"
+      DTS:CreationName=""
+      DTS:DTSID="{41A19AD8-E656-4A11-8233-3FE4771284E7}"
+      DTS:From="Package\TRUNCATE stg_Geolocation"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint"
+      DTS:To="Package\Load Geolocation Raw to Staging" />
+  </DTS:PrecedenceConstraints>
+  <DTS:DesignTimeProperties><![CDATA[<?xml version="1.0"?>
+<!--This CDATA section contains the layout information of the package. The section includes information such as (x,y) coordinates, width, and height.-->
+<!--If you manually edit this section and make a mistake, you can delete it. -->
+<!--The package will still be able to load normally but the previous layout information will be lost and the designer will automatically re-arrange the elements on the design surface.-->
+<Objects
+  Version="8">
+  <!--Each node below will contain properties that do not affect runtime behavior.-->
+  <Package
+    design-time-name="Package">
+    <LayoutInfo>
+      <GraphLayout
+        Capacity="4" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml">
+        <NodeLayout
+          Size="234.4,41.6"
+          Id="Package\Load Geolocation Raw to Staging"
+          TopLeft="44.0714286535371,117.147058725666" />
+        <NodeLayout
+          Size="208.8,41.6"
+          Id="Package\TRUNCATE stg_Geolocation"
+          TopLeft="49.2857143906306,21.4117646871141" />
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint]"
+          TopLeft="157.478571522084,63.0117646871141">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,54.1352940385519"
+              Start="0,0"
+              End="0,46.6352940385519">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,46.6352940385519" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+      </GraphLayout>
+    </LayoutInfo>
+  </Package>
+  <TaskHost
+    design-time-name="Package\Load Geolocation Raw to Staging">
+    <LayoutInfo>
+      <GraphLayout
+        Capacity="8" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml">
+        <NodeLayout
+          Size="150.4,41.6"
+          Id="Package\Load Geolocation Raw to Staging\FF_Geolocation"
+          TopLeft="134.703294829868,26.2262432345343" />
+        <NodeLayout
+          Size="170.4,41.6"
+          Id="Package\Load Geolocation Raw to Staging\OLE DB Destination"
+          TopLeft="132.857143139961,217.941176279554" />
+        <NodeLayout
+          Size="155.2,41.6"
+          Id="Package\Load Geolocation Raw to Staging\Data Conversion"
+          TopLeft="133.571428855767,109.352941080619" />
+        <EdgeLayout
+          Id="Package\Load Geolocation Raw to Staging.Paths[Flat File Source Output]"
+          TopLeft="210.537361842817,67.8262432345343">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,41.5266978460843"
+              Start="0,0"
+              End="0,34.0266978460843">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,34.0266978460843" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package\Load Geolocation Raw to Staging.Paths[Data Conversion Output]"
+          TopLeft="214.614285997864,150.952941080619">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,66.9882351989358"
+              Start="0,0"
+              End="0,59.4882351989358">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,59.4882351989358" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+      </GraphLayout>
+    </LayoutInfo>
+  </TaskHost>
+  <PipelineComponentMetadata
+    design-time-name="Package\Load Geolocation Raw to Staging\OLE DB Destination">
+    <Properties>
+      <Property>
+        <Name>DataSourceViewID</Name>
+      </Property>
+      <Property>
+        <Name>TableInfoObjectType</Name>
+        <Value
+          type="q2:string">Table</Value>
+      </Property>
+    </Properties>
+  </PipelineComponentMetadata>
+</Objects>]]></DTS:DesignTimeProperties>
+</DTS:Executable>

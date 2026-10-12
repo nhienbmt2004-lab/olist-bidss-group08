@@ -1,0 +1,11 @@
+IF DB_ID('Olist_Staging') IS NULL
+BEGIN
+    CREATE DATABASE Olist_Staging;
+END;
+GO
+
+IF DB_ID('Olist_DW') IS NULL
+BEGIN
+    CREATE DATABASE Olist_DW;
+END;
+GO
