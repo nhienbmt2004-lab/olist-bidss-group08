@@ -1,0 +1,33 @@
+<mxfile host="app.diagrams.net" version="24.7.17">
+  <diagram id="olist-dw" name="Olist Fact Constellation">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="date" value="DimDate&#xa;PK DateKey" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1"><mxGeometry x="60" y="70" width="180" height="70" as="geometry"/></mxCell>
+        <mxCell id="geo" value="DimGeography&#xa;PK GeographyKey&#xa;UQ ZipCodePrefix" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1"><mxGeometry x="60" y="240" width="180" height="90" as="geometry"/></mxCell>
+        <mxCell id="category" value="DimCategory&#xa;PK CategoryKey&#xa;UQ CategoryName" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1"><mxGeometry x="60" y="430" width="180" height="90" as="geometry"/></mxCell>
+        <mxCell id="customer" value="DimCustomer&#xa;PK CustomerKey&#xa;FK GeographyKey&#xa;UQ CustomerId" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1"><mxGeometry x="350" y="110" width="180" height="100" as="geometry"/></mxCell>
+        <mxCell id="seller" value="DimSeller&#xa;PK SellerKey&#xa;FK GeographyKey&#xa;UQ SellerId" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1"><mxGeometry x="350" y="290" width="180" height="100" as="geometry"/></mxCell>
+        <mxCell id="product" value="DimProduct&#xa;PK ProductKey&#xa;FK CategoryKey&#xa;UQ ProductId" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1"><mxGeometry x="350" y="470" width="180" height="100" as="geometry"/></mxCell>
+        <mxCell id="delivery" value="FactOrderDelivery&#xa;Grain: 1/order&#xa;FK CustomerKey + 5 DateKeys&#xa;UQ OrderId" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1"><mxGeometry x="700" y="70" width="220" height="110" as="geometry"/></mxCell>
+        <mxCell id="item" value="FactOrderItem&#xa;Grain: 1/order item&#xa;FK Date, Customer, Seller, Product&#xa;UQ OrderId + OrderItemId" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1"><mxGeometry x="700" y="250" width="220" height="110" as="geometry"/></mxCell>
+        <mxCell id="payment" value="FactPayment&#xa;Grain: 1/payment sequence&#xa;FK Date, Customer&#xa;UQ OrderId + PaymentSequential" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1"><mxGeometry x="700" y="430" width="220" height="110" as="geometry"/></mxCell>
+        <mxCell id="review" value="FactReview&#xa;Grain: 1/review&#xa;FK Date, Customer&#xa;UQ ReviewId + OrderId" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1"><mxGeometry x="700" y="610" width="220" height="110" as="geometry"/></mxCell>
+        <mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;" edge="1" parent="1" source="geo" target="customer"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;" edge="1" parent="1" source="geo" target="seller"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;" edge="1" parent="1" source="category" target="product"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;" edge="1" parent="1" source="date" target="delivery"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;" edge="1" parent="1" source="date" target="item"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;" edge="1" parent="1" source="date" target="payment"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;" edge="1" parent="1" source="date" target="review"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;" edge="1" parent="1" source="customer" target="delivery"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;" edge="1" parent="1" source="customer" target="item"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e10" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;" edge="1" parent="1" source="customer" target="payment"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;" edge="1" parent="1" source="customer" target="review"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;" edge="1" parent="1" source="seller" target="item"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e13" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;" edge="1" parent="1" source="product" target="item"><mxGeometry relative="1" as="geometry"/></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

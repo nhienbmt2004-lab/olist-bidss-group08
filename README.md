@@ -56,7 +56,7 @@ https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce
 
 \- SQL Server Integration Services (SSIS)
 
-\- SQL Server Analysis Services (SSAS Tabular)
+\- Power BI semantic model
 
 \- Power BI
 
@@ -79,8 +79,6 @@ Olist CSV
 → SSIS ETL
 
 → Data Warehouse
-
-→ SSAS Tabular
 
 → Power BI
 
@@ -128,8 +126,6 @@ olist-bidss-group08/
 
 │
 
-├── ssas/
-
 ├── powerbi/
 
 ├── notebooks/
@@ -139,4 +135,18 @@ olist-bidss-group08/
 ├── testing/
 
 └── docs/
+
+## Phase 2: Data Profiling, Cleaning and Warehouse Design
+
+Run the scripts after staging is loaded, in this order:
+
+1. `sql/validation/04_data_profiling.sql` — quality issues, column inventory and value ranges.
+2. `sql/staging/05_create_clean_views.sql` — normalized staging views.
+3. `sql/warehouse/06_create_dw_tables.sql` — DW dimensions, facts, keys and indexes, on an empty `Olist_DW` database.
+
+See `docs/phase-2-design.md` for business rules, grain and bus matrix, and `diagrams/olist-dw.drawio` for the editable fact constellation (`diagrams/olist-dw.md` is the Mermaid version).
+
+## Phase 3: Warehouse ETL and Power BI
+
+See `docs/phase-3-etl-powerbi.md` for setup and execution. The warehouse load is implemented in `sql/warehouse/07_create_etl_support.sql` through `10_master_etl.sql`, with `sql/validation/11_reconcile_dw.sql`. `ssis/master/Run-ETL.ps1` loads the nine UTF-8 CSVs into staging, updates staging indexes/statistics, then runs `Master_ETL.dtsx`. The Power BI model and measures are in `powerbi/Olist_Model.tmdl`.
 

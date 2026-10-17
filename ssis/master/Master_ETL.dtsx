@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DTS:Executable xmlns:DTS="www.microsoft.com/SqlServer/Dts"
+  DTS:refId="Package"
+  DTS:CreationName="Microsoft.Package"
+  DTS:DTSID="{E428B6F4-14FB-4F6E-9C1C-7345E8DA88D0}"
+  DTS:ExecutableType="Microsoft.Package"
+  DTS:LocaleID="1033"
+  DTS:ObjectName="Master_ETL"
+  DTS:PackageType="5"
+  DTS:ProtectionLevel="0">
+  <DTS:Property DTS:Name="PackageFormatVersion">8</DTS:Property>
+  <DTS:ConnectionManagers>
+    <DTS:ConnectionManager
+      DTS:refId="Package.ConnectionManagers[OLEDB_Olist_DW]"
+      DTS:CreationName="OLEDB"
+      DTS:DTSID="{6212E5F5-E3B1-48D3-8D73-D824871B6EB1}"
+      DTS:ObjectName="OLEDB_Olist_DW">
+      <DTS:ObjectData>
+        <DTS:ConnectionManager
+          DTS:ConnectionString="Provider=MSOLEDBSQL;Data Source=localhost;Initial Catalog=Olist_DW;Integrated Security=SSPI;Trust Server Certificate=True;" />
+      </DTS:ObjectData>
+    </DTS:ConnectionManager>
+  </DTS:ConnectionManagers>
+  <DTS:Variables />
+  <DTS:Executables>
+    <DTS:Executable
+      DTS:refId="Package\Load and reconcile warehouse"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:DTSID="{5DCE802D-C746-44F9-96C7-CB257E5269E5}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="Load and reconcile warehouse">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask"
+          SQLTask:Connection="{6212E5F5-E3B1-48D3-8D73-D824871B6EB1}"
+          SQLTask:SqlStatementSource="EXEC dbo.usp_RunWarehouseETL;" />
+      </DTS:ObjectData>
+    </DTS:Executable>
+  </DTS:Executables>
+</DTS:Executable>
