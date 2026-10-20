@@ -11,8 +11,8 @@
   DTS:LocaleID="1033"
   DTS:ObjectName="STG_Reviews"
   DTS:PackageType="5"
-  DTS:VersionBuild="38"
-  DTS:VersionGUID="{33144E50-8842-4C02-9379-4C0F3071F0E1}">
+  DTS:VersionBuild="39"
+  DTS:VersionGUID="{061DCA29-26C1-45DD-9D80-66078F8BF099}">
   <DTS:Property
     DTS:Name="PackageFormatVersion">8</DTS:Property>
   <DTS:ConnectionManagers>
@@ -486,6 +486,13 @@
                       cachedName="review_creation_date"
                       externalMetadataColumnId="Package\Load Reviews Raw to Staging\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[review_creation_date]"
                       lineageId="Package\Load Reviews Raw to Staging\Flat File Source.Outputs[Flat File Source Output].Columns[review_creation_date]" />
+                    <inputColumn
+                      refId="Package\Load Reviews Raw to Staging\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[review_answer_timestamp]"
+                      cachedDataType="wstr"
+                      cachedLength="19"
+                      cachedName="review_answer_timestamp"
+                      externalMetadataColumnId="Package\Load Reviews Raw to Staging\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[review_answer_timestamp]"
+                      lineageId="Package\Load Reviews Raw to Staging\Flat File Source.Outputs[Flat File Source Output].Columns[review_answer_timestamp]" />
                   </inputColumns>
                   <externalMetadataColumns
                     isUsed="True">
