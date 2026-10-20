@@ -127,7 +127,7 @@
         <DTS:ConnectionManager
           DTS:ConnectRetryCount="1"
           DTS:ConnectRetryInterval="5"
-          DTS:ConnectionString="Data Source=localhost;User ID=;Initial Catalog=Olist_Staging;Provider=MSOLEDBSQL19.1;Persist Security Info=False;Integrated Security=SSPI;Initial File Name=;Trust Server Certificate=True;Server SPN=;Authentication=;Access Token=;Host Name In Certificate=;Server Certificate=;Application Name=SSIS-STG_Customers-{1B56E858-ED00-43DD-8590-BBB8B3DC8072}localhost.Olist_Staging;Auto Translate=False;" />
+          DTS:ConnectionString="Data Source=localhost;User ID=;Initial Catalog=Olist_Staging;Provider=MSOLEDBSQL;Persist Security Info=False;Integrated Security=SSPI;Initial File Name=;Trust Server Certificate=True;Server SPN=;Authentication=;Access Token=;Host Name In Certificate=;Server Certificate=;Application Name=SSIS-STG_Customers-{1B56E858-ED00-43DD-8590-BBB8B3DC8072}localhost.Olist_Staging;Auto Translate=False;" />
       </DTS:ObjectData>
     </DTS:ConnectionManager>
   </DTS:ConnectionManagers>

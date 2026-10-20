@@ -1,0 +1,430 @@
+createOrReplace
+
+	model Model
+		culture: en-US
+		defaultPowerBIDataSourceVersion: powerBI_V3
+		sourceQueryCulture: en-US
+
+		table DimDate
+			column DateKey
+				dataType: int64
+				isHidden
+				sourceColumn: DateKey
+			column FullDate
+				dataType: dateTime
+				formatString: yyyy-MM-dd
+				sourceColumn: FullDate
+			column YearNumber
+				dataType: int64
+				sourceColumn: YearNumber
+			column QuarterNumber
+				dataType: int64
+				sourceColumn: QuarterNumber
+			column MonthNumber
+				dataType: int64
+				sourceColumn: MonthNumber
+			column DayNumber
+				dataType: int64
+				sourceColumn: DayNumber
+			hierarchy Calendar
+				level Year
+					column: YearNumber
+				level Quarter
+					column: QuarterNumber
+				level Month
+					column: MonthNumber
+				level Day
+					column: DayNumber
+			partition DimDate = m
+				mode: import
+				source =
+					let
+						Source = Sql.Database("localhost", "Olist_DW"),
+						Navigation = Source{[Schema="dbo", Item="DimDate"]}[Data]
+					in
+						Navigation
+
+		table CustomerGeography
+			column GeographyKey
+				dataType: int64
+				isHidden
+				sourceColumn: GeographyKey
+			column ZipCodePrefix
+				dataType: string
+				sourceColumn: ZipCodePrefix
+			column StateCode
+				dataType: string
+				sourceColumn: StateCode
+			column City
+				dataType: string
+				sourceColumn: City
+			hierarchy Location
+				level State
+					column: StateCode
+				level City
+					column: City
+			partition CustomerGeography = m
+				mode: import
+				source =
+					let
+						Source = Sql.Database("localhost", "Olist_DW"),
+						Navigation = Source{[Schema="dbo", Item="DimGeography"]}[Data]
+					in
+						Navigation
+
+		table SellerGeography
+			column GeographyKey
+				dataType: int64
+				isHidden
+				sourceColumn: GeographyKey
+			column ZipCodePrefix
+				dataType: string
+				sourceColumn: ZipCodePrefix
+			column StateCode
+				dataType: string
+				sourceColumn: StateCode
+			column City
+				dataType: string
+				sourceColumn: City
+			hierarchy Location
+				level State
+					column: StateCode
+				level City
+					column: City
+			partition SellerGeography = m
+				mode: import
+				source =
+					let
+						Source = Sql.Database("localhost", "Olist_DW"),
+						Navigation = Source{[Schema="dbo", Item="DimGeography"]}[Data]
+					in
+						Navigation
+
+		table DimCustomer
+			column CustomerKey
+				dataType: int64
+				isHidden
+				sourceColumn: CustomerKey
+			column CustomerId
+				dataType: string
+				sourceColumn: CustomerId
+			column CustomerUniqueId
+				dataType: string
+				sourceColumn: CustomerUniqueId
+			column GeographyKey
+				dataType: int64
+				isHidden
+				sourceColumn: GeographyKey
+			partition DimCustomer = m
+				mode: import
+				source =
+					let
+						Source = Sql.Database("localhost", "Olist_DW"),
+						Navigation = Source{[Schema="dbo", Item="DimCustomer"]}[Data]
+					in
+						Navigation
+
+		table DimSeller
+			column SellerKey
+				dataType: int64
+				isHidden
+				sourceColumn: SellerKey
+			column SellerId
+				dataType: string
+				sourceColumn: SellerId
+			column GeographyKey
+				dataType: int64
+				isHidden
+				sourceColumn: GeographyKey
+			partition DimSeller = m
+				mode: import
+				source =
+					let
+						Source = Sql.Database("localhost", "Olist_DW"),
+						Navigation = Source{[Schema="dbo", Item="DimSeller"]}[Data]
+					in
+						Navigation
+
+		table DimCategory
+			column CategoryKey
+				dataType: int64
+				isHidden
+				sourceColumn: CategoryKey
+			column CategoryName
+				dataType: string
+				sourceColumn: CategoryName
+			partition DimCategory = m
+				mode: import
+				source =
+					let
+						Source = Sql.Database("localhost", "Olist_DW"),
+						Navigation = Source{[Schema="dbo", Item="DimCategory"]}[Data]
+					in
+						Navigation
+
+		table DimProduct
+			column ProductKey
+				dataType: int64
+				isHidden
+				sourceColumn: ProductKey
+			column ProductId
+				dataType: string
+				sourceColumn: ProductId
+			column CategoryKey
+				dataType: int64
+				isHidden
+				sourceColumn: CategoryKey
+			column CategoryName
+				dataType: string
+				sourceColumn: CategoryName
+			hierarchy 'Category Product'
+				level Category
+					column: CategoryName
+				level Product
+					column: ProductId
+			partition DimProduct = m
+				mode: import
+				source =
+					let
+						Source = Sql.Database("localhost", "Olist_DW", [Query="SELECT p.ProductKey,p.ProductId,p.CategoryKey,c.CategoryName FROM dbo.DimProduct p LEFT JOIN dbo.DimCategory c ON c.CategoryKey=p.CategoryKey"])
+					in
+						Source
+
+		table FactOrderDelivery
+			measure Orders = COUNTROWS('FactOrderDelivery')
+				formatString: #,0
+			measure 'Delivered Orders' = CALCULATE([Orders], 'FactOrderDelivery'[IsDelivered] = TRUE())
+				formatString: #,0
+			measure 'Cancelled Orders' = CALCULATE([Orders], 'FactOrderDelivery'[IsCancelled] = TRUE())
+				formatString: #,0
+			measure 'Cancellation Rate' = DIVIDE([Cancelled Orders], [Orders])
+				formatString: 0.00%
+			measure 'Avg Review' = AVERAGE('FactOrderDelivery'[ReviewScore])
+				formatString: 0.00
+			measure 'Avg Delivery Days' = AVERAGE('FactOrderDelivery'[DeliveryDays])
+				formatString: 0.00
+			measure 'Avg Delay Days' = AVERAGE('FactOrderDelivery'[DelayDays])
+				formatString: 0.00
+			measure 'On-time Orders' = CALCULATE([Orders], 'FactOrderDelivery'[IsOnTime] = TRUE())
+				formatString: #,0
+			measure 'Delivered With Estimate' = CALCULATE([Orders], NOT(ISBLANK('FactOrderDelivery'[IsOnTime])))
+				formatString: #,0
+			measure 'On-time Delivery Rate' = DIVIDE([On-time Orders], [Delivered With Estimate])
+				formatString: 0.00%
+			column OrderId
+				dataType: string
+				sourceColumn: OrderId
+			column CustomerKey
+				dataType: int64
+				isHidden
+				sourceColumn: CustomerKey
+			column PurchaseDateKey
+				dataType: int64
+				isHidden
+				sourceColumn: PurchaseDateKey
+			column ApprovedDateKey
+				dataType: int64
+				isHidden
+				sourceColumn: ApprovedDateKey
+			column CarrierDateKey
+				dataType: int64
+				isHidden
+				sourceColumn: CarrierDateKey
+			column DeliveredDateKey
+				dataType: int64
+				isHidden
+				sourceColumn: DeliveredDateKey
+			column EstimatedDeliveryDateKey
+				dataType: int64
+				isHidden
+				sourceColumn: EstimatedDeliveryDateKey
+			column DeliveryDays
+				dataType: int64
+				sourceColumn: DeliveryDays
+			column DelayDays
+				dataType: int64
+				sourceColumn: DelayDays
+			column IsDelivered
+				dataType: boolean
+				sourceColumn: IsDelivered
+			column IsCancelled
+				dataType: boolean
+				sourceColumn: IsCancelled
+			column IsOnTime
+				dataType: boolean
+				sourceColumn: IsOnTime
+			column ReviewScore
+				dataType: decimal
+				sourceColumn: ReviewScore
+			partition FactOrderDelivery = m
+				mode: import
+				source =
+					let
+						Source = Sql.Database("localhost", "Olist_DW"),
+						Navigation = Source{[Schema="dbo", Item="FactOrderDelivery"]}[Data]
+					in
+						Navigation
+
+		table FactOrderItem
+			measure GMV = SUM('FactOrderItem'[Price])
+				formatString: #,0.00
+			measure Freight = SUM('FactOrderItem'[FreightValue])
+				formatString: #,0.00
+			measure 'Order Items' = COUNTROWS('FactOrderItem')
+				formatString: #,0
+			measure 'Sales Orders' = DISTINCTCOUNT('FactOrderItem'[OrderId])
+				formatString: #,0
+			measure AOV = DIVIDE([GMV], [Sales Orders])
+				formatString: #,0.00
+			measure 'Freight Ratio' = DIVIDE([Freight], [GMV])
+				formatString: 0.00%
+			column OrderId
+				dataType: string
+				sourceColumn: OrderId
+			column PurchaseDateKey
+				dataType: int64
+				isHidden
+				sourceColumn: PurchaseDateKey
+			column CustomerKey
+				dataType: int64
+				isHidden
+				sourceColumn: CustomerKey
+			column SellerKey
+				dataType: int64
+				isHidden
+				sourceColumn: SellerKey
+			column ProductKey
+				dataType: int64
+				isHidden
+				sourceColumn: ProductKey
+			column Price
+				dataType: decimal
+				sourceColumn: Price
+			column FreightValue
+				dataType: decimal
+				sourceColumn: FreightValue
+			partition FactOrderItem = m
+				mode: import
+				source =
+					let
+						Source = Sql.Database("localhost", "Olist_DW"),
+						Navigation = Source{[Schema="dbo", Item="FactOrderItem"]}[Data]
+					in
+						Navigation
+
+		table FactPayment
+			measure 'Payment Amount' = SUM('FactPayment'[PaymentValue])
+				formatString: #,0.00
+			column OrderId
+				dataType: string
+				sourceColumn: OrderId
+			column PurchaseDateKey
+				dataType: int64
+				isHidden
+				sourceColumn: PurchaseDateKey
+			column CustomerKey
+				dataType: int64
+				isHidden
+				sourceColumn: CustomerKey
+			column PaymentType
+				dataType: string
+				sourceColumn: PaymentType
+			column PaymentValue
+				dataType: decimal
+				sourceColumn: PaymentValue
+			partition FactPayment = m
+				mode: import
+				source =
+					let
+						Source = Sql.Database("localhost", "Olist_DW"),
+						Navigation = Source{[Schema="dbo", Item="FactPayment"]}[Data]
+					in
+						Navigation
+
+		table FactReview
+			measure Reviews = COUNTROWS('FactReview')
+				formatString: #,0
+			column ReviewId
+				dataType: string
+				sourceColumn: ReviewId
+			column OrderId
+				dataType: string
+				sourceColumn: OrderId
+			column CustomerKey
+				dataType: int64
+				isHidden
+				sourceColumn: CustomerKey
+			column ReviewDateKey
+				dataType: int64
+				isHidden
+				sourceColumn: ReviewDateKey
+			column ReviewScore
+				dataType: int64
+				sourceColumn: ReviewScore
+			column HasComment
+				dataType: boolean
+				sourceColumn: HasComment
+			partition FactReview = m
+				mode: import
+				source =
+					let
+						Source = Sql.Database("localhost", "Olist_DW"),
+						Navigation = Source{[Schema="dbo", Item="FactReview"]}[Data]
+					in
+						Navigation
+
+		relationship CustomerLocation
+			fromColumn: DimCustomer.GeographyKey
+			toColumn: CustomerGeography.GeographyKey
+		relationship SellerLocation
+			fromColumn: DimSeller.GeographyKey
+			toColumn: SellerGeography.GeographyKey
+		relationship ProductCategory
+			fromColumn: DimProduct.CategoryKey
+			toColumn: DimCategory.CategoryKey
+		relationship OrderCustomer
+			fromColumn: FactOrderDelivery.CustomerKey
+			toColumn: DimCustomer.CustomerKey
+		relationship OrderPurchaseDate
+			fromColumn: FactOrderDelivery.PurchaseDateKey
+			toColumn: DimDate.DateKey
+		relationship OrderApprovedDate
+			isActive: false
+			fromColumn: FactOrderDelivery.ApprovedDateKey
+			toColumn: DimDate.DateKey
+		relationship OrderCarrierDate
+			isActive: false
+			fromColumn: FactOrderDelivery.CarrierDateKey
+			toColumn: DimDate.DateKey
+		relationship OrderDeliveredDate
+			isActive: false
+			fromColumn: FactOrderDelivery.DeliveredDateKey
+			toColumn: DimDate.DateKey
+		relationship OrderEstimatedDate
+			isActive: false
+			fromColumn: FactOrderDelivery.EstimatedDeliveryDateKey
+			toColumn: DimDate.DateKey
+		relationship ItemDate
+			fromColumn: FactOrderItem.PurchaseDateKey
+			toColumn: DimDate.DateKey
+		relationship ItemCustomer
+			fromColumn: FactOrderItem.CustomerKey
+			toColumn: DimCustomer.CustomerKey
+		relationship ItemSeller
+			fromColumn: FactOrderItem.SellerKey
+			toColumn: DimSeller.SellerKey
+		relationship ItemProduct
+			fromColumn: FactOrderItem.ProductKey
+			toColumn: DimProduct.ProductKey
+		relationship PaymentDate
+			fromColumn: FactPayment.PurchaseDateKey
+			toColumn: DimDate.DateKey
+		relationship PaymentCustomer
+			fromColumn: FactPayment.CustomerKey
+			toColumn: DimCustomer.CustomerKey
+		relationship ReviewDate
+			fromColumn: FactReview.ReviewDateKey
+			toColumn: DimDate.DateKey
+		relationship ReviewCustomer
+			fromColumn: FactReview.CustomerKey
+			toColumn: DimCustomer.CustomerKey

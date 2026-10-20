@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DTS:Executable xmlns:DTS="www.microsoft.com/SqlServer/Dts" DTS:refId="Package" DTS:CreationName="Microsoft.Package" DTS:DTSID="{7F25D8F1-7F9F-4DB7-80CC-14615F124401}" DTS:ExecutableType="Microsoft.Package" DTS:LocaleID="1033" DTS:ObjectName="FACT_Review" DTS:PackageType="5">
+  <DTS:Property DTS:Name="PackageFormatVersion">8</DTS:Property>
+  <DTS:ConnectionManagers><DTS:ConnectionManager DTS:refId="Package.ConnectionManagers[OLEDB_Olist_DW]" DTS:CreationName="OLEDB" DTS:DTSID="{7F25D8F1-7F9F-4DB7-80CC-14615F124402}" DTS:ObjectName="OLEDB_Olist_DW"><DTS:ObjectData><DTS:ConnectionManager DTS:ConnectionString="Provider=MSOLEDBSQL;Data Source=localhost;Initial Catalog=Olist_DW;Integrated Security=SSPI;Trust Server Certificate=True;" /></DTS:ObjectData></DTS:ConnectionManager></DTS:ConnectionManagers>
+  <DTS:Variables />
+  <DTS:Executables><DTS:Executable DTS:refId="Package\Load FactReview" DTS:CreationName="Microsoft.ExecuteSQLTask" DTS:DTSID="{7F25D8F1-7F9F-4DB7-80CC-14615F124403}" DTS:ExecutableType="Microsoft.ExecuteSQLTask" DTS:ObjectName="Load FactReview"><DTS:Variables /><DTS:ObjectData><SQLTask:SqlTaskData xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" SQLTask:Connection="{7F25D8F1-7F9F-4DB7-80CC-14615F124402}" SQLTask:SqlStatementSource="EXEC dbo.usp_LoadFactReview;" /></DTS:ObjectData></DTS:Executable></DTS:Executables>
+</DTS:Executable>
