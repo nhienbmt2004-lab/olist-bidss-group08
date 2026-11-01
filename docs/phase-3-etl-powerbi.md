@@ -14,13 +14,14 @@ The SQL transformations perform source lookups, type conversion and derived colu
 
 ## Run the ETL
 
-Download the nine public Olist CSVs into `data/raw/olist` (the Kaggle ZIP is
+Download the nine public Olist CSVs into `data/raw` (the Kaggle ZIP is
 `https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce`). From the
 repository root in PowerShell, with Python, `pyodbc`, ODBC Driver 17 for SQL
-Server, `sqlcmd` and SSIS `dtexec.exe` installed:
+Server, `sqlcmd` and SSIS `dtexec.exe` installed. Install the ETL dependency
+with `python -m pip install -r requirements-etl.txt`, then run:
 
 ```powershell
-.\ssis\master\Run-ETL.ps1 -SqlServer localhost -RawDataDirectory .\data\raw\olist
+.\ssis\master\Run-ETL.ps1 -SqlServer localhost -RawDataDirectory .\data\raw
 ```
 
 To reuse staging data already loaded:
@@ -40,7 +41,9 @@ four facts, reconciles totals and records each step in `Olist_DW.dbo.ETLRun`,
 master connection currently targets `localhost`; update its connection manager
 before running against a different SQL Server.
 
-`Master_ETL.dtsx` can also be run directly when staging has already been loaded. If `dtexec.exe` is not in `PATH`, pass `-DtexecPath` to the PowerShell runner.
+`Master_ETL.dtsx` can also be run directly when staging has already been loaded.
+If `dtexec.exe` is not in `PATH`, pass `-DtexecPath`. Use `-PythonPath` for a
+specific Python executable and `-OdbcDriver` when the machine uses Driver 18.
 
 ## Verify a run
 

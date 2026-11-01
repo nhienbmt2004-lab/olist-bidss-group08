@@ -27,6 +27,8 @@ obj/
 __pycache__/
 *.pyc
 .ipynb_checkpoints/
+.pytest_cache/
+.ruff_cache/
 
 # Python virtual environments
 venv/
@@ -54,5 +56,8 @@ data/raw/*
 
 # Processed/generated data
 data/processed/
+
+# Generated notebook archives
+notebooks/*.zip
 
 *.ispac

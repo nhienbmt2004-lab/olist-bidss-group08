@@ -1,7 +1,8 @@
 """Load the nine original Olist CSVs into the existing SQL Server staging tables.
 
-Requires pyodbc and ODBC Driver 17 for SQL Server. Each table is replaced
-transactionally, so a failed file does not leave a partially loaded table.
+Requires pyodbc and a Microsoft ODBC Driver for SQL Server. Each table is
+replaced transactionally, so a failed file does not leave a partially loaded
+table.
 """
 
 import argparse
@@ -61,16 +62,6 @@ def load_file(connection, table, path, batch_size):
         ])
         count = 0
         batch = []
-        def convert(value, column):
-            if not value:
-                return None
-            data_type = column[1]
-            if data_type in ("decimal", "numeric"):
-                return Decimal(value).quantize(Decimal(1).scaleb(-column[4]))
-            if data_type in ("int", "bigint", "smallint", "tinyint"):
-                return int(value)
-            return value
-
         for row in reader:
             if None in row:
                 raise ValueError(f"Too many fields at CSV line {reader.line_num}: {path}")
@@ -86,19 +77,41 @@ def load_file(connection, table, path, batch_size):
     print(f"stg_{table}: {count:,} rows", flush=True)
 
 
+def convert(value, column):
+    """Convert a CSV value using SQL Server column metadata."""
+    if value in (None, ""):
+        return None
+    data_type = column[1]
+    if data_type in ("decimal", "numeric"):
+        return Decimal(value).quantize(Decimal(1).scaleb(-column[4]))
+    if data_type in ("int", "bigint", "smallint", "tinyint"):
+        return int(value)
+    return value
+
+
 def main():
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(
+        description="Load the nine Olist CSV files into SQL Server staging."
+    )
     parser.add_argument("raw_dir", type=Path)
     parser.add_argument("--server", default="localhost")
+    parser.add_argument("--database", default="Olist_Staging")
+    parser.add_argument("--driver", default="ODBC Driver 17 for SQL Server")
     parser.add_argument("--batch-size", type=int, default=2000)
     args = parser.parse_args()
+    if args.batch_size <= 0:
+        parser.error("--batch-size must be greater than zero")
+    args.raw_dir = args.raw_dir.resolve()
+    if not args.raw_dir.is_dir():
+        parser.error(f"Raw data directory does not exist: {args.raw_dir}")
     for _, name in FILES:
         if not (args.raw_dir / name).is_file():
             parser.error(f"Missing CSV: {args.raw_dir / name}")
     connection = pyodbc.connect(
-        "DRIVER={ODBC Driver 17 for SQL Server};"
-        f"SERVER={args.server};DATABASE=Olist_Staging;"
+        f"DRIVER={{{args.driver}}};"
+        f"SERVER={args.server};DATABASE={args.database};"
         "Trusted_Connection=yes;TrustServerCertificate=yes;",
+        timeout=30,
         autocommit=False,
     )
     try:
