@@ -1,0 +1,81 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
+  "name": "48bddbb42050bd070921",
+  "position": {
+    "x": 43.224844637263608,
+    "y": 288.16563091509067,
+    "z": 5000,
+    "height": 496.05655036097755,
+    "width": 889.19680396656554,
+    "tabOrder": 4000
+  },
+  "visual": {
+    "visualType": "scatterChart",
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DimSeller"
+                    }
+                  },
+                  "Property": "SellerId"
+                }
+              },
+              "queryRef": "DimSeller.SellerId",
+              "nativeQueryRef": "SellerId",
+              "active": true
+            }
+          ]
+        },
+        "X": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "FactOrderItem"
+                    }
+                  },
+                  "Property": "Seller_Late_Rate"
+                }
+              },
+              "queryRef": "FactOrderItem.Seller_Late_Rate",
+              "nativeQueryRef": "Seller_Late_Rate",
+              "active": true
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Aggregation": {
+                  "Expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "FactOrderItem"
+                        }
+                      },
+                      "Property": "Price"
+                    }
+                  },
+                  "Function": 0
+                }
+              },
+              "queryRef": "Sum(FactOrderItem.Price)",
+              "nativeQueryRef": "Sum of Price"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

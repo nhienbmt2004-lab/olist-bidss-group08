@@ -1,0 +1,129 @@
+table CustomerGeography
+	lineageTag: 997f6674-fed9-474b-a2a7-fa6191fba80b
+
+	measure Total_Sellers = DISTINCTCOUNT(FactOrderItem[SellerKey])
+		lineageTag: 0cc6ce42-168f-4713-b4cf-4d264ea8899b
+
+	measure Measure = ```
+			-- Run after applying Olist_Seller_Category_Fix.tmdl in the MySQL PBIX.
+			-- The min and max must differ if seller/category filters reach the item fact.
+			EVALUATE
+			ROW(
+			    "Seller late min (>=100 eligible orders)",
+			        MINX(FILTER(VALUES('DimSeller'[SellerId]), [Delivered Orders (Item)] >= 100), [Seller_Late_Rate]),
+			    "Seller late max (>=100 eligible orders)",
+			        MAXX(FILTER(VALUES('DimSeller'[SellerId]), [Delivered Orders (Item)] >= 100), [Seller_Late_Rate]),
+			    "Category review min (>=100 items)",
+			        MINX(FILTER(VALUES('DimProduct'[CategoryName]), [Order Items] >= 100), [Avg_Seller_Review]),
+			    "Category review max (>=100 items)",
+			        MAXX(FILTER(VALUES('DimProduct'[CategoryName]), [Order Items] >= 100), [Avg_Seller_Review])
+			)
+			
+			EVALUATE
+			TOPN(
+			    10,
+			    FILTER(
+			        SUMMARIZECOLUMNS(
+			            'DimSeller'[SellerId],
+			            "Eligible", [Delivered Orders (Item)],
+			            "Late", [Late Orders (Item)],
+			            "LateRate", [Seller_Late_Rate]
+			        ),
+			        [Eligible] >= 100
+			    ),
+			    [Eligible], DESC
+			)
+			
+			EVALUATE
+			TOPN(
+			    10,
+			    FILTER(
+			        SUMMARIZECOLUMNS(
+			            'DimProduct'[CategoryName],
+			            "Items", [Order Items],
+			            "GMV", [GMV],
+			            "AvgReview", [Avg_Seller_Review]
+			        ),
+			        [Items] >= 100
+			    ),
+			    [GMV], DESC
+			)
+			
+			```
+		lineageTag: 5fe7b1ed-0059-4ace-b0fc-3eb46ccd1136
+
+	column GeographyKey
+		dataType: int64
+		isHidden
+		lineageTag: 6c3812bf-8845-49f8-a563-70c2d7397343
+		sourceColumn: GeographyKey
+
+	column ZipCodePrefix
+		dataType: string
+		lineageTag: c0a141a7-d885-4941-a7a2-ee20a43401d2
+		sourceColumn: ZipCodePrefix
+
+	column StateCode
+		dataType: string
+		lineageTag: c6f4fa4e-9938-4a6f-a0fc-ce2a6081054a
+		sourceColumn: StateCode
+
+	column City
+		dataType: string
+		lineageTag: 81319295-515b-4778-a828-10762ac8ebb6
+		sourceColumn: City
+
+	column Latitude
+		dataType: double
+		lineageTag: 2b4ab3d7-3af2-41ae-a5f3-1110386f2f94
+		summarizeBy: none
+		sourceColumn: Latitude
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Longitude
+		dataType: double
+		lineageTag: 0d8f574d-7641-4078-b3b2-78ab8bc159c6
+		summarizeBy: none
+		sourceColumn: Longitude
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Region =
+			
+			SWITCH (
+			    TRUE (),
+			    CustomerGeography[StateCode] IN { "AC", "AP", "AM", "PA", "RO", "RR", "TO" }, "Norte",
+			    CustomerGeography[StateCode] IN { "AL", "BA", "CE", "MA", "PB", "PE", "PI", "RN", "SE" }, "Nordeste",
+			    CustomerGeography[StateCode] IN { "DF", "GO", "MT", "MS" }, "Centro-Oeste",
+			    CustomerGeography[StateCode] IN { "ES", "MG", "RJ", "SP" }, "Sudeste",
+			    CustomerGeography[StateCode] IN { "PR", "RS", "SC" }, "Sul"
+			)
+		lineageTag: 6f8934f3-9a15-4c2e-87db-48331069feb2
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	hierarchy Location
+		lineageTag: ecce70b8-3035-43a0-a122-0bf33d89ca32
+
+		level State
+			lineageTag: 9ae7ca60-bef4-4764-b4de-14e4ace79a09
+			column: StateCode
+
+		level City
+			lineageTag: 43fa2289-123b-49dc-94bb-dbc89f557d51
+			column: City
+
+	partition CustomerGeography = m
+		mode: import
+		source =
+				let
+					Source = MySQL.Database("127.0.0.1:3306", "olist_bi_group08", [Query="SELECT * FROM `DimGeography`", ReturnSingleDatabase=true])
+				in
+					Source
+

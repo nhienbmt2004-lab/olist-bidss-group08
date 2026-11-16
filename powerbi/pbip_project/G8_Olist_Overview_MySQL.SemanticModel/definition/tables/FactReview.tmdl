@@ -1,0 +1,70 @@
+table FactReview
+	lineageTag: 15ff6714-4349-4fca-9b28-e696d97c3475
+
+	measure Reviews = COUNTROWS('FactReview')
+		formatString: #,0
+		lineageTag: 1228b90a-99e3-4768-8561-c325b6878ae7
+
+	column ReviewId
+		dataType: string
+		lineageTag: ef277b72-6e3e-4dce-90fa-249d73335381
+		sourceColumn: ReviewId
+
+	column OrderId
+		dataType: string
+		lineageTag: 2dbb204e-59e4-449c-a246-7db18a7d410b
+		sourceColumn: OrderId
+
+	column CustomerKey
+		dataType: int64
+		isHidden
+		lineageTag: 1a8620e8-86c5-405b-9402-c56a599685e3
+		sourceColumn: CustomerKey
+
+	column ReviewDateKey
+		dataType: int64
+		isHidden
+		lineageTag: e88a24dd-de60-472d-955c-fafe2d021ab2
+		sourceColumn: ReviewDateKey
+
+	column ReviewScore
+		dataType: int64
+		lineageTag: d5310f1b-9335-41cb-b357-32f15e669f6c
+		sourceColumn: ReviewScore
+
+	column HasComment
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 41a2803d-0f67-4f83-b589-204ebffd5675
+		summarizeBy: none
+		sourceColumn: HasComment
+
+		annotation SummarizationSetBy = Automatic
+
+	column ReviewKey
+		dataType: int64
+		formatString: 0
+		lineageTag: ea0881d0-03f0-486c-b51c-388314197835
+		summarizeBy: count
+		sourceColumn: ReviewKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column ResponseHours
+		dataType: int64
+		formatString: 0
+		lineageTag: 7dd671ea-73f0-4b78-b594-eaf98308d3a9
+		summarizeBy: sum
+		sourceColumn: ResponseHours
+
+		annotation SummarizationSetBy = Automatic
+
+	partition FactReview = m
+		mode: import
+		source =
+				let
+					Source = MySQL.Database("127.0.0.1:3306", "olist_bi_group08", [Query="SELECT * FROM `FactReview`", ReturnSingleDatabase=true]),
+					Typed = Table.TransformColumnTypes(Source, {{"HasComment", type logical}})
+				in
+					Typed
+

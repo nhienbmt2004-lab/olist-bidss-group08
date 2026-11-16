@@ -1,0 +1,22 @@
+table DimCategory
+	lineageTag: 0d91e454-3dff-4fc8-8dcd-42e64c4334bc
+
+	column CategoryKey
+		dataType: int64
+		isHidden
+		lineageTag: d636ccaf-9ad5-4922-a8d5-e55ebabdd5fd
+		sourceColumn: CategoryKey
+
+	column CategoryName
+		dataType: string
+		lineageTag: 99997f81-232b-4fc5-b854-8cb3b6e91f06
+		sourceColumn: CategoryName
+
+	partition DimCategory = m
+		mode: import
+		source =
+				let
+					Source = MySQL.Database("127.0.0.1:3306", "olist_bi_group08", [Query="SELECT * FROM `DimCategory`", ReturnSingleDatabase=true])
+				in
+					Source
+

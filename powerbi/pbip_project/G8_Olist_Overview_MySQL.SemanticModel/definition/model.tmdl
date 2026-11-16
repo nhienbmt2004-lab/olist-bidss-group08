@@ -1,0 +1,33 @@
+model Model
+	culture: en-US
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: en-US
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+annotation PBI_ProTooling = ["TMDLView_Desktop","DevMode","DaxQueryView_Desktop"]
+
+annotation __PBI_TimeIntelligenceEnabled = 0
+
+annotation PBI_QueryOrder = ["DimDate","CustomerGeography","SellerGeography","DimCustomer","DimSeller","DimCategory","DimProduct","FactOrderDelivery","FactOrderItem","FactPayment","FactReview","ForecastMonthly"]
+
+ref table DimDate
+ref table CustomerGeography
+ref table SellerGeography
+ref table DimCustomer
+ref table DimSeller
+ref table DimCategory
+ref table DimProduct
+ref table FactOrderDelivery
+ref table FactOrderItem
+ref table FactPayment
+ref table FactReview
+ref table GradeBand
+ref table 'WI Giảm tỷ lệ trễ'
+ref table 'WI Rút ngắn ngày'
+ref table ForecastMonthly
+ref table DSSAlertBand
+
+ref cultureInfo en-US
+

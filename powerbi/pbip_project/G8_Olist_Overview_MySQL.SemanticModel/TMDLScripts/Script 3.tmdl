@@ -1,0 +1,31 @@
+createOrReplace
+
+		ref table FactOrderDelivery
+			partition FactOrderDelivery = m
+				mode: import
+				source =
+					let
+						Source = MySQL.Database("127.0.0.1:3306", "olist_bi_group08", [Query="SELECT * FROM `FactOrderDelivery`", ReturnSingleDatabase=true]),
+						Typed = Table.TransformColumnTypes(Source, {{"IsDelivered", type logical}, {"IsCancelled", type logical}, {"IsOnTime", type logical}})
+					in
+						Typed
+
+		ref table FactOrderItem
+			partition FactOrderItem = m
+				mode: import
+				source =
+					let
+						Source = MySQL.Database("127.0.0.1:3306", "olist_bi_group08", [Query="SELECT i.OrderId,i.PurchaseDateKey,i.CustomerKey,i.SellerKey,i.ProductKey,i.Price,i.FreightValue,o.OrderStatus,o.IsOnTime,o.DelayDays,o.ReviewScore,CASE WHEN s.order_delivered_carrier_date='' OR i.ShippingLimitDate IS NULL THEN NULL WHEN STR_TO_DATE(s.order_delivered_carrier_date,'%Y-%m-%d %H:%i:%s')<=i.ShippingLimitDate THEN 1 ELSE 0 END AS HandoverOnTime FROM FactOrderItem i JOIN FactOrderDelivery o ON o.OrderId=i.OrderId JOIN stg_Orders s ON s.order_id=i.OrderId", ReturnSingleDatabase=true]),
+						Typed = Table.TransformColumnTypes(Source, {{"IsOnTime", type logical}})
+					in
+						Typed
+
+		ref table FactReview
+			partition FactReview = m
+				mode: import
+				source =
+					let
+						Source = MySQL.Database("127.0.0.1:3306", "olist_bi_group08", [Query="SELECT * FROM `FactReview`", ReturnSingleDatabase=true]),
+						Typed = Table.TransformColumnTypes(Source, {{"HasComment", type logical}})
+					in
+						Typed

@@ -40,6 +40,9 @@ env/
 *.env
 secrets.*
 credentials.*
+.mysql-password
+**/.pbi/cache.abf
+**/.pbi/localSettings.json
 
 # SQL Server local database files
 *.mdf

@@ -1,0 +1,44 @@
+-- Run after applying Olist_Seller_Category_Fix.tmdl in the MySQL PBIX.
+-- The min and max must differ if seller/category filters reach the item fact.
+-- With COALESCE in Seller_Late_Rate, zero-late sellers must return 0, not BLANK.
+EVALUATE
+ROW(
+    "Seller late min (>=100 eligible orders)",
+        MINX(FILTER(VALUES('DimSeller'[SellerId]), [Delivered Orders (Item)] >= 100), [Seller_Late_Rate]),
+    "Seller late max (>=100 eligible orders)",
+        MAXX(FILTER(VALUES('DimSeller'[SellerId]), [Delivered Orders (Item)] >= 100), [Seller_Late_Rate]),
+    "Category review min (>=100 items)",
+        MINX(FILTER(VALUES('DimProduct'[CategoryName]), [Order Items] >= 100), [Avg_Seller_Review]),
+    "Category review max (>=100 items)",
+        MAXX(FILTER(VALUES('DimProduct'[CategoryName]), [Order Items] >= 100), [Avg_Seller_Review])
+)
+
+EVALUATE
+TOPN(
+    10,
+    FILTER(
+        SUMMARIZECOLUMNS(
+            'DimSeller'[SellerId],
+            "Eligible", [Delivered Orders (Item)],
+            "Late", [Late Orders (Item)],
+            "LateRate", [Seller_Late_Rate]
+        ),
+        [Eligible] >= 100
+    ),
+    [Eligible], DESC
+)
+
+EVALUATE
+TOPN(
+    10,
+    FILTER(
+        SUMMARIZECOLUMNS(
+            'DimProduct'[CategoryName],
+            "Items", [Order Items],
+            "GMV", [GMV],
+            "AvgReview", [Avg_Seller_Review]
+        ),
+        [Items] >= 100
+    ),
+    [GMV], DESC
+)

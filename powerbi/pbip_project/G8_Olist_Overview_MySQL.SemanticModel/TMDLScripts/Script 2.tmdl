@@ -1,0 +1,109 @@
+createOrReplace
+
+		ref table DimDate
+			partition DimDate = m
+				mode: import
+				source =
+					let
+						Source = MySQL.Database("127.0.0.1:3306", "olist_bi_group08", [Query="SELECT * FROM `DimDate`", ReturnSingleDatabase=true])
+					in
+						Source
+
+		ref table CustomerGeography
+			partition CustomerGeography = m
+				mode: import
+				source =
+					let
+						Source = MySQL.Database("127.0.0.1:3306", "olist_bi_group08", [Query="SELECT * FROM `DimGeography`", ReturnSingleDatabase=true])
+					in
+						Source
+
+		ref table SellerGeography
+			partition SellerGeography = m
+				mode: import
+				source =
+					let
+						Source = MySQL.Database("127.0.0.1:3306", "olist_bi_group08", [Query="SELECT * FROM `DimGeography`", ReturnSingleDatabase=true])
+					in
+						Source
+
+		ref table DimCustomer
+			partition DimCustomer = m
+				mode: import
+				source =
+					let
+						Source = MySQL.Database("127.0.0.1:3306", "olist_bi_group08", [Query="SELECT * FROM `DimCustomer`", ReturnSingleDatabase=true])
+					in
+						Source
+
+		ref table DimSeller
+			partition DimSeller = m
+				mode: import
+				source =
+					let
+						Source = MySQL.Database("127.0.0.1:3306", "olist_bi_group08", [Query="SELECT * FROM `DimSeller`", ReturnSingleDatabase=true])
+					in
+						Source
+
+		ref table DimCategory
+			partition DimCategory = m
+				mode: import
+				source =
+					let
+						Source = MySQL.Database("127.0.0.1:3306", "olist_bi_group08", [Query="SELECT * FROM `DimCategory`", ReturnSingleDatabase=true])
+					in
+						Source
+
+		ref table DimProduct
+			partition DimProduct = m
+				mode: import
+				source =
+					let
+						Source = MySQL.Database("127.0.0.1:3306", "olist_bi_group08", [Query="SELECT p.ProductKey,p.ProductId,p.CategoryKey,c.CategoryName FROM DimProduct p LEFT JOIN DimCategory c ON c.CategoryKey=p.CategoryKey", ReturnSingleDatabase=true])
+					in
+						Source
+
+		ref table FactOrderDelivery
+			partition FactOrderDelivery = m
+				mode: import
+				source =
+					let
+						Source = MySQL.Database("127.0.0.1:3306", "olist_bi_group08", [Query="SELECT * FROM `FactOrderDelivery`", ReturnSingleDatabase=true])
+					in
+						Source
+
+		ref table FactOrderItem
+			partition FactOrderItem = m
+				mode: import
+				source =
+					let
+						Source = MySQL.Database("127.0.0.1:3306", "olist_bi_group08", [Query="SELECT i.OrderId,i.PurchaseDateKey,i.CustomerKey,i.SellerKey,i.ProductKey,i.Price,i.FreightValue,o.OrderStatus,o.IsOnTime,o.DelayDays,o.ReviewScore,CASE WHEN s.order_delivered_carrier_date='' OR i.ShippingLimitDate IS NULL THEN NULL WHEN STR_TO_DATE(s.order_delivered_carrier_date,'%Y-%m-%d %H:%i:%s')<=i.ShippingLimitDate THEN 1 ELSE 0 END AS HandoverOnTime FROM FactOrderItem i JOIN FactOrderDelivery o ON o.OrderId=i.OrderId JOIN stg_Orders s ON s.order_id=i.OrderId", ReturnSingleDatabase=true])
+					in
+						Source
+
+		ref table FactPayment
+			partition FactPayment = m
+				mode: import
+				source =
+					let
+						Source = MySQL.Database("127.0.0.1:3306", "olist_bi_group08", [Query="SELECT * FROM `FactPayment`", ReturnSingleDatabase=true])
+					in
+						Source
+
+		ref table FactReview
+			partition FactReview = m
+				mode: import
+				source =
+					let
+						Source = MySQL.Database("127.0.0.1:3306", "olist_bi_group08", [Query="SELECT * FROM `FactReview`", ReturnSingleDatabase=true])
+					in
+						Source
+
+		ref table ForecastMonthly
+			partition ForecastMonthly = m
+				mode: import
+				source =
+					let
+						Source = MySQL.Database("127.0.0.1:3306", "olist_bi_group08", [Query="SELECT * FROM PowerBIForecastMonthly", ReturnSingleDatabase=true])
+					in
+						Source

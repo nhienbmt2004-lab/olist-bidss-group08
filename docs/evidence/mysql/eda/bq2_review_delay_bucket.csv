@@ -1,0 +1,6 @@
+﻿DelayBucket,EligibleOrders,ReviewedOrders,AvgReview,LowReviewRate
+On time,89936,89443,4.290,0.0927
+1–3 days,1870,1852,3.291,0.3213
+4–7 days,1802,1748,2.103,0.6768
+8–14 days,1478,1446,1.671,0.8015
+>14 days,1384,1335,1.724,0.7835

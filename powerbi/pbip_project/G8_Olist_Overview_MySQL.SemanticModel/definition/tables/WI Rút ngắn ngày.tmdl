@@ -1,0 +1,13 @@
+table 'WI Rút ngắn ngày'
+	lineageTag: a4a2a4a2-5fbc-4a5c-920b-2248d7205ffb
+
+	column Days
+		dataType: int64
+		formatString: 0
+		lineageTag: 0560aae2-4632-4fc9-b40a-144afd74cdb4
+		sourceColumn: [Value]
+
+	partition 'WI Rút ngắn ngày' = calculated
+		mode: import
+		source = GENERATESERIES(0, 7, 1)
+

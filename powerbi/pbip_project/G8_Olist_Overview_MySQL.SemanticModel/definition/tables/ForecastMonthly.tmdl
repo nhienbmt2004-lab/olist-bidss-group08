@@ -1,0 +1,170 @@
+table ForecastMonthly
+	lineageTag: 8c93b363-7d4b-496e-959b-6c2905b540ee
+
+	measure 'FC Orders Actual' = CALCULATE(SUM('ForecastMonthly'[Actual]), 'ForecastMonthly'[Metric] = "Orders")
+		formatString: #,0
+		displayFolder: 3.5 Forecast
+		lineageTag: 8bb5ab45-8253-417f-b8c6-3cf9ef53582a
+
+	measure 'FC Orders Backtest' = CALCULATE(SUM('ForecastMonthly'[Backtest_SES]), 'ForecastMonthly'[Metric] = "Orders")
+		formatString: #,0
+		displayFolder: 3.5 Forecast
+		lineageTag: fcd010c0-0184-424e-9efd-3f17bfabff96
+
+	measure 'FC Orders Forecast' = CALCULATE(SUM('ForecastMonthly'[Forecast_SES]), 'ForecastMonthly'[Metric] = "Orders")
+		formatString: #,0
+		displayFolder: 3.5 Forecast
+		lineageTag: 3d681cb6-977a-4234-898d-2392f2ac7e68
+
+	measure 'FC Orders Lower95' = CALCULATE(SUM('ForecastMonthly'[Lower95]), 'ForecastMonthly'[Metric] = "Orders")
+		formatString: #,0
+		displayFolder: 3.5 Forecast
+		lineageTag: a24e3ef5-cfc8-408f-a4ff-f6bdbbc7aeb3
+
+	measure 'FC Orders Upper95' = CALCULATE(SUM('ForecastMonthly'[Upper95]), 'ForecastMonthly'[Metric] = "Orders")
+		formatString: #,0
+		displayFolder: 3.5 Forecast
+		lineageTag: 30855c76-2bff-4f4d-a8d4-9733f0a84fab
+
+	measure 'FC Orders Peak' = CALCULATE(SUM('ForecastMonthly'[Peak_Scenario]), 'ForecastMonthly'[Metric] = "Orders")
+		formatString: #,0
+		displayFolder: 3.5 Forecast
+		lineageTag: 723c996a-89d1-47d9-b392-cca954708c39
+
+	measure 'FC GMV Actual' = CALCULATE(SUM('ForecastMonthly'[Actual]), 'ForecastMonthly'[Metric] = "GMV")
+		formatString: #,0
+		displayFolder: 3.5 Forecast
+		lineageTag: 4f86d51e-f443-4992-822d-aa6fd6fae421
+
+	measure 'FC GMV Backtest' = CALCULATE(SUM('ForecastMonthly'[Backtest_SES]), 'ForecastMonthly'[Metric] = "GMV")
+		formatString: #,0
+		displayFolder: 3.5 Forecast
+		lineageTag: f0b49408-886e-4ceb-af2f-4c8bae7a7993
+
+	measure 'FC GMV Forecast' = CALCULATE(SUM('ForecastMonthly'[Forecast_SES]), 'ForecastMonthly'[Metric] = "GMV")
+		formatString: #,0
+		displayFolder: 3.5 Forecast
+		lineageTag: 65054bee-bfd6-47da-86e7-20ab3484b6ed
+
+	measure 'FC GMV Lower95' = CALCULATE(SUM('ForecastMonthly'[Lower95]), 'ForecastMonthly'[Metric] = "GMV")
+		formatString: #,0
+		displayFolder: 3.5 Forecast
+		lineageTag: e5f27502-7f2b-477c-a6c4-ba21d34190b2
+
+	measure 'FC GMV Upper95' = CALCULATE(SUM('ForecastMonthly'[Upper95]), 'ForecastMonthly'[Metric] = "GMV")
+		formatString: #,0
+		displayFolder: 3.5 Forecast
+		lineageTag: b5f9befe-2171-419e-8940-007622ced802
+
+	measure 'FC GMV Peak' = CALCULATE(SUM('ForecastMonthly'[Peak_Scenario]), 'ForecastMonthly'[Metric] = "GMV")
+		formatString: #,0
+		displayFolder: 3.5 Forecast
+		lineageTag: 89be1354-ad14-4b01-bb99-5dbe33a364a4
+
+	measure 'FC Next Month Orders' = VAR nxt = CALCULATE(MIN('ForecastMonthly'[MonthStart]), REMOVEFILTERS('ForecastMonthly'), 'ForecastMonthly'[Set] = "Future") RETURN CALCULATE([FC Orders Forecast], REMOVEFILTERS('ForecastMonthly'), 'ForecastMonthly'[MonthStart] = nxt)
+		formatString: #,0
+		displayFolder: 3.5 Forecast
+		lineageTag: 608b257f-4513-4d6a-8937-b857f53aa952
+
+	measure 'FC Next Month GMV' = VAR nxt = CALCULATE(MIN('ForecastMonthly'[MonthStart]), REMOVEFILTERS('ForecastMonthly'), 'ForecastMonthly'[Set] = "Future") RETURN CALCULATE([FC GMV Forecast], REMOVEFILTERS('ForecastMonthly'), 'ForecastMonthly'[MonthStart] = nxt)
+		formatString: #,0
+		displayFolder: 3.5 Forecast
+		lineageTag: 25471625-4077-45a2-9d9f-4c1a17c4d15a
+
+	measure 'FC MAPE Orders' = CALCULATE(MAX('ForecastMonthly'[MAPE_Backtest_pct]), REMOVEFILTERS('ForecastMonthly'), 'ForecastMonthly'[Metric] = "Orders") / 100
+		formatString: 0.00%
+		displayFolder: 3.5 Forecast
+		lineageTag: 31c1729e-6fdb-487b-9855-8a8d3dcf9c61
+
+	measure 'FC MAPE GMV' = CALCULATE(MAX('ForecastMonthly'[MAPE_Backtest_pct]), REMOVEFILTERS('ForecastMonthly'), 'ForecastMonthly'[Metric] = "GMV") / 100
+		formatString: 0.00%
+		displayFolder: 3.5 Forecast
+		lineageTag: 17e2623b-af5c-4055-9f9f-302c6794125f
+
+	column MonthStart
+		dataType: dateTime
+		formatString: yyyy-MM
+		lineageTag: dbbae2fc-c501-4d0e-afd8-f1a530b442f4
+		summarizeBy: none
+		sourceColumn: MonthStart
+
+		annotation SummarizationSetBy = Automatic
+
+	column Metric
+		dataType: string
+		lineageTag: 4de2c566-d2ff-4aba-a504-b1abec5121a1
+		sourceColumn: Metric
+
+	column Actual
+		dataType: double
+		formatString: #,0
+		lineageTag: c18ca925-f8cc-4617-b912-18c1617d3884
+		sourceColumn: Actual
+
+	column Fitted_SES
+		dataType: double
+		formatString: #,0
+		lineageTag: be060a08-ccb6-4bd5-b24d-d8b69454c171
+		sourceColumn: Fitted_SES
+
+	column Backtest_SES
+		dataType: double
+		formatString: #,0
+		lineageTag: 56f0cd84-0b4e-4dfc-a1a8-6eba8f0f9819
+		sourceColumn: Backtest_SES
+
+	column Forecast_SES
+		dataType: double
+		formatString: #,0
+		lineageTag: 1386cac4-5dc1-4886-a474-29ac732beb8b
+		sourceColumn: Forecast_SES
+
+	column Lower95
+		dataType: double
+		formatString: #,0
+		lineageTag: 750576b9-0aa0-4aae-89a0-f675784350ae
+		sourceColumn: Lower95
+
+	column Upper95
+		dataType: double
+		formatString: #,0
+		lineageTag: 4e70e8ed-936b-43bb-8018-3f0552fc0c84
+		sourceColumn: Upper95
+
+	column Peak_Scenario
+		dataType: double
+		formatString: #,0
+		lineageTag: 00dadd4f-512b-4b2b-96ad-3711f7655039
+		sourceColumn: Peak_Scenario
+
+	column Alpha
+		dataType: double
+		formatString: 0.000
+		lineageTag: 3efc37a4-5085-415e-93d7-8240efdfe029
+		sourceColumn: Alpha
+
+	column K_peak
+		dataType: double
+		formatString: 0.000
+		lineageTag: efd64801-9d51-4110-a42d-319249c70fc4
+		sourceColumn: K_peak
+
+	column MAPE_Backtest_pct
+		dataType: double
+		formatString: 0.00
+		lineageTag: 4a957857-73e5-4f52-9e2f-110375b8a7d9
+		sourceColumn: MAPE_Backtest_pct
+
+	column Set
+		dataType: string
+		lineageTag: 74a8ecae-ecf3-4088-806b-5f6953a6a5df
+		sourceColumn: Set
+
+	partition ForecastMonthly = m
+		mode: import
+		source =
+				let
+					Source = MySQL.Database("127.0.0.1:3306", "olist_bi_group08", [Query="SELECT * FROM PowerBIForecastMonthly", ReturnSingleDatabase=true])
+				in
+					Source
+

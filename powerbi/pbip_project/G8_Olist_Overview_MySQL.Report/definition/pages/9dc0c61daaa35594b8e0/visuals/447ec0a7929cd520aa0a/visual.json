@@ -1,0 +1,56 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
+  "name": "447ec0a7929cd520aa0a",
+  "position": {
+    "x": 976.39731044005521,
+    "y": 148.26301154694136,
+    "z": 10000,
+    "height": 150,
+    "width": 425,
+    "tabOrder": 10000
+  },
+  "visual": {
+    "visualType": "cardVisual",
+    "query": {
+      "queryState": {
+        "Data": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "FactOrderItem"
+                    }
+                  },
+                  "Property": "BQ4 GMV 2018 Jan-Aug"
+                }
+              },
+              "queryRef": "FactOrderItem.BQ4 GMV 2018 Jan-Aug",
+              "nativeQueryRef": "GMV Jan-Aug 2018"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "FactOrderItem"
+                  }
+                },
+                "Property": "Avg_Unit_Price"
+              }
+            },
+            "direction": "Descending"
+          }
+        ],
+        "isDefaultSort": true
+      }
+    },
+    "drillFilterOtherVisuals": true
+  }
+}
