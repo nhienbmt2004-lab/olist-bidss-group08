@@ -1,0 +1,7 @@
+﻿Metric,Method,MAE,MAPEPercent,TestMonths
+Orders,Naive,549.33,8.74,"2018-06,2018-07,2018-08"
+Orders,Moving average 3,684.0,10.87,"2018-06,2018-07,2018-08"
+Orders,Linear trend,2369.41,37.42,"2018-06,2018-07,2018-08"
+GMV,Naive,124745.06,14.35,"2018-06,2018-07,2018-08"
+GMV,Moving average 3,120353.67,13.85,"2018-06,2018-07,2018-08"
+GMV,Linear trend,313915.19,36.09,"2018-06,2018-07,2018-08"

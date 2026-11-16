@@ -1,0 +1,11 @@
+﻿Metric,Value
+review_rows,99224
+distinct_review_id,98410
+distinct_review_id_order_id,99224
+distinct_reviewed_orders,98673
+distinct_customer_id,99441
+distinct_customer_unique_id,96096
+delivered_missing_actual_or_estimate,8
+delivered_before_purchase,0
+carrier_before_approval,1359
+delivered_before_carrier,23

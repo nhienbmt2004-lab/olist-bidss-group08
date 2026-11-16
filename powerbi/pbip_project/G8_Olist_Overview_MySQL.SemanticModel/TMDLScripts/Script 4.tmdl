@@ -1,0 +1,11 @@
+createOrReplace
+
+	ref table FactOrderItem
+		/// Used by Seller Performance scatter/card/table. DimSeller filters FactOrderItem.
+		measure Seller_Late_Rate = DIVIDE(COALESCE([Late Orders (Item)], 0), [Delivered Orders (Item)])
+			formatString: 0.00%
+
+		/// Used by Product/Category table and Seller Performance card/table.
+		/// Review (Item) deduplicates OrderId inside the current seller/category filter.
+		measure Avg_Seller_Review = [Review (Item)]
+			formatString: 0.00

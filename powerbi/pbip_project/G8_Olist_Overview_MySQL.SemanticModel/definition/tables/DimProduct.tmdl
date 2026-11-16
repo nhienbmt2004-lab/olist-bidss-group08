@@ -1,0 +1,44 @@
+table DimProduct
+	lineageTag: 32065f33-cb3c-446c-aad6-e6489bc14cbe
+
+	column ProductKey
+		dataType: int64
+		isHidden
+		lineageTag: a5dc4f69-4fe6-472c-9852-6aa01864ad96
+		sourceColumn: ProductKey
+
+	column ProductId
+		dataType: string
+		lineageTag: 2b605cdf-f57e-4e0f-824a-760a8958d855
+		sourceColumn: ProductId
+
+	column CategoryKey
+		dataType: int64
+		isHidden
+		lineageTag: 14ff7014-d8bd-457d-b0ce-6b1044573e4d
+		sourceColumn: CategoryKey
+
+	column CategoryName
+		dataType: string
+		lineageTag: ef653ffa-aaf4-428c-bc66-9ec1cbbd9b8b
+		sourceColumn: CategoryName
+
+	hierarchy 'Category Product'
+		lineageTag: f679ac85-860a-424d-b414-d5e67b8693a2
+
+		level Category
+			lineageTag: a0f96432-6724-4611-9831-4ed3fecb26fa
+			column: CategoryName
+
+		level Product
+			lineageTag: bb5e0227-ed5b-46da-a7e4-4190619f26db
+			column: ProductId
+
+	partition DimProduct = m
+		mode: import
+		source =
+				let
+					Source = MySQL.Database("127.0.0.1:3306", "olist_bi_group08", [Query="SELECT p.ProductKey,p.ProductId,p.CategoryKey,c.CategoryName FROM DimProduct p LEFT JOIN DimCategory c ON c.CategoryKey=p.CategoryKey", ReturnSingleDatabase=true])
+				in
+					Source
+

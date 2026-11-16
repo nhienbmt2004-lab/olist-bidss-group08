@@ -1,96 +1,81 @@
 # Olist BI/DSS — Group 08
 
-Hệ thống BI/DSS phân tích hiệu suất giao hàng, chất lượng người bán và trải nghiệm
-khách hàng trên sàn thương mại điện tử Olist (Brazil).
+Đề tài: **Phân tích giao trễ và hỗ trợ ưu tiên điều tra**, dùng dữ liệu Olist lịch sử. Olist là nguồn dữ liệu công khai, không phải khách hàng đặt hệ thống. Luồng đang dùng là **MySQL → Power BI + DSS/Streamlit**; không có nguồn đơn hàng live hay Cloud BI đã triển khai.
 
-## Mục tiêu
+## Bắt đầu từ đâu?
 
-- Phân tích đơn hàng, giao hàng trễ và điểm đánh giá.
-- Xây dựng Seller Scorecard và cảnh báo vận hành.
-- Dự báo số lượng đơn hàng, GMV và thực hiện phân tích What-if.
-- Xây dựng kho dữ liệu SQL Server và semantic model cho Power BI.
+| Việc cần xem | Tệp chính |
+| --- | --- |
+| Hiểu bài toán, phạm vi, tiến độ báo cáo | [PROJECT_MAP.md](PROJECT_MAP.md) |
+| Sơ đồ toàn hệ thống | [draw.io framework](diagrams/olist-bi-dss-framework.drawio) |
+| Xây kho dữ liệu MySQL | [build_mysql_dw.py](scripts/build_mysql_dw.py) và [SQL](sql/mysql/) |
+| EDA theo 5 câu hỏi kinh doanh | [EDA evidence](docs/evidence/mysql/eda/README.md) và [run_mysql_eda.py](scripts/run_mysql_eda.py) |
+| Dashboard 6 trang đang chỉnh sửa | [Power BI Project](powerbi/pbip_project/G8_Olist_Overview_MySQL.pbip) |
+| Bản PBIX MySQL lưu trước bản PBIP | [G8_Olist_Overview_MySQL.pbix](powerbi/G8_Olist_Overview_MySQL.pbix) |
+| Demo cảnh báo giao trễ sớm | [streamlit_late_risk_demo.py](scripts/streamlit_late_risk_demo.py) và [giải thích demo](docs/giai-thich-demo-streamlit.md) |
 
-Nguồn dữ liệu: [Brazilian E-Commerce Public Dataset by Olist](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce).
+**Dùng PBIP làm bản Power BI chính:** PBIP được lưu sau PBIX MySQL và chứa sáu trang BQ đã chỉnh. PBIX chỉ là snapshot cũ hơn; khi cần PBIX mới, mở PBIP trong Power BI Desktop rồi **Save As → Power BI report (*.pbix)**. Không lấy PBIX cũ làm bản báo cáo cuối nếu chưa xuất lại từ PBIP.
 
-## Kiến trúc
-
-```text
-Olist CSV → SQL Server Staging → Data Warehouse → Power BI → DSS
-              Python / SSIS          SQL ETL       TMDL     Notebook
-```
-
-## Cấu trúc project
+## Luồng dữ liệu
 
 ```text
-data/raw/          Dữ liệu CSV nguồn (không commit)
-diagrams/          Sơ đồ kho dữ liệu
-docs/              Quy tắc nghiệp vụ và hướng dẫn triển khai
-notebooks/         Notebook BI/DSS và biểu đồ kết quả
-powerbi/           Power BI semantic model dạng TMDL
-scripts/           Công cụ nạp staging và kiểm tra project
-sql/staging/       Bảng và clean views cho staging
-sql/warehouse/     Schema, stored procedure và master ETL
-sql/validation/    Profiling và reconciliation
-ssis/              Package staging, dimension, fact và master
+9 CSV Olist → MySQL stg_* ──────────────→ phát lại sự kiện theo lô → Demo* → Streamlit
+                       └→ Clean*/Order*Totals → 6 Dim + 4 Fact
+                                               ├→ Power BI Import: 6 trang
+                                               └→ EDA, KPI, DSS, dự báo rủi ro
+                                                            └→ điểm đã tính → Streamlit
 ```
 
-## Chạy notebook
+Ba lớp đầu tương ứng **về chức năng** với Bronze–Silver–Gold, nhưng repo hiện triển khai bằng một schema MySQL `olist_bi_group08`, không phải nền tảng Medallion có ba tầng lưu trữ và quản trị riêng. `stg_*` giữ ảnh nguồn CSV, `Clean*`/`Order*Totals` là bảng xử lý trung gian, `Dim*`/`Fact*` phục vụ phân tích. Các bảng `ETL*`/`DataQualityIssues` giữ log và đối soát. `Demo*` chỉ phục vụ phát lại sự kiện. Không xóa các bảng này nếu muốn tái lập ETL và demo.
 
-Yêu cầu Python 3.11 trở lên. Từ thư mục gốc project:
+Kiểm kê chi tiết và lý do giữ từng nhóm: [mysql-schema-audit.md](docs/mysql-schema-audit.md).
+
+## Chạy trên máy cục bộ
+
+Yêu cầu: Python 3.11+, MySQL Server tại `127.0.0.1:3306`, Power BI Desktop và MySQL Connector/NET. Mật khẩu đặt trong `.mysql-password` ở thư mục gốc hoặc biến môi trường `OLIST_MYSQL_PASSWORD`; không đưa mật khẩu vào Git. Chín CSV nguồn đặt trong `data/raw/` (Git bỏ qua).
+
+**Lần đầu, khi schema `olist_bi_group08` chưa có bảng**, chạy:
 
 ```powershell
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-python -m pip install -r requirements.txt
-jupyter lab notebooks\olist_bi_dss.ipynb
+python -m pip install -r requirements-forecast.txt
+python scripts/build_mysql_dw.py
 ```
 
-Notebook tự tìm project root, đọc dữ liệu từ `data/raw/` và chỉ tải bộ dữ liệu
-dùng chung từ Google Drive khi chưa đủ chín file CSV. Biểu đồ được ghi vào
-`notebooks/eda_output/`.
-
-## Xây dựng kho dữ liệu
-
-Chạy SQL theo thứ tự:
-
-1. `sql/01_create_databases.sql`
-2. `sql/staging/02_create_staging_tables.sql`
-3. `sql/validation/03_validate_staging.sql`
-4. `sql/staging/03_create_staging_indexes.sql`
-5. `sql/validation/04_data_profiling.sql`
-6. `sql/staging/05_create_clean_views.sql`
-7. `sql/warehouse/06_create_dw_tables.sql`
-8. `sql/warehouse/07_create_etl_support.sql`
-9. `sql/warehouse/08_load_dimensions.sql`
-10. `sql/warehouse/09_load_facts.sql`
-11. `sql/validation/11_reconcile_dw.sql`
-12. `sql/warehouse/10_master_etl.sql`
-
-Chi tiết quy tắc, grain và bus matrix nằm trong
-[`docs/phase-2-design.md`](docs/phase-2-design.md). Hướng dẫn chạy ETL và tạo
-Power BI model nằm trong [`docs/phase-3-etl-powerbi.md`](docs/phase-3-etl-powerbi.md).
-
-Để chạy loader Python và master SSIS:
+`build_mysql_dw.py` từ chối chạy nếu schema đã có bảng; **không chạy lại lệnh build để refresh dữ liệu đang dùng**. Trên máy hiện tại schema đã được dựng. Để tạo lại EDA và bằng chứng từ schema đó, chạy:
 
 ```powershell
-python -m pip install -r requirements-etl.txt
-.\ssis\master\Run-ETL.ps1 -SqlServer localhost -RawDataDirectory .\data\raw
+python scripts/export_mysql_evidence.py
+python scripts/run_mysql_eda.py
+python scripts/mysql_dss.py
+python scripts/publish_mysql_forecast.py
+python scripts/forecast_late_delivery.py
+python scripts/plot_late_forecast.py
+python scripts/audit_mysql_schema.py
+python scripts/validate_project.py
 ```
 
-Máy chạy ETL cần SQL Server, `sqlcmd`, ODBC Driver 17/18 và SSIS `dtexec.exe`.
+`export_mysql_evidence.py`, `run_mysql_eda.py`, `mysql_dss.py` và `forecast_late_delivery.py` đọc MySQL, ghi bằng chứng vào `docs/evidence/mysql/` và hình vào `notebooks/eda_output/`. Riêng `publish_mysql_forecast.py` **ghi lại bảng phục vụ dự báo Power BI** `PowerBIForecastMonthly`; `run_mysql_demo_cycle.py` ghi và đặt lại **chỉ các bảng `Demo*`**. Chi tiết đối soát: [mysql-migration.md](docs/mysql-migration.md).
 
-## Power BI
+`notebooks/olist_bi_dss.ipynb` là bản phân tích CSV lịch sử giữ để tham khảo các phép DSS; **EDA chính để báo cáo hiện tại là kết quả chạy lại từ MySQL** bằng `run_mysql_eda.py`.
 
-Mở Power BI Desktop, vào **Model → TMDL view**, dán nội dung
-`powerbi/Olist_Model.tmdl`, đổi `localhost` thành SQL Server đích nếu cần rồi
-chọn **Apply** và refresh dữ liệu.
+Mở project Power BI tại [PBIP](powerbi/pbip_project/G8_Olist_Overview_MySQL.pbip), thiết lập thông tin đăng nhập MySQL trong Power BI Desktop, rồi Refresh. Nguồn hiện tại là `olist_bi_group08`. Bằng chứng KPI nền nằm ở [overview.csv](docs/evidence/mysql/overview.csv); cần đối chiếu sau mỗi lần Refresh trước khi dùng ảnh vào báo cáo.
 
-## Kiểm tra project
+## Demo Streamlit
 
-Chạy kiểm tra cấu trúc, notebook, Python, XML SSIS và các file bắt buộc:
+Ở terminal thứ nhất:
 
 ```powershell
-python scripts\validate_project.py
+python -m streamlit run scripts/streamlit_late_risk_demo.py
 ```
 
-Lệnh kiểm tra không kết nối SQL Server và không thay đổi dữ liệu.
+Mở `http://localhost:8501`. Nếu muốn tab micro-batch tự thay đổi, ở terminal thứ hai chạy:
+
+```powershell
+python scripts/run_mysql_demo_cycle.py
+```
+
+Runner phát lại tối đa 500 sự kiện mỗi lô, cách 5 giây, từ đơn mua tháng 07/2018. Nó chỉ đặt lại bảng `Demo*` khi chạy vòng mới. Điểm mô hình đã tính trước trên **các đơn kiểm thử lịch sử đã giao và có nhãn**; đơn chưa có kết quả giao chưa được chấm điểm trong demo offline này. Không có học lại hoặc scoring live theo lô. Xem [tài liệu demo](docs/giai-thich-demo-streamlit.md) và [kiểm toán phương pháp](docs/evidence/mysql/forecast_late_delivery/methodology_audit.md).
+
+## Kiểm tra và giới hạn
+
+`python scripts/validate_project.py` kiểm tra mã, EDA và PBIP mà không thay đổi MySQL. Kết quả phát hiện rủi ro là backtest trên đơn đã giao có nhãn, chưa chứng minh can thiệp làm giảm giao trễ. Phần báo cáo cuối cần phân biệt kết quả đã triển khai với phương án Cloud và các giới hạn dữ liệu.

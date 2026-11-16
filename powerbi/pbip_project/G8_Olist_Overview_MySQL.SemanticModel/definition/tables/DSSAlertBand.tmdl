@@ -1,0 +1,24 @@
+table DSSAlertBand
+	lineageTag: dcae46f4-6ce4-42f2-a361-d1e6a83dc686
+
+	column AlertLevel
+		dataType: string
+		lineageTag: 9e471388-3122-4367-96a0-cad3b551b687
+		sourceColumn: [AlertLevel]
+		sortByColumn: AlertOrder
+
+	column AlertOrder
+		dataType: int64
+		isHidden
+		lineageTag: cf47d6d0-36d2-4bab-a225-5f6c98dd2888
+		sourceColumn: [AlertOrder]
+
+	column AlertLabel = SWITCH('DSSAlertBand'[AlertLevel], "Green", "Bình thường", "Yellow", "Cần theo dõi", "Red", "Rủi ro cao", "Chưa đủ dữ liệu")
+		dataType: string
+		lineageTag: 65921fd7-5088-48e3-b743-6998be5a6b75
+		sortByColumn: AlertOrder
+
+	partition DSSAlertBand = calculated
+		mode: import
+		source = DATATABLE("AlertLevel", STRING, "AlertOrder", INTEGER, {{"Green", 1}, {"Yellow", 2}, {"Red", 3}, {"Chưa đủ dữ liệu", 4}})
+

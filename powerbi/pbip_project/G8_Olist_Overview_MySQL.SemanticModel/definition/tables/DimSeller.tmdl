@@ -1,0 +1,28 @@
+table DimSeller
+	lineageTag: 83628b16-40ad-489a-b03f-5139164d94d8
+
+	column SellerKey
+		dataType: int64
+		isHidden
+		lineageTag: e14d65c4-8263-41a6-92a4-85a8a67c7041
+		sourceColumn: SellerKey
+
+	column SellerId
+		dataType: string
+		lineageTag: 62f0c6ca-03b3-4705-9787-d94c4d9c16e2
+		sourceColumn: SellerId
+
+	column GeographyKey
+		dataType: int64
+		isHidden
+		lineageTag: e80379a8-9f64-46f9-89e1-d156e6d1788e
+		sourceColumn: GeographyKey
+
+	partition DimSeller = m
+		mode: import
+		source =
+				let
+					Source = MySQL.Database("127.0.0.1:3306", "olist_bi_group08", [Query="SELECT * FROM `DimSeller`", ReturnSingleDatabase=true])
+				in
+					Source
+

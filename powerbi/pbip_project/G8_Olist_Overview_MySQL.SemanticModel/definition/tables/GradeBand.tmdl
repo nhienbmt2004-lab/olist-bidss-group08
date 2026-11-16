@@ -1,0 +1,19 @@
+table GradeBand
+	lineageTag: 3da7286f-e2ab-4d3a-b01c-f36395806a65
+
+	column Grade
+		dataType: string
+		lineageTag: a7fd7118-8909-4ce9-a0a9-76efd22c9b3a
+		sourceColumn: [Grade]
+		sortByColumn: GradeOrder
+
+	column GradeOrder
+		dataType: int64
+		isHidden
+		lineageTag: 39769522-693b-472b-93db-e72aae339011
+		sourceColumn: [GradeOrder]
+
+	partition GradeBand = calculated
+		mode: import
+		source = DATATABLE("Grade", STRING, "GradeOrder", INTEGER, {{"A", 1}, {"B", 2}, {"C", 3}, {"D", 4}})
+

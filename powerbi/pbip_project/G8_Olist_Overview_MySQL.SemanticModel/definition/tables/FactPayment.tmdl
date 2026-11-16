@@ -1,0 +1,74 @@
+table FactPayment
+	lineageTag: d190d4d4-9965-4036-bc23-a9e11878e9b9
+
+	measure 'Payment Amount' = SUM('FactPayment'[PaymentValue])
+		formatString: #,0.00
+		lineageTag: fe3e9e3d-4814-41b5-b1a0-5d8f1351184f
+
+	column OrderId
+		dataType: string
+		lineageTag: 061d0d34-deeb-482c-a0d4-e9b9fc764238
+		sourceColumn: OrderId
+
+	column PurchaseDateKey
+		dataType: int64
+		isHidden
+		lineageTag: 89b699d1-4862-4005-b0d3-dfaa552773b6
+		sourceColumn: PurchaseDateKey
+
+	column CustomerKey
+		dataType: int64
+		isHidden
+		lineageTag: c03463bf-8629-45ae-949b-bb7a450c7619
+		sourceColumn: CustomerKey
+
+	column PaymentType
+		dataType: string
+		lineageTag: 00fd8a12-3983-4bcd-94d9-e89ec19e79be
+		sourceColumn: PaymentType
+
+	column PaymentValue
+		dataType: double
+		lineageTag: 77ad52a7-e6b4-4f8a-a6d7-1096cfb6a0d9
+		summarizeBy: sum
+		sourceColumn: PaymentValue
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column PaymentKey
+		dataType: int64
+		formatString: 0
+		lineageTag: 0cd8f479-2ba7-4416-93d1-f3bcad36dfb5
+		summarizeBy: count
+		sourceColumn: PaymentKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column PaymentSequential
+		dataType: int64
+		formatString: 0
+		lineageTag: 2ddf271e-2959-4230-8424-2c9ac4af6f5a
+		summarizeBy: sum
+		sourceColumn: PaymentSequential
+
+		annotation SummarizationSetBy = Automatic
+
+	column Installments
+		dataType: int64
+		formatString: 0
+		lineageTag: 9ddc2361-f882-4f5c-b1d3-f8f94f4c11f7
+		summarizeBy: sum
+		sourceColumn: Installments
+
+		annotation SummarizationSetBy = Automatic
+
+	partition FactPayment = m
+		mode: import
+		source =
+				let
+					Source = MySQL.Database("127.0.0.1:3306", "olist_bi_group08", [Query="SELECT * FROM `FactPayment`", ReturnSingleDatabase=true])
+				in
+					Source
+

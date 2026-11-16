@@ -1,0 +1,10 @@
+﻿source_table,mysql_table,rows
+Customers,stg_Customers,99441
+Geolocation,stg_Geolocation,1000163
+Orders,stg_Orders,99441
+OrderItems,stg_OrderItems,112650
+Payments,stg_Payments,103886
+Reviews,stg_Reviews,99224
+Products,stg_Products,32951
+Sellers,stg_Sellers,3095
+CategoryTranslation,stg_CategoryTranslation,71

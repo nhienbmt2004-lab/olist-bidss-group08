@@ -1,0 +1,423 @@
+table FactOrderDelivery
+	lineageTag: 9d7f960e-2352-43f6-961c-67a7fc92b373
+
+	/// Đơn đã giao có ngày giao và ngày hẹn
+	measure 'Delivered Orders (DLV)' = CALCULATE([Orders], NOT ISBLANK('FactOrderDelivery'[IsOnTime]))
+		formatString: #,0
+		displayFolder: 3.5 DLV Giao hàng
+		lineageTag: 1996dd87-b999-46a3-b0c6-0eb71a467adf
+
+	measure 'Late Orders' = CALCULATE([Orders], 'FactOrderDelivery'[IsOnTime] == FALSE())
+		formatString: #,0
+		displayFolder: 3.5 DLV Giao hàng
+		lineageTag: 11541a2f-0ba4-4932-a0e4-fee21738d98f
+
+	/// DLV-01
+	measure 'OTD %' = DIVIDE([Delivered Orders (DLV)] - [Late Orders], [Delivered Orders (DLV)])
+		formatString: 0.00%
+		displayFolder: 3.5 DLV Giao hàng
+		lineageTag: a4493794-4aeb-429c-8606-f6b50dcddce2
+
+	measure 'Late Rate %' = DIVIDE([Late Orders], [Delivered Orders (DLV)])
+		formatString: 0.00%
+		displayFolder: 3.5 DLV Giao hàng
+		lineageTag: a2187a85-0e53-462e-9522-7cec6fe98639
+
+	/// Dùng cho ma trận nhiệt
+	measure 'Late Rate (min 100 đơn)' = IF([Delivered Orders (DLV)] >= 100, [Late Rate %])
+		formatString: 0.00%
+		displayFolder: 3.5 DLV Giao hàng
+		lineageTag: c304cafe-bfb5-448f-8b88-02f8413f3f72
+
+	/// DLV-02: chỉ tính đơn trễ (measure Avg Delay Days có sẵn tính cả đơn đúng hạn = 0)
+	measure 'Avg Delay Days (Late)' = CALCULATE(AVERAGE('FactOrderDelivery'[DelayDays]), 'FactOrderDelivery'[IsOnTime] == FALSE())
+		formatString: 0.0
+		displayFolder: 3.5 DLV Giao hàng
+		lineageTag: 0fa07261-633f-4f53-8066-6eabbed7e1dd
+
+	/// DLV-03
+	measure 'Delivery Lead Time' = AVERAGE('FactOrderDelivery'[DeliveryDays])
+		formatString: 0.0
+		displayFolder: 3.5 DLV Giao hàng
+		lineageTag: 4d544787-ca17-4141-a658-18134eec2503
+
+	/// DLV-04
+	measure 'Promise Buffer' = AVERAGE('FactOrderDelivery'[PromiseBufferDays])
+		formatString: 0.0
+		displayFolder: 3.5 DLV Giao hàng
+		lineageTag: 154f4393-b6e9-4886-8971-0976c10db4d4
+
+	/// CX-02
+	measure 'Low Review Rate' = DIVIDE(CALCULATE([Orders], 'FactOrderDelivery'[ReviewScore] <= 2, NOT ISBLANK('FactOrderDelivery'[ReviewScore])), CALCULATE([Orders], NOT ISBLANK('FactOrderDelivery'[ReviewScore])))
+		formatString: 0.00%
+		displayFolder: 3.5 CX Trải nghiệm
+		lineageTag: 5b7a903f-c7e5-4d19-af1d-2e3efae357f0
+
+	measure 'Review On-time' = CALCULATE([Avg Review], 'FactOrderDelivery'[IsOnTime] == TRUE())
+		formatString: 0.00
+		displayFolder: 3.5 CX Trải nghiệm
+		lineageTag: 1db734fc-bde5-403a-8709-0485e98183b1
+
+	measure 'Review Late' = CALCULATE([Avg Review], 'FactOrderDelivery'[IsOnTime] == FALSE())
+		formatString: 0.00
+		displayFolder: 3.5 CX Trải nghiệm
+		lineageTag: ad177e89-3200-4476-af6d-e4ab4e9f5f7e
+
+	/// CX-03
+	measure 'Review Gap' = [Review On-time] - [Review Late]
+		formatString: 0.00
+		displayFolder: 3.5 CX Trải nghiệm
+		lineageTag: 7e557a05-e817-42a7-8c79-aaae73905431
+
+	/// R0 cho What-if
+	measure 'Review Delivered' = CALCULATE([Avg Review], NOT ISBLANK('FactOrderDelivery'[IsOnTime]))
+		formatString: 0.000
+		displayFolder: 3.5 CX Trải nghiệm
+		lineageTag: d6ec8bf1-2fb5-483a-b194-e9685d17b9f7
+
+	/// p0 trên đơn đã giao có review
+	measure 'Late Rate Reviewed' = DIVIDE(CALCULATE([Orders], 'FactOrderDelivery'[IsOnTime] == FALSE(), NOT ISBLANK('FactOrderDelivery'[ReviewScore])), CALCULATE([Orders], NOT ISBLANK('FactOrderDelivery'[IsOnTime]), NOT ISBLANK('FactOrderDelivery'[ReviewScore])))
+		formatString: 0.00%
+		displayFolder: 3.5 CX Trải nghiệm
+		lineageTag: 23d5740c-02c2-4cf3-b6da-f9233d12f160
+
+	/// 1 = OTD dưới 90% và từ 100 đơn
+	measure 'Alert OTD' = IF([Delivered Orders (DLV)] >= 100 && [OTD %] < 0.90, 1, 0)
+		formatString: 0
+		displayFolder: 3.5 Alert
+		lineageTag: 3ef5be34-f3e0-44b4-84af-0c301c26792e
+
+	measure 'OTD Status Color' = VAR x = [OTD %] RETURN SWITCH(TRUE(), ISBLANK(x), BLANK(), x >= 0.95, "#2E7D32", x >= 0.90, "#E0A100", "#C62828")
+		displayFolder: 3.5 Alert
+		lineageTag: e070b748-0cf3-4dfb-a3f0-d4b374e117cb
+
+	measure 'States Alerted' = COUNTROWS(FILTER(VALUES('CustomerGeography'[StateCode]), [Alert OTD] = 1))
+		formatString: #,0
+		displayFolder: 3.5 Alert
+		lineageTag: 1a9d775f-9a45-490c-b50a-cf05aa62e130
+
+	measure 'Months Alerted' = COUNTROWS(FILTER(VALUES('DimDate'[YearMonth]), [Alert OTD] = 1))
+		formatString: #,0
+		displayFolder: 3.5 Alert
+		lineageTag: 83c66350-a23d-4f46-ad52-3c44bf83e237
+
+	measure 'WI Delta' = SELECTEDVALUE('WI Giảm tỷ lệ trễ'[Delta], 0)
+		formatString: 0.0%
+		displayFolder: 3.5 What-if
+		lineageTag: c05bb2f2-ab8a-463d-8be0-6e9c60f7911c
+
+	measure 'WI Days' = SELECTEDVALUE('WI Rút ngắn ngày'[Days], 0)
+		formatString: 0
+		displayFolder: 3.5 What-if
+		lineageTag: c60e8ca0-4abf-47cc-99c1-0c12a348f9a0
+
+	measure 'WI Late Rate' = VAR d = [WI Days] VAR lateD = CALCULATE([Orders], 'FactOrderDelivery'[IsOnTime] == FALSE(), 'FactOrderDelivery'[DelayDays] > d) RETURN MAX(DIVIDE(lateD, [Delivered Orders (DLV)]) - [WI Delta], 0)
+		formatString: 0.00%
+		displayFolder: 3.5 What-if
+		lineageTag: bd9ce253-a4e2-459a-851f-0a76cc7bf0f9
+
+	measure 'WI OTD' = 1 - [WI Late Rate]
+		formatString: 0.00%
+		displayFolder: 3.5 What-if
+		lineageTag: 8b248fee-44c6-4db3-8158-9407767fc56c
+
+	measure 'WI Review' = VAR d = [WI Days] VAR lateR = CALCULATE([Orders], 'FactOrderDelivery'[IsOnTime] == FALSE(), 'FactOrderDelivery'[DelayDays] > d, NOT ISBLANK('FactOrderDelivery'[ReviewScore])) VAR baseR = CALCULATE([Orders], NOT ISBLANK('FactOrderDelivery'[IsOnTime]), NOT ISBLANK('FactOrderDelivery'[ReviewScore])) VAR pNew = MAX(DIVIDE(lateR, baseR) - [WI Delta], 0) RETURN [Review Delivered] + [Review Gap] * ([Late Rate Reviewed] - pNew)
+		formatString: 0.000
+		displayFolder: 3.5 What-if
+		lineageTag: 0610dac9-93fc-405f-b815-9eba1fcb9e80
+
+	measure 'WI Review Uplift' = [WI Review] - [Review Delivered]
+		formatString: +0.000;-0.000;0.000
+		displayFolder: 3.5 What-if
+		lineageTag: 7edba418-afb7-4784-b584-c4cb722f7ab5
+
+	measure 'WI Lead Time' = VAR d = [WI Days] RETURN AVERAGEX(FILTER('FactOrderDelivery', NOT ISBLANK('FactOrderDelivery'[DeliveryDays])), MAX('FactOrderDelivery'[DeliveryDays] - d, 0))
+		formatString: 0.00
+		displayFolder: 3.5 What-if
+		lineageTag: 29e97f13-96e8-4d08-b3c3-c497b06c5c20
+
+	measure Orders = COUNTROWS('FactOrderDelivery')
+		formatString: #,0
+		lineageTag: 33f4aae6-70f2-4254-ae6b-a8eca7b295bf
+
+	measure 'Delivered Orders' = CALCULATE([Orders], 'FactOrderDelivery'[IsDelivered] = TRUE())
+		formatString: #,0
+		lineageTag: 90f69241-2039-485f-9bb8-da72f8d30b34
+
+	measure 'Cancelled Orders' = CALCULATE([Orders], 'FactOrderDelivery'[IsCancelled] = TRUE())
+		formatString: #,0
+		lineageTag: 3fa88ffe-08ff-4d82-b20a-a0b58cebe348
+
+	measure 'Cancellation Rate' = DIVIDE([Cancelled Orders], [Orders])
+		formatString: 0.00%
+		lineageTag: f64aef43-3ede-425b-a067-928e9cd276e9
+
+	measure 'Avg Review' = AVERAGE('FactOrderDelivery'[ReviewScore])
+		formatString: 0.00
+		lineageTag: 7734ba44-749d-420e-9620-8011ea7cf5f0
+
+	measure 'Avg Delivery Days' = AVERAGE('FactOrderDelivery'[DeliveryDays])
+		formatString: 0.00
+		lineageTag: 46a28719-9637-4e0e-a547-f28fc3886b17
+
+	measure 'Avg Delay Days' = AVERAGE('FactOrderDelivery'[DelayDays])
+		formatString: 0.00
+		lineageTag: 3c44f604-7c7e-47b9-a069-10a24a2f0644
+
+	measure 'On-time Orders' = CALCULATE([Orders], 'FactOrderDelivery'[IsOnTime] = TRUE())
+		formatString: #,0
+		lineageTag: d554b9f3-e385-462c-9660-931dfc11f486
+
+	measure 'Delivered With Estimate' = CALCULATE([Orders], NOT(ISBLANK('FactOrderDelivery'[IsOnTime])))
+		formatString: #,0
+		lineageTag: 654a9bac-fd92-44fe-9be1-50921a56da52
+
+	measure 'On-time Delivery Rate' = DIVIDE([On-time Orders], [Delivered With Estimate])
+		formatString: 0.00%
+		lineageTag: f7731f4a-4017-424c-9dd2-19b6166f5d38
+
+	measure 'Late Target' = 0.10
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: 0b55057c-e138-4939-9020-ae643b22734f
+
+	measure 'OTD Target' = 0.9
+		formatString: 0%
+		displayFolder: 4.0 Dashboard v2
+		lineageTag: 25543ed1-c74b-4eb4-ba33-04f423039ddf
+
+	measure 'OTD Blue Color' = VAR x = [OTD %] RETURN SWITCH(TRUE(), ISBLANK(x), BLANK(), x < 0.90, "#D64545", "#1E3A8A")
+		displayFolder: 4.0 Dashboard v2
+		lineageTag: eb1da9fd-f140-4f07-9545-cef112feeaf9
+
+	measure 'Late Heat Color' = VAR r = [Late Rate (min 100 đơn)] RETURN SWITCH(TRUE(), ISBLANK(r), BLANK(), r < 0.05, "#EAF1FE", r < 0.10, "#C9DAFB", r < 0.15, "#8DB4F7", r < 0.20, "#2F5BD3", "#D64545")
+		displayFolder: 4.0 Dashboard v2
+		lineageTag: 0e985e41-446d-43af-8735-b70c8d736c64
+
+	measure 'Late Heat Font' = VAR r = [Late Rate (min 100 đơn)] RETURN IF(NOT ISBLANK(r) && r >= 0.15, "#FFFFFF", "#14244F")
+		displayFolder: 4.0 Dashboard v2
+		lineageTag: bde38f5c-764b-4b52-85b9-e6cf5b9e96e3
+
+	measure 'Review Star' = [Avg Review]
+		formatString: 0.00" ★"
+		displayFolder: 4.0 Dashboard v2
+		lineageTag: bc6fda2f-5b23-4879-b191-dc38612d2ebf
+
+	measure 'Late Orders (đơn)' = [Late Orders]
+		formatString: #,0" đơn"
+		displayFolder: 4.0 Dashboard v2
+		lineageTag: 8a0fe235-1772-4dad-aca2-84fe7f653e79
+
+	measure 'Avg Delay (ngày)' = [Avg Delay Days (Late)]
+		formatString: 0.0" ngày"
+		displayFolder: 4.0 Dashboard v2
+		lineageTag: b042b6b0-5cef-4f74-a5df-4a369db304a2
+
+	measure 'Lead Time (ngày)' = [Delivery Lead Time]
+		formatString: 0.0" ngày"
+		displayFolder: 4.0 Dashboard v2
+		lineageTag: c7494157-5713-44d1-adf8-784072e1a773
+
+	measure 'Promise Buffer (ngày)' = [Promise Buffer]
+		formatString: 0.0" ngày"
+		displayFolder: 4.0 Dashboard v2
+		lineageTag: 431a5295-c424-4e87-8f12-0c76c1377d74
+
+	measure 'Promise Days' = AVERAGEX(FILTER('FactOrderDelivery', NOT ISBLANK('FactOrderDelivery'[DeliveryDays]) && NOT ISBLANK('FactOrderDelivery'[PromiseBufferDays])), 'FactOrderDelivery'[DeliveryDays] + 'FactOrderDelivery'[PromiseBufferDays])
+		formatString: 0.0
+		displayFolder: 4.0 Dashboard v2
+		lineageTag: b650d7c0-9346-4cc0-ac23-6f68d7371603
+
+	measure 'Sub OTD' = VAR x = [OTD %] RETURN IF(ISBLANK(x), BLANK(), "Chỉ tiêu 90% | " & FORMAT((x - 0.9) * 100, "+0.0;-0.0", "vi-VN") & " điểm")
+		displayFolder: 4.0 Dashboard v2
+		lineageTag: bbc52918-d26c-40f2-96e6-64506d05045d
+
+	measure 'Sub Review' = VAR x = [Low Review Rate] RETURN IF(ISBLANK(x), BLANK(), FORMAT(x, "0.0%", "vi-VN") & " đánh giá 1-2 sao")
+		displayFolder: 4.0 Dashboard v2
+		lineageTag: 7bcda497-3178-4ba6-94e4-e87b8827e9dc
+
+	measure 'Sub Late' = VAR x = [Late Rate %] RETURN IF(ISBLANK(x), BLANK(), FORMAT(x, "0.0%", "vi-VN") & " số đơn đã giao")
+		displayFolder: 4.0 Dashboard v2
+		lineageTag: 77577204-6ba9-480f-8b36-5663120c5cef
+
+	measure 'Sub Delay' = VAR s = DIVIDE(CALCULATE([Late Orders], 'FactOrderDelivery'[DelayDays] > 7), [Late Orders]) RETURN IF(ISBLANK(s), BLANK(), FORMAT(s, "0%", "vi-VN") & " đơn trễ quá 7 ngày")
+		displayFolder: 4.0 Dashboard v2
+		lineageTag: d9e171aa-c3ca-4267-a66c-5697e772f473
+
+	measure 'Sub Lead' = VAR t = TOPN(1, FILTER(VALUES('CustomerGeography'[StateCode]), [Delivered Orders (DLV)] >= 100), [Delivery Lead Time], DESC) VAR st = MAXX(t, 'CustomerGeography'[StateCode]) VAR v = MAXX(t, [Delivery Lead Time]) RETURN IF(ISBLANK(st), BLANK(), "Chậm nhất: " & st & " " & FORMAT(v, "0.0", "vi-VN") & " ngày")
+		displayFolder: 4.0 Dashboard v2
+		lineageTag: 913d9672-1a09-4433-8765-bd87314e4a77
+
+	measure 'Sub Buffer' = VAR p = [Promise Days] RETURN IF(ISBLANK(p), BLANK(), "Hẹn giao TB " & FORMAT(p, "0.0", "vi-VN") & " ngày")
+		displayFolder: 4.0 Dashboard v2
+		lineageTag: 782cfe6e-9e38-4bd2-a1d9-2937f17a4bee
+
+	column OrderId
+		dataType: string
+		lineageTag: 131056fd-16eb-4b8c-94f2-31976d15a542
+		sourceColumn: OrderId
+
+	column CustomerKey
+		dataType: int64
+		isHidden
+		lineageTag: 94167122-e9eb-4128-91b2-cdf68b30faca
+		sourceColumn: CustomerKey
+
+	column PurchaseDateKey
+		dataType: int64
+		isHidden
+		lineageTag: d5c05c5a-b76b-45bd-8de7-ec3b058e2d5c
+		sourceColumn: PurchaseDateKey
+
+	column ApprovedDateKey
+		dataType: int64
+		isHidden
+		lineageTag: cd9c4513-1766-4120-aad8-4ff9e6bf8cd5
+		sourceColumn: ApprovedDateKey
+
+	column CarrierDateKey
+		dataType: int64
+		isHidden
+		lineageTag: 8e45c15f-4de7-4a0a-b120-5ed3c38fadc3
+		sourceColumn: CarrierDateKey
+
+	column DeliveredDateKey
+		dataType: int64
+		isHidden
+		lineageTag: e6da7629-f7f7-422a-b97d-de1201390e20
+		sourceColumn: DeliveredDateKey
+
+	column EstimatedDeliveryDateKey
+		dataType: int64
+		isHidden
+		lineageTag: 91b08340-e716-475f-ab9d-18f75467f091
+		sourceColumn: EstimatedDeliveryDateKey
+
+	column DeliveryDays
+		dataType: int64
+		lineageTag: c428efa3-5397-4f98-87d9-79bd409f7590
+		sourceColumn: DeliveryDays
+
+	column DelayDays
+		dataType: int64
+		lineageTag: dc244bc7-0204-4134-b5c6-c481f5646d96
+		sourceColumn: DelayDays
+
+	column IsDelivered
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: e70b7af4-5929-4d49-b2e5-369e1d6c5027
+		summarizeBy: none
+		sourceColumn: IsDelivered
+
+		annotation SummarizationSetBy = Automatic
+
+	column IsCancelled
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 12613b79-1375-48b6-ba5a-f2ef4416dc16
+		summarizeBy: none
+		sourceColumn: IsCancelled
+
+		annotation SummarizationSetBy = Automatic
+
+	column IsOnTime
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 821e861e-9dd1-42cc-953f-1d8f29b683ab
+		summarizeBy: none
+		sourceColumn: IsOnTime
+
+		annotation SummarizationSetBy = Automatic
+
+	column ReviewScore
+		dataType: double
+		lineageTag: 393a64d5-69a6-451e-9500-d95660a760cb
+		summarizeBy: sum
+		sourceColumn: ReviewScore
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column OrderStatus
+		dataType: string
+		lineageTag: 0e0c84db-4c42-499b-944f-4a4b3a101455
+		sourceColumn: OrderStatus
+
+	column PromiseBufferDays = VAR dk = 'FactOrderDelivery'[DeliveredDateKey] VAR ek = 'FactOrderDelivery'[EstimatedDeliveryDateKey] RETURN IF(NOT ISBLANK(dk) && NOT ISBLANK(ek) && 'FactOrderDelivery'[IsDelivered], DATEDIFF(DATE(INT(dk / 10000), MOD(INT(dk / 100), 100), MOD(dk, 100)), DATE(INT(ek / 10000), MOD(INT(ek / 100), 100), MOD(ek, 100)), DAY))
+		dataType: int64
+		formatString: 0
+		lineageTag: f6e1c26c-c1d6-4814-9f8b-8a81088a3699
+
+	column 'Delay Bucket' = SWITCH(TRUE(), ISBLANK('FactOrderDelivery'[IsOnTime]), BLANK(), 'FactOrderDelivery'[IsOnTime], "0. Đúng hạn", 'FactOrderDelivery'[DelayDays] <= 3, "1. Trễ 1-3 ngày", 'FactOrderDelivery'[DelayDays] <= 7, "2. Trễ 4-7 ngày", 'FactOrderDelivery'[DelayDays] <= 14, "3. Trễ 8-14 ngày", "4. Trễ trên 14 ngày")
+		dataType: string
+		lineageTag: cee3ebb0-1eff-40ad-a22f-f8aa6c22dbf3
+
+	column OrderDeliveryKey
+		dataType: int64
+		formatString: 0
+		lineageTag: a9689e2e-5fa0-40e3-8883-2167f74a8141
+		summarizeBy: count
+		sourceColumn: OrderDeliveryKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column ItemCount
+		dataType: int64
+		formatString: 0
+		lineageTag: 6666c82c-4081-4728-8d71-d68781508ab3
+		summarizeBy: sum
+		sourceColumn: ItemCount
+
+		annotation SummarizationSetBy = Automatic
+
+	column SellerCount
+		dataType: int64
+		formatString: 0
+		lineageTag: ff6bfe24-0024-494d-a169-5b862f1b8afd
+		summarizeBy: sum
+		sourceColumn: SellerCount
+
+		annotation SummarizationSetBy = Automatic
+
+	column GMV
+		dataType: double
+		lineageTag: da030ef8-7c27-44ac-bc09-ed95f54d3b1a
+		summarizeBy: sum
+		sourceColumn: GMV
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column FreightValue
+		dataType: double
+		lineageTag: 49cb37e5-501e-4d21-a9ab-a4a66b15fab9
+		summarizeBy: sum
+		sourceColumn: FreightValue
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column PaymentValue
+		dataType: double
+		lineageTag: a13f3de9-bbb7-4c6f-a553-08722654ca04
+		summarizeBy: sum
+		sourceColumn: PaymentValue
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition FactOrderDelivery = m
+		mode: import
+		source =
+				let
+					Source = MySQL.Database("127.0.0.1:3306", "olist_bi_group08", [Query="SELECT * FROM `FactOrderDelivery`", ReturnSingleDatabase=true]),
+					Typed = Table.TransformColumnTypes(Source, {{"IsDelivered", type logical}, {"IsCancelled", type logical}, {"IsOnTime", type logical}})
+				in
+					Typed
+
+	annotation PBI_ResultType = Table
+

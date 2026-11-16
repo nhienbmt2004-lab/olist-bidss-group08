@@ -1,0 +1,72 @@
+relationship CustomerLocation
+	fromColumn: DimCustomer.GeographyKey
+	toColumn: CustomerGeography.GeographyKey
+
+relationship SellerLocation
+	fromColumn: DimSeller.GeographyKey
+	toColumn: SellerGeography.GeographyKey
+
+relationship ProductCategory
+	fromColumn: DimProduct.CategoryKey
+	toColumn: DimCategory.CategoryKey
+
+relationship OrderCustomer
+	fromColumn: FactOrderDelivery.CustomerKey
+	toColumn: DimCustomer.CustomerKey
+
+relationship OrderPurchaseDate
+	fromColumn: FactOrderDelivery.PurchaseDateKey
+	toColumn: DimDate.DateKey
+
+relationship OrderApprovedDate
+	isActive: false
+	fromColumn: FactOrderDelivery.ApprovedDateKey
+	toColumn: DimDate.DateKey
+
+relationship OrderCarrierDate
+	isActive: false
+	fromColumn: FactOrderDelivery.CarrierDateKey
+	toColumn: DimDate.DateKey
+
+relationship OrderDeliveredDate
+	isActive: false
+	fromColumn: FactOrderDelivery.DeliveredDateKey
+	toColumn: DimDate.DateKey
+
+relationship OrderEstimatedDate
+	isActive: false
+	fromColumn: FactOrderDelivery.EstimatedDeliveryDateKey
+	toColumn: DimDate.DateKey
+
+relationship ItemDate
+	fromColumn: FactOrderItem.PurchaseDateKey
+	toColumn: DimDate.DateKey
+
+relationship ItemCustomer
+	fromColumn: FactOrderItem.CustomerKey
+	toColumn: DimCustomer.CustomerKey
+
+relationship ItemSeller
+	fromColumn: FactOrderItem.SellerKey
+	toColumn: DimSeller.SellerKey
+
+relationship ItemProduct
+	fromColumn: FactOrderItem.ProductKey
+	toColumn: DimProduct.ProductKey
+
+relationship PaymentDate
+	fromColumn: FactPayment.PurchaseDateKey
+	toColumn: DimDate.DateKey
+
+relationship PaymentCustomer
+	fromColumn: FactPayment.CustomerKey
+	toColumn: DimCustomer.CustomerKey
+
+relationship ReviewDate
+	fromColumn: FactReview.ReviewDateKey
+	toColumn: DimDate.DateKey
+
+relationship ReviewCustomer
+	fromColumn: FactReview.CustomerKey
+	toColumn: DimCustomer.CustomerKey
+

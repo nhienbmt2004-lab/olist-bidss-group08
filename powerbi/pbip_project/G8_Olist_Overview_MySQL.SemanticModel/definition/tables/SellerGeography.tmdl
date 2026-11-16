@@ -1,0 +1,68 @@
+table SellerGeography
+	lineageTag: dc49065a-6572-408d-bc66-625fc9f7ded2
+
+	column GeographyKey
+		dataType: int64
+		isHidden
+		lineageTag: c9602f57-17cd-4ffa-9cfa-8567d0fb5257
+		sourceColumn: GeographyKey
+
+	column ZipCodePrefix
+		dataType: string
+		lineageTag: 2466a138-964b-4b5e-aa30-0bd944a23149
+		sourceColumn: ZipCodePrefix
+
+	column StateCode
+		dataType: string
+		lineageTag: 7c875abf-a894-425c-8b1b-635248d0db42
+		sourceColumn: StateCode
+
+	column City
+		dataType: string
+		lineageTag: cc2a75e7-3e68-40e3-b837-81af35e4b68d
+		sourceColumn: City
+
+	column Latitude
+		dataType: double
+		lineageTag: f2a563cd-eec4-41fd-8088-e634628352c6
+		summarizeBy: none
+		sourceColumn: Latitude
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Longitude
+		dataType: double
+		lineageTag: 5b91b59c-45b0-47b3-b997-59106232d36f
+		summarizeBy: none
+		sourceColumn: Longitude
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Region = SWITCH(TRUE(), SellerGeography[StateCode] IN {"AC", "AP", "AM", "PA", "RO", "RR", "TO"}, "Norte", SellerGeography[StateCode] IN {"AL", "BA", "CE", "MA", "PB", "PE", "PI", "RN", "SE"}, "Nordeste", SellerGeography[StateCode] IN {"DF", "GO", "MT", "MS"}, "Centro-Oeste", SellerGeography[StateCode] IN {"ES", "MG", "RJ", "SP"}, "Sudeste", SellerGeography[StateCode] IN {"PR", "RS", "SC"}, "Sul")
+		dataType: string
+		lineageTag: 4c0d224c-8e48-4f01-94f5-d8bd099073f9
+		summarizeBy: none
+
+	hierarchy Location
+		lineageTag: fb1ea23f-06c8-4fed-8c5b-5e186be2cead
+
+		level State
+			lineageTag: 120a593b-00ef-4502-a3a5-abd92128cebe
+			column: StateCode
+
+		level City
+			lineageTag: c9b24f9a-2a14-4fbd-ae3d-e1c0b4777581
+			column: City
+
+	partition SellerGeography = m
+		mode: import
+		source =
+				let
+					Source = MySQL.Database("127.0.0.1:3306", "olist_bi_group08", [Query="SELECT * FROM `DimGeography`", ReturnSingleDatabase=true])
+				in
+					Source
+

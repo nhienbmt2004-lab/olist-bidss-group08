@@ -1,0 +1,39 @@
+﻿ObjectName,ObjectType,Role,ExactRowCount,UsedFor
+cleangeography,BASE TABLE,Clean/transform,19015,Materialized ETL intermediate and audit trail
+cleanproducts,BASE TABLE,Clean/transform,32951,Materialized ETL intermediate and audit trail
+dataqualityissues,BASE TABLE,Audit,7,"Run log, source-target reconciliation and data quality"
+demoorderevent,BASE TABLE,Replay,23983,Historical micro-batch state and checkpoint
+demoreplaybatch,BASE TABLE,Replay,48,Historical micro-batch state and checkpoint
+demoreplaycheckpoint,BASE TABLE,Replay,1,Historical micro-batch state and checkpoint
+dimcategory,BASE TABLE,Dimension,74,Star schema and Power BI model
+dimcustomer,BASE TABLE,Dimension,99441,Star schema and Power BI model
+dimdate,BASE TABLE,Dimension,1314,Star schema and Power BI model
+dimgeography,BASE TABLE,Dimension,19177,Star schema and Power BI model
+dimproduct,BASE TABLE,Dimension,32951,Star schema and Power BI model
+dimseller,BASE TABLE,Dimension,3095,Star schema and Power BI model
+etlreconciliation,BASE TABLE,Audit,10,"Run log, source-target reconciliation and data quality"
+etlrun,BASE TABLE,Audit,1,"Run log, source-target reconciliation and data quality"
+etlsteplog,BASE TABLE,Audit,33,"Run log, source-target reconciliation and data quality"
+factorderdelivery,BASE TABLE,Fact,99441,"Star schema, EDA, DSS and Power BI model"
+factorderitem,BASE TABLE,Fact,112650,"Star schema, EDA, DSS and Power BI model"
+factpayment,BASE TABLE,Fact,103886,"Star schema, EDA, DSS and Power BI model"
+factreview,BASE TABLE,Fact,99224,"Star schema, EDA, DSS and Power BI model"
+orderitemtotals,BASE TABLE,Clean/transform,98666,Materialized ETL intermediate and audit trail
+orderpaymenttotals,BASE TABLE,Clean/transform,99440,Materialized ETL intermediate and audit trail
+orderreviewlatest,BASE TABLE,Clean/transform,98673,Materialized ETL intermediate and audit trail
+powerbiforecastmonthly,BASE TABLE,Forecast serving,46,Power BI ForecastMonthly import partition
+stg_categorytranslation,BASE TABLE,Source staging,71,"CSV fidelity, ETL, EDA and replay source"
+stg_customers,BASE TABLE,Source staging,99441,"CSV fidelity, ETL, EDA and replay source"
+stg_geolocation,BASE TABLE,Source staging,1000163,"CSV fidelity, ETL, EDA and replay source"
+stg_orderitems,BASE TABLE,Source staging,112650,"CSV fidelity, ETL, EDA and replay source"
+stg_orders,BASE TABLE,Source staging,99441,"CSV fidelity, ETL, EDA and replay source"
+stg_payments,BASE TABLE,Source staging,103886,"CSV fidelity, ETL, EDA and replay source"
+stg_products,BASE TABLE,Source staging,32951,"CSV fidelity, ETL, EDA and replay source"
+stg_reviews,BASE TABLE,Source staging,99224,"CSV fidelity, ETL, EDA and replay source"
+stg_sellers,BASE TABLE,Source staging,3095,"CSV fidelity, ETL, EDA and replay source"
+vw_deliverybymonthstate,VIEW,Serving view,,Power BI/DSS or micro-batch KPI
+vw_demooperationalkpi,VIEW,Serving view,,Power BI/DSS or micro-batch KPI
+vw_demoordercurrent,VIEW,Serving view,,Power BI/DSS or micro-batch KPI
+vw_kpioverview,VIEW,Serving view,,Power BI/DSS or micro-batch KPI
+vw_reviewbydeliverystatus,VIEW,Serving view,,Power BI/DSS or micro-batch KPI
+vw_sellerperformance,VIEW,Serving view,,Power BI/DSS or micro-batch KPI

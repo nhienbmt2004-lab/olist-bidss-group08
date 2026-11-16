@@ -1,0 +1,230 @@
+{
+  "version": "1.1.0",
+  "diagrams": [
+    {
+      "ordinal": 0,
+      "scrollPosition": {
+        "x": 686.08,
+        "y": 0
+      },
+      "nodes": [
+        {
+          "location": {
+            "x": 50,
+            "y": 59.8985714319565
+          },
+          "nodeIndex": "CustomerGeography",
+          "nodeLineageTag": "997f6674-fed9-474b-a2a7-fa6191fba80b",
+          "size": {
+            "height": 248,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 1567.8673075466127,
+            "y": -50
+          },
+          "nodeIndex": "DimCategory",
+          "nodeLineageTag": "0d91e454-3dff-4fc8-8dcd-42e64c4334bc",
+          "size": {
+            "height": 128,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 350.53482861908475,
+            "y": 311.17130298835605
+          },
+          "nodeIndex": "DimCustomer",
+          "nodeLineageTag": "7aa3baea-5b46-486a-82d6-2245fe1e6e98",
+          "size": {
+            "height": 176,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 624.00691587949541,
+            "y": 543.63018743880775
+          },
+          "nodeIndex": "DimDate",
+          "nodeLineageTag": "a78199e6-8ec4-418d-b778-1ca9618052f8",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 1280.8120555621479,
+            "y": 97.900299560136318
+          },
+          "nodeIndex": "DimProduct",
+          "nodeLineageTag": "32065f33-cb3c-446c-aad6-e6489bc14cbe",
+          "size": {
+            "height": 248,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 1275.3377091907562,
+            "y": 629.87623077168291
+          },
+          "nodeIndex": "DimSeller",
+          "nodeLineageTag": "83628b16-40ad-489a-b03f-5139164d94d8",
+          "size": {
+            "height": 152,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 706.65650744057575,
+            "y": 190.00497998286983
+          },
+          "nodeIndex": "FactOrderDelivery",
+          "nodeLineageTag": "9d7f960e-2352-43f6-961c-67a7fc92b373",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 993.72203658617923,
+            "y": 276.88814057949776
+          },
+          "nodeIndex": "FactOrderItem",
+          "nodeLineageTag": "3245a1e1-f488-4742-8385-722fbd028289",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 143.25493927838349,
+            "y": 539.50731568062633
+          },
+          "nodeIndex": "FactPayment",
+          "nodeLineageTag": "d190d4d4-9965-4036-bc23-a9e11878e9b9",
+          "size": {
+            "height": 224,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 337.00765722265322,
+            "y": 816.51769718604078
+          },
+          "nodeIndex": "FactReview",
+          "nodeLineageTag": "15ff6714-4349-4fca-9b28-e696d97c3475",
+          "size": {
+            "height": 248,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 1801.8673075466131,
+            "y": 416.28591465391764
+          },
+          "nodeIndex": "ForecastMonthly",
+          "nodeLineageTag": "8c93b363-7d4b-496e-959b-6c2905b540ee",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 2085.8673075466131,
+            "y": 502.28591465391764
+          },
+          "nodeIndex": "GradeBand",
+          "nodeLineageTag": "3da7286f-e2ab-4d3a-b01c-f36395806a65",
+          "size": {
+            "height": 128,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 1518.6400065975115,
+            "y": 834.57182930783529
+          },
+          "nodeIndex": "SellerGeography",
+          "nodeLineageTag": "dc49065a-6572-408d-bc66-625fc9f7ded2",
+          "size": {
+            "height": 248,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 2369.8673075466131,
+            "y": 466.28591465391764
+          },
+          "nodeIndex": "WI Giảm tỷ lệ trễ",
+          "nodeLineageTag": "4461e544-af9d-435f-8bca-df6b37071468",
+          "size": {
+            "height": 200,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 2653.8673075466131,
+            "y": 466.28591465391764
+          },
+          "nodeIndex": "WI Rút ngắn ngày",
+          "nodeLineageTag": "a4a2a4a2-5fbc-4a5c-920b-2248d7205ffb",
+          "size": {
+            "height": 200,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 2887.8673075466131,
+            "y": 502.28591465391764
+          },
+          "nodeIndex": "DSSAlertBand",
+          "nodeLineageTag": "dcae46f4-6ce4-42f2-a361-d1e6a83dc686",
+          "size": {
+            "height": 128,
+            "width": 234
+          },
+          "zIndex": 0
+        }
+      ],
+      "name": "All tables",
+      "zoomValue": 39.0625,
+      "pinKeyFieldsToTop": false,
+      "showExtraHeaderInfo": false,
+      "hideKeyFieldsWhenCollapsed": false,
+      "tablesLocked": false
+    }
+  ],
+  "selectedDiagram": "All tables",
+  "defaultDiagram": "All tables"
+}

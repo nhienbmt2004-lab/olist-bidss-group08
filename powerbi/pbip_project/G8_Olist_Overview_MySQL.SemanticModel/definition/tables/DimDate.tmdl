@@ -1,0 +1,94 @@
+table DimDate
+	lineageTag: a78199e6-8ec4-418d-b778-1ca9618052f8
+	dataCategory: Time
+
+	column DateKey
+		dataType: int64
+		isHidden
+		lineageTag: 92bc85ee-3fd7-4548-b50a-c49092bc2720
+		sourceColumn: DateKey
+
+	column FullDate
+		dataType: dateTime
+		isKey
+		formatString: yyyy-MM-dd
+		lineageTag: dba49d24-a87a-47a2-8f83-dfd5a3e85766
+		summarizeBy: none
+		sourceColumn: FullDate
+
+		annotation SummarizationSetBy = Automatic
+
+	column YearNumber
+		dataType: int64
+		lineageTag: aece48d1-f11b-4e7e-a935-6cdbf31b7f1e
+		sourceColumn: YearNumber
+
+	column QuarterNumber
+		dataType: int64
+		lineageTag: 929545ca-d452-4a52-b0da-33a3d69bef4d
+		sourceColumn: QuarterNumber
+
+	column MonthNumber
+		dataType: int64
+		lineageTag: b0be35be-0caf-444d-a0e7-002e1f9bebc1
+		sourceColumn: MonthNumber
+
+	column DayNumber
+		dataType: int64
+		lineageTag: d1492ef2-b1a2-41b3-a36d-eeba6dc41ae4
+		sourceColumn: DayNumber
+
+	column YearMonth = FORMAT('DimDate'[FullDate], "yyyy-MM")
+		dataType: string
+		lineageTag: 7389dfb1-de44-4f8f-b11c-298d1e184a3e
+
+	column MonthStart = DATE(YEAR('DimDate'[FullDate]), MONTH('DimDate'[FullDate]), 1)
+		dataType: dateTime
+		formatString: yyyy-MM
+		lineageTag: d6da60b4-1490-44d7-9b49-2cffaa764749
+
+	column DayOfWeekNumber
+		dataType: int64
+		formatString: 0
+		lineageTag: 15366e85-067d-4cdd-9c5c-1e99c14c9e17
+		summarizeBy: sum
+		sourceColumn: DayOfWeekNumber
+
+		annotation SummarizationSetBy = Automatic
+
+	column IsWeekend
+		dataType: int64
+		formatString: 0
+		lineageTag: 46e5cd3c-6a08-44d8-9ad5-476d2b92223d
+		summarizeBy: sum
+		sourceColumn: IsWeekend
+
+		annotation SummarizationSetBy = Automatic
+
+	hierarchy Calendar
+		lineageTag: 4a9b9b64-d957-41a2-b5a9-420eba3be64c
+
+		level Year
+			lineageTag: 3ba6e4e8-892b-4145-b454-9f0516a270f8
+			column: YearNumber
+
+		level Quarter
+			lineageTag: d60c7940-4b5f-4c2f-89b0-09df4cd1aa32
+			column: QuarterNumber
+
+		level Month
+			lineageTag: 421b394c-70b3-42b6-97d0-8f479d1a6dfe
+			column: MonthNumber
+
+		level Day
+			lineageTag: 448e7a9d-2480-4e12-bdc5-65b0bca8d120
+			column: DayNumber
+
+	partition DimDate = m
+		mode: import
+		source =
+				let
+					Source = MySQL.Database("127.0.0.1:3306", "olist_bi_group08", [Query="SELECT * FROM `DimDate`", ReturnSingleDatabase=true])
+				in
+					Source
+

@@ -1,0 +1,13 @@
+table 'WI Giảm tỷ lệ trễ'
+	lineageTag: 4461e544-af9d-435f-8bca-df6b37071468
+
+	column Delta
+		dataType: double
+		formatString: 0.0%
+		lineageTag: 08662025-a6b3-460c-b383-4dc20e32e34a
+		sourceColumn: [Value]
+
+	partition 'WI Giảm tỷ lệ trễ' = calculated
+		mode: import
+		source = GENERATESERIES(0, 0.05, 0.005)
+

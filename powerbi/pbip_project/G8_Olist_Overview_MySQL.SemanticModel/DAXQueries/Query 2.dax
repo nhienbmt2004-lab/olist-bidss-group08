@@ -1,0 +1,9 @@
+-- Run in Power BI Desktop DAX query view after applying the MySQL partition patch
+-- and completing Refresh. Compare to docs/evidence/mysql/overview.csv.
+EVALUATE
+ROW(
+    "Orders", [Orders],
+    "LateOrders", [Late Orders],
+    "OnTimeRate", [On-time Delivery Rate],
+    "GMV", [GMV]
+)

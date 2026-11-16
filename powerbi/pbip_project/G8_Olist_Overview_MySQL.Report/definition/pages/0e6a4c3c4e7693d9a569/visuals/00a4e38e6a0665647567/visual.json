@@ -1,0 +1,174 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
+  "name": "00a4e38e6a0665647567",
+  "position": {
+    "x": 277.87400123955177,
+    "y": 821.27204810800845,
+    "z": 7000,
+    "height": 232.59083066718034,
+    "width": 654.5476473642774,
+    "tabOrder": 6000
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DimSeller"
+                    }
+                  },
+                  "Property": "SellerId"
+                }
+              },
+              "queryRef": "DimSeller.SellerId",
+              "nativeQueryRef": "SellerId"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "SellerGeography"
+                    }
+                  },
+                  "Property": "StateCode"
+                }
+              },
+              "queryRef": "SellerGeography.StateCode",
+              "nativeQueryRef": "StateCode"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "FactOrderItem"
+                    }
+                  },
+                  "Property": "Avg_GMV_Per_Seller"
+                }
+              },
+              "queryRef": "FactOrderItem.Avg_GMV_Per_Seller",
+              "nativeQueryRef": "Avg_GMV_Per_Seller"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "FactOrderItem"
+                    }
+                  },
+                  "Property": "Seller_Late_Rate"
+                }
+              },
+              "queryRef": "FactOrderItem.Seller_Late_Rate",
+              "nativeQueryRef": "Seller_Late_Rate"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "FactOrderItem"
+                    }
+                  },
+                  "Property": "Avg_Seller_Review"
+                }
+              },
+              "queryRef": "FactOrderItem.Avg_Seller_Review",
+              "nativeQueryRef": "Avg_Seller_Review"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "FactOrderItem"
+                  }
+                },
+                "Property": "Seller_Late_Rate"
+              }
+            },
+            "direction": "Ascending"
+          }
+        ]
+      }
+    },
+    "objects": {
+      "values": [
+        {
+          "properties": {
+            "backColor": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "FillRule": {
+                      "Input": {
+                        "Measure": {
+                          "Expression": {
+                            "SourceRef": {
+                              "Entity": "FactOrderItem"
+                            }
+                          },
+                          "Property": "Seller_Late_Rate"
+                        }
+                      },
+                      "FillRule": {
+                        "linearGradient2": {
+                          "min": {
+                            "color": {
+                              "Literal": {
+                                "Value": "'#B0F4D4'"
+                              }
+                            }
+                          },
+                          "max": {
+                            "color": {
+                              "Literal": {
+                                "Value": "'#F8491D'"
+                              }
+                            }
+                          },
+                          "nullColoringStrategy": {
+                            "strategy": {
+                              "Literal": {
+                                "Value": "'asZero'"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "selector": {
+            "data": [
+              {
+                "dataViewWildcard": {
+                  "matchingOption": 1
+                }
+              }
+            ],
+            "metadata": "FactOrderItem.Seller_Late_Rate"
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

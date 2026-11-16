@@ -1,0 +1,33 @@
+table DimCustomer
+	lineageTag: 7aa3baea-5b46-486a-82d6-2245fe1e6e98
+
+	column CustomerKey
+		dataType: int64
+		isHidden
+		lineageTag: 387b6441-6c46-4bfc-b44e-4fbd232382f0
+		sourceColumn: CustomerKey
+
+	column CustomerId
+		dataType: string
+		lineageTag: a56d4047-c8e1-4e28-87ab-8102c10e58d8
+		sourceColumn: CustomerId
+
+	column CustomerUniqueId
+		dataType: string
+		lineageTag: b14d6ccc-6bf1-4a49-91d9-2b44b1834199
+		sourceColumn: CustomerUniqueId
+
+	column GeographyKey
+		dataType: int64
+		isHidden
+		lineageTag: f670641c-d30b-4370-b9cf-6bb22a0b907f
+		sourceColumn: GeographyKey
+
+	partition DimCustomer = m
+		mode: import
+		source =
+				let
+					Source = MySQL.Database("127.0.0.1:3306", "olist_bi_group08", [Query="SELECT * FROM `DimCustomer`", ReturnSingleDatabase=true])
+				in
+					Source
+

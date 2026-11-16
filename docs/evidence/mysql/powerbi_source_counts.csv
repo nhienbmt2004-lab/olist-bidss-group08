@@ -1,0 +1,13 @@
+﻿SourceNumber,SQLPreview,Rows
+1,SELECT * FROM `DimDate`,1314
+2,SELECT * FROM `DimGeography`,19177
+3,SELECT * FROM `DimGeography`,19177
+4,SELECT * FROM `DimCustomer`,99441
+5,SELECT * FROM `DimSeller`,3095
+6,SELECT * FROM `DimCategory`,74
+7,"SELECT p.ProductKey,p.ProductId,p.CategoryKey,c.CategoryName FROM DimProduct p LEFT JOIN DimCategory",32951
+8,SELECT * FROM `FactOrderDelivery`,99441
+9,"SELECT i.OrderId,i.PurchaseDateKey,i.CustomerKey,i.SellerKey,i.ProductKey,i.Price,i.FreightValue,o.O",112650
+10,SELECT * FROM `FactPayment`,103886
+11,SELECT * FROM `FactReview`,99224
+12,SELECT * FROM PowerBIForecastMonthly,46

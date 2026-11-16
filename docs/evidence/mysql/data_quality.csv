@@ -1,0 +1,8 @@
+﻿IssueCode,IssueCount,Severity,Treatment
+DUPLICATE_ORDER_ID,0,ERROR,Reject duplicate order IDs
+ORDER_WITHOUT_CUSTOMER,0,ERROR,Reject orphan orders
+MULTI_SELLER_ORDER,1278,INFO,Do not infer seller caused order delay
+ORDER_WITHOUT_REVIEW,768,INFO,Keep order; review metric omits null
+DELIVERED_WITHOUT_DATE,8,WARN,Exclude from on-time denominator
+NEGATIVE_APPROVAL_TO_CARRIER,1359,WARN,Exclude from stage-duration summary
+NEGATIVE_CARRIER_TO_DELIVERY,23,WARN,Exclude from stage-duration summary
