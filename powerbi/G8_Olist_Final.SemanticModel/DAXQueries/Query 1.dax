@@ -1,0 +1,110 @@
+// Query-scoped measures only. Run in DAX Query View; do NOT choose Update model.
+// Run without report filters; DAX Query View does not inherit report slicers.
+DEFINE
+ MEASURE FactOrderItem[Check Grade Alert Sellers] =
+ VAR Grades = VALUES(GradeBand[Grade])
+ VAR Alerts = VALUES(DSSAlertBand[AlertLevel])
+ RETURN COALESCE(COUNTROWS(FILTER(VALUES(DimSeller[SellerId]),
+  NOT ISBLANK(DimSeller[SellerId]) && [Sales Orders] > 0
+  && [Seller Grade 4.2] IN {"A","B","C","D"}
+  && [Seller Alert Level 4.2] IN {"Green","Yellow","Red"}
+  && [Seller Grade 4.2] IN Grades
+  && [Seller Alert Level 4.2] IN Alerts)),0)
+ MEASURE FactOrderItem[Check Cell Sum] =
+ SUMX(CROSSJOIN(VALUES(GradeBand[Grade]),
+ FILTER(VALUES(DSSAlertBand[AlertLevel]),DSSAlertBand[AlertLevel] IN {"Green","Yellow","Red"})),
+ [Check Grade Alert Sellers])
+ MEASURE FactOrderItem[Check Grade Sum] = SUMX(VALUES(GradeBand[Grade]),[DSS Sellers by Performance Grade])
+ MEASURE FactOrderItem[Check Alert Sum] = SUMX(FILTER(VALUES(DSSAlertBand[AlertLevel]),
+ DSSAlertBand[AlertLevel] IN {"Green","Yellow","Red"}),[DSS Sellers by Alert Level])
+
+// 1. Exactly twelve cells. SUM Sellers = 627; one VALUES(SellerId) row per seller.
+EVALUATE
+ FILTER(SUMMARIZECOLUMNS(GradeBand[Grade],DSSAlertBand[AlertLevel],
+ "Sellers",[Check Grade Alert Sellers]),DSSAlertBand[AlertLevel] IN {"Green","Yellow","Red"})
+ ORDER BY GradeBand[Grade],DSSAlertBand[AlertLevel]
+
+// 2. All totals must equal 627. Delta = 0.
+EVALUATE ROW("Heatmap",[Check Grade Alert Sellers],"Cells",[Check Cell Sum],
+ "ScoreEligible",[DSS Eligible Sellers],"AlertEligible",[DSS Alert Eligible Sellers],
+ "Grades",[Check Grade Sum],"Alerts",[Check Alert Sum],
+ "Delta",[Check Grade Alert Sellers]-[Check Cell Sum])
+
+// 3. Heatmap = Existing = Expected; Delta = 0. A/B/C/D: 170/211/158/88. SQL evidence and current cache agree.
+EVALUATE
+ ADDCOLUMNS(SUMMARIZECOLUMNS(GradeBand[Grade],"Heatmap",[Check Grade Alert Sellers],
+ "Existing",[DSS Sellers by Performance Grade]),
+ "Expected",SWITCH(GradeBand[Grade],"A",170,"B",211,"C",158,"D",88),
+ "Delta",[Heatmap]-[Existing])
+ ORDER BY GradeBand[Grade]
+
+// 4. Green/Yellow/Red: 356/214/57. Both deltas must be zero.
+EVALUATE
+ ADDCOLUMNS(FILTER(SUMMARIZECOLUMNS(DSSAlertBand[AlertLevel],
+ "Heatmap",[Check Grade Alert Sellers],"Existing",[DSS Sellers by Alert Level]),
+ DSSAlertBand[AlertLevel] IN {"Green","Yellow","Red"}),
+ "Expected",SWITCH(DSSAlertBand[AlertLevel],"Green",356,"Yellow",214,"Red",57),
+ "Delta",[Heatmap]-[Existing])
+ ORDER BY DSSAlertBand[AlertLevel]
+
+// Year: checks EVERY existing member, not a single example.
+// Heatmap = Cells = ScoreEligible = AlertEligible = Grades = Alerts; Delta = 0.
+// Totals may differ from 627 under each filter; investigate any discrepancy before replacing Scatter.
+EVALUATE
+ SUMMARIZECOLUMNS(DimDate[YearNumber],
+ "Heatmap",[Check Grade Alert Sellers],"Cells",[Check Cell Sum],
+ "ScoreEligible",[DSS Eligible Sellers],"AlertEligible",[DSS Alert Eligible Sellers],
+ "Grades",[Check Grade Sum],"Alerts",[Check Alert Sum],
+ "Delta",[Check Grade Alert Sellers]-[Check Cell Sum])
+ ORDER BY DimDate[YearNumber]
+
+// Category: checks EVERY existing member, not a single example.
+// Heatmap = Cells = ScoreEligible = AlertEligible = Grades = Alerts; Delta = 0.
+// Totals may differ from 627 under each filter; investigate any discrepancy before replacing Scatter.
+EVALUATE
+ SUMMARIZECOLUMNS(DimCategory[CategoryName],
+ "Heatmap",[Check Grade Alert Sellers],"Cells",[Check Cell Sum],
+ "ScoreEligible",[DSS Eligible Sellers],"AlertEligible",[DSS Alert Eligible Sellers],
+ "Grades",[Check Grade Sum],"Alerts",[Check Alert Sum],
+ "Delta",[Check Grade Alert Sellers]-[Check Cell Sum])
+ ORDER BY DimCategory[CategoryName]
+
+// Customer Region: checks EVERY existing member, not a single example.
+// Heatmap = Cells = ScoreEligible = AlertEligible = Grades = Alerts; Delta = 0.
+// Totals may differ from 627 under each filter; investigate any discrepancy before replacing Scatter.
+EVALUATE
+ SUMMARIZECOLUMNS(CustomerGeography[Region],
+ "Heatmap",[Check Grade Alert Sellers],"Cells",[Check Cell Sum],
+ "ScoreEligible",[DSS Eligible Sellers],"AlertEligible",[DSS Alert Eligible Sellers],
+ "Grades",[Check Grade Sum],"Alerts",[Check Alert Sum],
+ "Delta",[Check Grade Alert Sellers]-[Check Cell Sum])
+ ORDER BY CustomerGeography[Region]
+
+// Seller State: checks EVERY existing member, not a single example.
+// Heatmap = Cells = ScoreEligible = AlertEligible = Grades = Alerts; Delta = 0.
+// Totals may differ from 627 under each filter; investigate any discrepancy before replacing Scatter.
+EVALUATE
+ SUMMARIZECOLUMNS(SellerGeography[StateCode],
+ "Heatmap",[Check Grade Alert Sellers],"Cells",[Check Cell Sum],
+ "ScoreEligible",[DSS Eligible Sellers],"AlertEligible",[DSS Alert Eligible Sellers],
+ "Grades",[Check Grade Sum],"Alerts",[Check Alert Sum],
+ "Delta",[Check Grade Alert Sellers]-[Check Cell Sum])
+ ORDER BY SellerGeography[StateCode]
+
+// Seller ranking: verify 20 rows, Rank ASC then Seller ID ASC. DENSE ties may repeat rank.
+EVALUATE
+ TOPN(20,FILTER(SUMMARIZECOLUMNS(DimSeller[SellerId],
+ "Rank",[Seller Rank 4.2],"Seller Score",[Seller Score 4.2],
+ "Orders",[Sales Orders],"GMV",[GMV]),NOT ISBLANK([Rank]) && [Orders]>=1),
+ [Rank],ASC,DimSeller[SellerId],ASC)
+ ORDER BY [Rank],DimSeller[SellerId]
+
+// Priority ranking: keep existing Rank <=20 bound and Red-before-Yellow logic.
+// Alert below is diagnostic only; it has been removed from the visible report table.
+EVALUATE
+ TOPN(20,FILTER(SUMMARIZECOLUMNS(DimSeller[SellerId],
+ "Priority Rank",[DSS Priority Rank],"Alert",[Seller Alert Level 4.2],
+ "Quality Risk",[DSS Quality Risk],"Business Impact",[DSS Business Impact],
+ "Priority Score",[DSS Priority Score]),NOT ISBLANK([Priority Rank]) && [Priority Rank]<=20),
+ [Priority Rank],ASC,DimSeller[SellerId],ASC)
+ ORDER BY [Priority Rank],DimSeller[SellerId]

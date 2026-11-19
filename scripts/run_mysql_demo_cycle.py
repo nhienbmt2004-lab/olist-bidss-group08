@@ -1,7 +1,8 @@
-"""Continuously replay the July 2018 Olist cohort for the local dashboard.
+"""Continuously replay the March 2018 Olist cohort for the local dashboard.
 
 Only the isolated Demo* tables are reset at the start of each cycle.
-The browser dashboard polls the read-only API every five seconds.
+The Streamlit dashboard reads MySQL manually or every fifteen seconds when
+the user enables auto-refresh.
 """
 
 from __future__ import annotations
@@ -25,8 +26,8 @@ def main() -> None:
     parser.add_argument("--port", type=int, default=3306)
     parser.add_argument("--user", default="root")
     parser.add_argument("--schema", default="olist_bi_group08")
-    parser.add_argument("--from-date", type=date.fromisoformat, default=date(2018, 7, 1))
-    parser.add_argument("--to-date", type=date.fromisoformat, default=date(2018, 7, 31))
+    parser.add_argument("--from-date", type=date.fromisoformat, default=date(2018, 3, 1))
+    parser.add_argument("--to-date", type=date.fromisoformat, default=date(2018, 3, 31))
     parser.add_argument("--batch-size", type=int, default=500)
     parser.add_argument("--interval-seconds", type=float, default=5)
     parser.add_argument("--pause-seconds", type=float, default=20)

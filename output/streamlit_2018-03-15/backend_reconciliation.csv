@@ -1,0 +1,2 @@
+﻿AsOfDate,SourceOrdersByDate,SourceOrdersAsOfIncludingCanceled,CanceledExcludedAsOf,DeliveredAsOf,OpenUndeliveredAsOf,OpenInvoicedAsOf,OpenAlreadyHandedToCarrierAsOf,OpenRouteEligible,CompletedRouteEligible30d,DefaultSelectedRoute,MapOriginState,MapGeohashCells
+2018-03-15,62596,63011,415,56843,5753,225,4070,5173,6920,SP → SP,SP,896

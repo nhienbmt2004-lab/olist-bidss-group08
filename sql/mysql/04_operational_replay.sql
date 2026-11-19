@@ -29,6 +29,23 @@ CREATE TABLE IF NOT EXISTS DemoReplayBatch (
   CommittedAtUtc DATETIME(6) NOT NULL
 ) ENGINE=InnoDB;
 
+-- Append-only decisions made in the local Streamlit simulation. The minimum
+-- BatchId of the active DemoReplayBatch set identifies one replay run; deleting
+-- batch rows on reset never deletes this audit trail.
+CREATE TABLE IF NOT EXISTS DemoActionLog (
+  LogId BIGINT AUTO_INCREMENT PRIMARY KEY,
+  ReplayRunId BIGINT NOT NULL,
+  EventIndex INT NOT NULL,
+  SimAt DATETIME NOT NULL,
+  RecordedAtUtc DATETIME(6) NOT NULL,
+  RouteId VARCHAR(12) NOT NULL,
+  SellerId CHAR(32),
+  UserRole VARCHAR(40) NOT NULL,
+  ActionType VARCHAR(30) NOT NULL,
+  CommentText VARCHAR(500),
+  INDEX IX_DemoActionRunRoute (ReplayRunId, RouteId, LogId)
+) ENGINE=InnoDB;
+
 CREATE OR REPLACE VIEW vw_DemoOrderCurrent AS
 SELECT e.OrderId,
        MIN(e.PurchaseAt) AS PurchaseAt,

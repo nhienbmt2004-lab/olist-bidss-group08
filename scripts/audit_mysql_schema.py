@@ -30,6 +30,8 @@ def role(name: str, kind: str) -> tuple[str, str]:
     if n.startswith("etl") or n == "dataqualityissues":
         return "Audit", "Run log, source-target reconciliation and data quality"
     if n.startswith("demo"):
+        if n == "demoactionlog":
+            return "Simulated action audit", "Append-only decisions; scoped by replay run"
         return "Replay", "Historical micro-batch state and checkpoint"
     if n == "powerbiforecastmonthly":
         return "Forecast serving", "Power BI ForecastMonthly import partition"

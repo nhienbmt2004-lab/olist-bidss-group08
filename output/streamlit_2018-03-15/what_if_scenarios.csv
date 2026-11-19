@@ -1,0 +1,10 @@
+﻿Scenario,AssumptionDays,OTD,LateOrders,LateGMV,MeanActualDeliveryDays,ActualWaitChangedByAssumption,AsOfDate,SelectedRoute,BaselineLateGMV,Interpretation
+Delivery improvement,0,0.9574569789674953,89,11038.75,9.56405129660612,True,2018-03-15,SP → SP,11038.75,Arithmetic scenario on completed orders; not savings or causal impact
+Delivery improvement,3,0.9732313575525813,56,7151.65,6.56405129660612,True,2018-03-15,SP → SP,11038.75,Arithmetic scenario on completed orders; not savings or causal impact
+Delivery improvement,6,0.982791586998088,36,4769.53,3.56405129660612,True,2018-03-15,SP → SP,11038.75,Arithmetic scenario on completed orders; not savings or causal impact
+Delivery improvement,9,0.9913957934990439,18,1087.32,0.5640512966061202,True,2018-03-15,SP → SP,11038.75,Arithmetic scenario on completed orders; not savings or causal impact
+Delivery improvement,12,0.9947418738049714,11,777.65,-2.43594870339388,True,2018-03-15,SP → SP,11038.75,Arithmetic scenario on completed orders; not savings or causal impact
+Promise extension,0,0.9574569789674953,89,11038.75,9.56405129660612,False,2018-03-15,SP → SP,11038.75,Arithmetic scenario on completed orders; not savings or causal impact
+Promise extension,2,0.9694072657743786,64,7909.71,9.56405129660612,False,2018-03-15,SP → SP,11038.75,Arithmetic scenario on completed orders; not savings or causal impact
+Promise extension,4,0.9756214149139579,51,6669.15,9.56405129660612,False,2018-03-15,SP → SP,11038.75,Arithmetic scenario on completed orders; not savings or causal impact
+Promise extension,6,0.982791586998088,36,4769.53,9.56405129660612,False,2018-03-15,SP → SP,11038.75,Arithmetic scenario on completed orders; not savings or causal impact

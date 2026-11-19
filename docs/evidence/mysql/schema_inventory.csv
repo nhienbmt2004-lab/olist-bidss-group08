@@ -2,8 +2,9 @@
 cleangeography,BASE TABLE,Clean/transform,19015,Materialized ETL intermediate and audit trail
 cleanproducts,BASE TABLE,Clean/transform,32951,Materialized ETL intermediate and audit trail
 dataqualityissues,BASE TABLE,Audit,7,"Run log, source-target reconciliation and data quality"
-demoorderevent,BASE TABLE,Replay,23983,Historical micro-batch state and checkpoint
-demoreplaybatch,BASE TABLE,Replay,48,Historical micro-batch state and checkpoint
+demoactionlog,BASE TABLE,Simulated action audit,5,Append-only decisions; scoped by replay run
+demoorderevent,BASE TABLE,Replay,28010,Historical micro-batch state and checkpoint
+demoreplaybatch,BASE TABLE,Replay,57,Historical micro-batch state and checkpoint
 demoreplaycheckpoint,BASE TABLE,Replay,1,Historical micro-batch state and checkpoint
 dimcategory,BASE TABLE,Dimension,74,Star schema and Power BI model
 dimcustomer,BASE TABLE,Dimension,99441,Star schema and Power BI model
