@@ -14,7 +14,7 @@ Ngày chạy: 16/11/2026. Nguồn: MySQL `olist_bi_group08`, các đơn đã gia
 
 Script: [`scripts/forecast_late_delivery.py`](../../../../scripts/forecast_late_delivery.py). Chạy `python -m pip install -r requirements-forecast.txt` rồi `python scripts/forecast_late_delivery.py` tại thư mục gốc. Script chỉ đọc MySQL, xuất các CSV ở thư mục này. Hình vẽ tạo bằng `python scripts/plot_late_forecast.py`.
 
-**Demo Streamlit:** chạy `python -m streamlit run scripts/streamlit_late_risk_demo.py` tại thư mục gốc rồi mở địa chỉ Streamlit hiện trong terminal (mặc định `http://localhost:8501`). App có ba tab: hàng đợi cảnh báo theo đồng hồ sự kiện lịch sử, micro-batch MySQL tự đọc lại mỗi 5 giây, và kiểm thử mô hình. Muốn thấy tab micro-batch đổi số liên tục, chạy thêm `python scripts/run_mysql_demo_cycle.py` ở terminal khác. Tab này dùng chung bảng `Demo*` với dashboard HTTP cũ; không chạy hai tiến trình replay cùng lúc.
+**Demo Streamlit:** chạy `python -m streamlit run scripts/streamlit_late_risk_demo.py` tại thư mục gốc. Ứng dụng có ba màn: Route Overview, Route Detail và Seller Performance; xem [hướng dẫn demo](../../../streamlit-rehearsal.md). Đây là phát lại Olist lịch sử, không phải hệ thống đơn hàng trực tiếp.
 
 - Huấn luyện: đơn mua trong 2017 có nhãn giao hàng trước 01/04/2018.
 - Chọn mô hình: đơn mua 01–02/2018 có nhãn trước 01/04/2018. Tháng 3/2018 là khoảng chờ nhãn.

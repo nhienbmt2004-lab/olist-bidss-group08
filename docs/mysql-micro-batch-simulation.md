@@ -1,4 +1,8 @@
-# Mô phỏng vận hành Olist bằng micro-batch trên MySQL
+# Lưu trữ: MySQL micro-batch replay cũ
+
+> Tài liệu này ghi lại cơ chế micro-batch cũ. **Demo Streamlit hiện tại không dùng replay worker này.** Để chạy demo ba màn, chỉ cần `python -m streamlit run scripts/streamlit_late_risk_demo.py`; hướng dẫn ngắn ở [đây](giai-thich-demo-streamlit.md).
+
+## Cơ chế cũ
 
 ## Phạm vi và cách gọi trong báo cáo
 
@@ -13,12 +17,12 @@ MySQL stg_Orders (đã giao, có ngày giao)
   → replay_olist_mysql.py: sắp sự kiện theo EventAt, 500 sự kiện/lô, nghỉ 5 giây
   → DemoOrderEvent + DemoReplayCheckpoint + DemoReplayBatch (cùng giao dịch mỗi lô)
   → vw_DemoOrderCurrent + vw_DemoOperationalKPI
-  → tab Micro-batch MySQL của Streamlit, tự hỏi lại mỗi 5 giây
+  → dashboard micro-batch cũ, hỏi MySQL mỗi 5 giây
 ```
 
 Các bảng `Demo*` là phần mô phỏng riêng. Việc tạo và phát lại không ghi vào `stg_*`, `Dim*`, `Fact*` hay sáu trang Power BI lịch sử. Giao diện hiện dùng Streamlit cục bộ ở `http://localhost:8501`.
 
-## Chạy demo
+## Chạy lại micro-batch cũ (chỉ khi cần tái hiện pipeline)
 
 Tại thư mục gốc project, đảm bảo MySQL Server cổng 3306 đang chạy và schema `olist_bi_group08` đã có kho dữ liệu:
 
@@ -36,7 +40,7 @@ Mở **hai cửa sổ PowerShell** tại thư mục project. Cửa sổ 1:
 python -m streamlit run scripts/streamlit_late_risk_demo.py
 ```
 
-Mở `http://localhost:8501` trong trình duyệt, chọn tab **Micro-batch MySQL**. Ở cửa sổ 2, phát ba lô đầu để xem KPI thay đổi:
+Trong giao diện micro-batch cũ, mở `http://localhost:8501`; ở terminal thứ hai phát ba lô đầu để xem KPI thay đổi:
 
 ```powershell
 python scripts/replay_olist_mysql.py --batch-size 500 --interval-seconds 5 --max-batches 3 --reset
@@ -56,11 +60,11 @@ Mở Streamlit bằng `python -m streamlit run scripts/streamlit_late_risk_demo.
 python scripts/run_mysql_demo_cycle.py --batch-size 500 --interval-seconds 5 --pause-seconds 20
 ```
 
-Mỗi chu kỳ phát lại 23.983 sự kiện tháng 07/2018 theo các lô tối đa 500 sự kiện, cách nhau 5 giây; sau khi phát hết, chờ 20 giây rồi bắt đầu lại. Đầu mỗi chu kỳ chỉ đặt lại các bảng `Demo*`, còn kho lịch sử `stg_*`, `Dim*`, `Fact*` và Power BI không thay đổi. Streamlit đọc lại MySQL mỗi 5 giây. Hai tiến trình chạy cho đến khi dừng bằng `Ctrl+C` ở từng terminal. Không chạy đồng thời `run_mysql_demo_cycle.py` và `replay_olist_mysql.py` vì chúng dùng cùng các bảng Demo.
+Mỗi chu kỳ phát lại 23.983 sự kiện tháng 07/2018 theo các lô tối đa 500 sự kiện, cách nhau 5 giây; sau khi phát hết, chờ 20 giây rồi bắt đầu lại. Đầu mỗi chu kỳ đặt lại **ba bảng sự kiện/checkpoint/batch** `DemoOrderEvent`, `DemoReplayCheckpoint`, `DemoReplayBatch`; nhật ký quyết định `DemoActionLog` được giữ. Kho lịch sử `stg_*`, `Dim*`, `Fact*` và Power BI không thay đổi. Streamlit đọc lại MySQL mỗi 5 giây. Hai tiến trình chạy cho đến khi dừng bằng `Ctrl+C` ở từng terminal. Không chạy đồng thời `run_mysql_demo_cycle.py` và `replay_olist_mysql.py` vì chúng dùng cùng các bảng Demo.
 
 Phiên kiểm thử HTML/API ngày 15/11/2026 được lưu ở [bằng chứng cũ](evidence/mysql/micro_batch_live_2026-11-15.md). Giao diện chính hiện là Streamlit; nếu khởi động lại máy hoặc đóng tiến trình nền, dùng hai lệnh trên để bật lại.
 
-Checkpoint gắn với chữ ký của đúng tập dữ liệu nguồn và khoảng ngày. Nếu thay đổi nguồn hoặc ngày, dùng `--reset` để xóa **chỉ ba bảng Demo** rồi phát lại. Không chạy hai tiến trình replay đồng thời. Dừng dashboard bằng `Ctrl+C`.
+Checkpoint gắn với chữ ký của đúng tập dữ liệu nguồn và khoảng ngày. Nếu thay đổi nguồn hoặc ngày, dùng `--reset` để xóa **chỉ ba bảng sự kiện/checkpoint/batch** rồi phát lại; `DemoActionLog` không bị xóa. Không chạy hai tiến trình replay đồng thời. Dừng dashboard bằng `Ctrl+C`.
 
 ## Kiểm tra trong Workbench
 

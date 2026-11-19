@@ -1,58 +1,47 @@
-# Giải thích demo Streamlit Olist
+# Streamlit RouteOps
 
-## Một câu dễ nhớ
+## Chạy trong terminal
 
-**Micro-batch cho biết đơn đang ở bước nào; mô hình dự báo xếp ưu tiên đơn nào nên kiểm tra trước.** Hai nhánh nối nhau bằng `OrderId`, nhưng việc phát một lô sự kiện không huấn luyện hay chạy lại mô hình.
-
-```text
-Olist lịch sử trong MySQL
-  ├─ stg_Orders → phát lại bốn loại sự kiện → Demo* → KPI trạng thái
-  │                                              └─ tab Micro-batch MySQL
-  └─ Dim/Fact → huấn luyện + kiểm thử theo thời gian → hai bảng điểm rủi ro CSV
-                                                 ├─ tab Hàng đợi cảnh báo
-                                                 └─ ghép OrderId với đơn đang vận chuyển ở tab Micro-batch
+```powershell
+cd D:\olist\olist-bidss-group08
+python -m pip install -r requirements-forecast.txt
+python -m streamlit run scripts/streamlit_late_risk_demo.py
 ```
 
-## Micro-batch: input, xử lý, output
+Mở `http://localhost:8501`. Giữ terminal mở; nhấn `Ctrl+C` để dừng. MySQL phải chạy và `.mysql-password` phải có mật khẩu. Đồng hồ tự phát từ **01/10/2017 đến 31/08/2018** (20 giây = 1 ngày), có thể tạm dừng, tiếp tục, đặt lại và đổi tốc độ.
 
-- **Input:** `stg_Orders` của những đơn mua trong 07/2018, cuối cùng có trạng thái delivered và ngày giao. Nguồn có mốc đặt, duyệt, bàn giao carrier, giao khách và ngày hẹn.
-- **Xử lý:** `scripts/replay_olist_mysql.py` chuyển mỗi mốc hợp lệ thành một hàng `DemoOrderEvent`, xếp theo giờ sự kiện lịch sử và nạp tối đa 500 hàng mỗi lô, cách nhau 5 giây. `DemoReplayCheckpoint` ghi tiến độ; `DemoReplayBatch` ghi từng lô. Các view SQL suy ra trạng thái mới nhất của mỗi đơn và KPI vận hành.
-- **Output:** số sự kiện đã phát, số đơn đang vận chuyển, đơn chưa giao đã quá ngày hẹn, và danh sách đơn đang ở từng bước. Đây là trạng thái **quan sát được trong mô phỏng**, không phải dự báo.
-- **Hai đồng hồ:** `LastEventAt` là ngày giờ Olist năm 2018 đang được phát lại; `LastBatchAtUtc` là giờ máy thực sự nạp lô. Hai giờ này khác nhau.
+## Backend
 
-### Vì sao tổng là 23.983?
+1. `streamlit_dss_data.py` đọc `stg_Orders`, gom `stg_OrderItems` về một dòng mỗi `OrderId`; `GMV` là tổng `price`. `route_lookup()` nối dimension seller/khách để lấy bang và tọa độ. Olist không có Carrier ID.
+2. App ghép dữ liệu theo `OrderId`. Tại ngày mô phỏng T, đơn đã giao khi `DeliveredAt ≤ T`; mọi đơn đã đặt nhưng chưa quan sát được mốc giao tại T thuộc nhóm chưa giao, không lọc theo ngày đặt 30 ngày. App tách đơn có `CarrierAt ≤ T` (đã bàn giao cho vận chuyển) với đơn chưa có mốc bàn giao. Olist has no cancellation timestamp. The app excludes final-status canceled orders; it cannot reconstruct cancellation state at T.
+3. Tuyến là `SellerState → CustomerState`; đơn nhiều seller/thiếu bang bị loại khỏi KPI tuyến. OTD tính trên đơn đã giao trong 30 ngày đến T và có ngày hẹn để xác định đúng/trễ. Hàng đợi hiện tại là tập riêng: mọi đơn đã đặt đến T nhưng chưa giao tại T, bất kể ngày mua; trong đó “đang vận chuyển” chỉ là các đơn đã có `CarrierAt ≤ T`. GMV phơi nhiễm hiện tính từ đơn mở trễ ít nhất 3 ngày.
+4. Route Overview: KPI OTD dùng toàn bộ đơn đã giao có ngày hẹn trong 30 ngày kết thúc tại T; KPI toàn sàn không loại đơn chỉ vì thiếu tuyến. Open GMV at Risk gồm đơn chưa giao đã quá hẹn ít nhất 3 ngày; mẫu số phần trăm là GMV của mọi đơn chưa giao. GMV đơn đã giao trễ trong 30 ngày hiển thị riêng. Seller-origin chỉ lọc hàng đợi và bản đồ. Bản đồ Leaflet/OpenStreetMap gom vị trí khách vào geohash precision 4; ô chỉ là vị trí, màu lấy từ OTD tuyến seller → bang khách (xanh >=90%, vàng 85-<90%, đỏ <85%, xám dưới 30 đơn giao). Vùng địa lý là đường bao xấp xỉ suy ra từ mã bang và tọa độ vì DW không có polygon ranh giới.
+5. DimGeography trong MySQL không có cột Region, chỉ có StateCode và tọa độ. Năm vùng nền Norte, Nordeste, Centro-Oeste, Sudeste, Sul được suy ra theo phân vùng địa lý Brazil từ StateCode; đường bao hiển thị là xấp xỉ từ tọa độ bang, không phải ranh giới hành chính chính xác.
+6. What-if dùng đơn đã giao; seller được đánh giá riêng bằng `CarrierAt` so với `ShippingLimitAt`. Nút hành động chỉ ghi nhận lựa chọn mô phỏng; không sửa đơn hoặc gửi thông báo.
 
-Nguồn chọn 6.156 đơn; loại 26 đơn có mốc giao không hợp lệ, còn 6.130 đơn. Mỗi đơn tối đa bốn sự kiện. Trong những đơn giữ lại, 537 mốc bàn giao bị bỏ vì sai thứ tự. Do đó:
+## Luồng người dùng
 
-| Loại sự kiện | Số hàng |
-| --- | ---: |
-| Đặt hàng | 6.130 |
-| Duyệt đơn | 6.130 |
-| Bàn giao carrier | 5.593 |
-| Giao khách | 6.130 |
-| **Tổng** | **23.983** |
+1. **Route Overview:** chọn Seller origin (bang seller) để lọc map; bộ chọn **Tuyến đang xem** hiển rõ cặp Seller → Khách, OTD 30 ngày, số đơn giao/đang mở và GMV rủi ro. KPI phía trên gom các tuyến từ origin; map hiện các ô khách nhận và OTD cấp tuyến Seller → buyer state. Bảng bên cạnh xếp các tuyến cần chú ý theo trạng thái và GMV rủi ro. Màu xanh ≥90%, vàng 85–<90%, đỏ <85%, xám nếu tuyến dưới 30 đơn giao.
+2. **Route Detail:** hai khối độc lập. Khối hiệu suất hiển thị OTD theo ngày, thời gian giao/ngày hẹn/thời gian sau bàn giao, cùng hai kịch bản riêng: rút ngắn giao 0/3/6/9/12 ngày và nới ngày hẹn 0/2/4/6 ngày. Khối cứu đơn lấy mọi đơn chưa giao tại T (không giới hạn ngày mua), tách đơn có mốc bàn giao khỏi đơn chưa có mốc bàn giao; lọc đơn trễ từ 3 ngày hoặc 4+ ngày. Nới hẹn chỉ đổi cách chấm OTD; không làm hàng đến nhanh hơn. Tác vụ CSKH chỉ mô phỏng, không gửi thông báo thật.
+3. **Seller Performance:** Bảng hiển thị seller có bàn giao trên tuyến đang chọn. Seller Score là tổng điểm chuẩn hóa: Review 30%, OTD 25%, bàn giao đúng hạn 25%, số ngày trễ 10%, tỷ lệ hủy 10%; hạng A >=85, B 70-<85, C 50-<70, D <50. Chuẩn hóa dùng cùng bounds trong `scripts/mysql_dss.py`; chỉ chấm hạng khi có >=30 đơn giao và đủ dữ liệu. Seller Score và hạng dùng thông tin quan sát tới ngày mô phỏng. Olist không có thời điểm hủy nên chỉ số hủy dùng trạng thái cuối nguồn. Priority Score riêng: 60% rủi ro bàn giao trên tuyến + 40% tỷ trọng GMV trên tuyến.
 
-Đây là **số hàng sự kiện**, không phải 23.983 đơn. Có 47 lô đủ 500 sự kiện và lô cuối 483. Log chuẩn bị nguồn báo 563 mốc carrier bị bỏ trên 6.156 đơn ban đầu; 26 trong số đó thuộc các đơn bị loại hoàn toàn, nên phần thiếu trong 6.130 đơn giữ lại là 537.
+**Tóm tắt:** chọn tuyến → xem bằng chứng và thử phương án → xem seller liên quan. Các con số What-if là giả định, không phải tiền tiết kiệm thực tế.
 
-Lệnh demo hiện dùng `run_mysql_demo_cycle.py`: khi đã phát hết 23.983 sự kiện, runner chờ 20 giây rồi **xóa và nạp lại chỉ các bảng `Demo*`** để bắt đầu vòng sau. Vì vậy tiến độ trên màn hình có thể quay về đầu; đây là hành vi mô phỏng, không phải dữ liệu kho chính bị mất.
 
-## Mô hình: input, xử lý, output
+## Thao tác Route Overview
 
-- **Input lúc duyệt:** thông tin đơn, ngày hẹn, bang người bán/khách, sản phẩm, giá, phí vận chuyển và thanh toán đã ghi trong MySQL. Không dùng ngày giao, số ngày trễ hoặc review của chính đơn.
-- **Input lúc bàn giao:** thêm mốc bàn giao, số ngày còn trước ngày hẹn và việc bàn giao có vượt `shipping_limit_date` hay không. Lần này chỉ tính trên đơn một sản phẩm để tránh gán nhầm mốc của đơn nhiều seller.
-- **Xử lý:** script `scripts/forecast_late_delivery.py` huấn luyện trên dữ liệu cũ, chọn mô hình bằng giai đoạn 01–02/2018, rồi kiểm tra trên các đơn mua 04–08/2018 **đã giao và có nhãn**. Điểm rủi ro của tập kiểm tra được lưu sẵn ở `test_risk_queue.csv` và `handover_risk_queue.csv`. Đơn chưa có kết quả giao bị loại ngay từ truy vấn đầu vào, nên demo offline hiện chưa chấm điểm các đơn đó.
-- **Output:** điểm để **xếp thứ tự điều tra** và các bảng kiểm thử. Điểm chưa được hiệu chuẩn tốt thành xác suất thực. Cột `Late` trong CSV là nhãn chỉ biết sau khi giao; Streamlit ẩn nó trong hàng đợi và chỉ cho hiện khi chọn xem kết quả kiểm thử. So sánh 226 với 364 đơn là **so sánh hồi cứu có điều kiện** trên cùng 27.639 đơn mà về sau có mốc bàn giao hợp lệ, còn trong hạn tại mốc đó. Người vận hành lúc duyệt chưa thể biết chính xác quần thể này.
+- Chọn **Seller origin** để lọc tuyến xuất phát từ bang đó. Mỗi cặp bang seller → bang khách chỉ xuất hiện một lần trong hàng đợi.
+- Các ô geohash có thể lặp cùng tên tuyến vì đó là những vị trí khách khác nhau của cùng tuyến. Màu ô lấy từ OTD của tuyến, không phải OTD tính riêng trong ô.
+- Chọn tuyến trong hàng đợi để đồng bộ tuyến đang xem và làm nổi bật các ô tương ứng. Hàng đợi chỉ hiện tuyến đỏ/vàng đủ mẫu, xếp theo mức cảnh báo rồi GMV at Risk.
+- **Nhận xử lý** mở xác nhận cho đúng tuyến đang chọn. Xác nhận ghi nhận người phụ trách trong phiên mô phỏng rồi chuyển sang Route Detail; không sửa đơn hay liên hệ hãng vận chuyển thật.
+- `OTD 30 ngày = đơn giao đúng hẹn / mọi đơn đã giao đủ ngày hẹn` trong cửa sổ 30 ngày kết thúc tại T. Nhóm chưa giao là tập riêng gồm các đơn đặt đến T chưa quan sát thấy giao hàng, bất kể ngày đặt; nhóm này không vào mẫu số OTD.
+- Ví dụ tại T: 200 đơn đã giao trong 30 ngày, có ngày hẹn; 168 đơn đúng hẹn → OTD = 168/200 = 84%. Riêng tại T có thể còn 40 đơn chưa giao (28 đã bàn giao, 12 chưa có mốc bàn giao), trong đó 8 đơn đang vận chuyển đã quá hẹn. Các số 40/28/12/8 là hàng đợi tại T; chúng không cộng vào mẫu số 200 của OTD.
+- Đối chiếu dữ liệu thật ngày 15/03/2018, tuyến SP → RJ: 402/498 đơn giao đúng hẹn → OTD 80,72%; riêng tại T có 724 đơn chưa giao, gồm 640 đã bàn giao và 84 chưa có mốc bàn giao. Có 212 đơn chưa giao đã quá hẹn (181 trong nhóm đã bàn giao); số quá hẹn ít nhất 3 ngày là 189 (158 đã bàn giao). Vì vậy GMV rủi ro của mọi đơn chưa giao là R$27.216,11; phần thuộc đơn đã bàn giao là R$18.675,42. Đây là hai nhóm số liệu khác nhau, được ghi riêng để tránh gọi toàn bộ đơn chưa giao là “đang vận chuyển”.
+- `Open GMV at Risk` là GMV của nhóm chưa giao đã quá hẹn ít nhất 3 ngày. GMV đơn đã giao trễ trong 30 ngày là chỉ số lịch sử riêng, không cộng vào rủi ro hiện tại. Do không có timestamp hủy, nhóm chưa giao có thể gồm đơn được ghi nhận hủy về sau.
 
-## Hai nhánh gặp nhau ở đâu trong Streamlit?
 
-| Tab | Đọc từ đâu? | Người xem làm gì? |
-| --- | --- | --- |
-| **Hàng đợi cảnh báo** | Hai CSV điểm đã tính trước | Chọn ngày lịch sử và giai đoạn. App chỉ hiện đơn đang mở tại cuối ngày đó: đã duyệt chưa bàn giao, hoặc đã bàn giao chưa giao. Lọc bang/danh mục và chọn top % đơn cần kiểm tra. Đồng hồ ở đây do người xem điều chỉnh bằng tay. |
-| **Micro-batch MySQL** | Bảng `Demo*` và view KPI trong MySQL; nối `OrderId` với CSV điểm lúc bàn giao | Đồng hồ tự tiến khi runner nạp lô. App hỏi lại MySQL mỗi 5 giây và chỉ hiển thị điểm cho đơn **đã có sự kiện bàn giao, còn đang vận chuyển**, thuộc tập điểm đã tính và chưa quá hạn. |
-| **Kiểm thử mô hình** | CSV metrics và so sánh hai giai đoạn | Xem trên dữ liệu lịch sử việc chọn top 10% có tìm được nhiều đơn giao trễ hơn chọn ngẫu nhiên không; xem hiệu quả thay đổi theo tháng. Đây là đánh giá sau khi nhãn đã biết. |
+## Cancellation filter and What-if updates
 
-**Ví dụ:** Một đơn được duyệt nhưng chưa bàn giao sẽ xuất hiện ở trạng thái “chờ bàn giao” trong micro-batch; nếu thuộc tập kiểm thử, tab hàng đợi có thể xếp nó bằng điểm lúc duyệt. Khi sự kiện bàn giao được nạp, trạng thái thành “đang vận chuyển” và tab micro-batch có thể ghép điểm cập nhật lúc bàn giao theo `OrderId`. Khi sự kiện giao khách tới, đơn ra khỏi hàng đợi đang vận chuyển; lúc ấy mới biết nó có giao trễ thật hay không.
-
-## Giới hạn cần nói khi thuyết trình
-
-Đây là **hai cách phát lại cùng dữ liệu lịch sử**, không phải đơn hàng mới ngoài đời. Micro-batch nạp sự kiện vào MySQL theo chu kỳ; điểm mô hình đã được tính trước trên tập kiểm tra, chưa được chấm lại khi từng lô tới. Tab micro-batch mặc định phát lại các đơn mua trong **07/2018** (6.130 đơn đủ điều kiện phát lại, 537 mốc carrier bỏ qua), còn quần thể so sánh mô hình gồm **27.639 đơn mua 04–08/2018** đã giao, một sản phẩm, có mốc bàn giao hợp lệ và còn trong hạn lúc bàn giao. Hai con số có mẫu số khác nhau. Đơn nhiều sản phẩm và đơn thiếu/sai mốc bàn giao không có điểm lần hai; đơn cuối kỳ chưa có nhãn không được đưa vào cả bước chấm điểm offline lẫn đánh giá. Vì vậy không phải mọi đơn đang vận chuyển đều có điểm. Chọn top 10% là giả định về số đơn nhóm có thể kiểm tra, không phải số nhân viên thực tế hay mức tối ưu đã được chứng minh.
+- Route Overview, Route Detail, and Seller Performance exclude records whose final source status is `canceled`; `invoiced` records remain. Olist has no cancellation timestamp, so this is a final-status cleanup and cannot establish whether cancellation had occurred at the simulated date.
+- Route Detail distinguishes the rolling 30-day delivered cohort used for OTD from the open-order queue at the simulated date. The KPI row shows on-time, late, and total delivered counts alongside open-order counts.
+- The delivered-order scenario shortens the promise date for orders originally delivered on time and compares OTD, newly late orders, and GMV newly classified as at least 3 days late. The in-transit scenario extends the promise date only for orders currently 1?2 days overdue and compares remaining overdue orders and GMV before/after. Promise-date changes do not change actual delivery time; deltas describe hypothetical reclassification only.

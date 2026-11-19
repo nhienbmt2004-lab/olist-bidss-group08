@@ -22,14 +22,14 @@ Phân tích giao trễ trên dữ liệu Olist lịch sử và hỗ trợ **ưu 
 | DSS định kỳ | [mysql_dss.py](scripts/mysql_dss.py), [publish_mysql_forecast.py](scripts/publish_mysql_forecast.py) | [Scorecard, alert, dự báo, what-if](docs/evidence/mysql/dss/) |
 | Dự báo rủi ro | [forecast_late_delivery.py](scripts/forecast_late_delivery.py) | [Điểm và kiểm thử](docs/evidence/mysql/forecast_late_delivery/README.md) trên tập ngoài mẫu |
 | Micro-batch | [run_mysql_demo_cycle.py](scripts/run_mysql_demo_cycle.py) | Phát lại 23.983 sự kiện tháng 07/2018 vào `Demo*`, [log kiểm tra](docs/evidence/mysql/micro_batch_run.md) |
-| Giao diện demo | [streamlit_late_risk_demo.py](scripts/streamlit_late_risk_demo.py) | Trạng thái đơn + hàng đợi ưu tiên + kết quả backtest |
+| Demo RouteOps | [streamlit_late_risk_demo.py](scripts/streamlit_late_risk_demo.py) | Ba màn: Route Overview, Route Detail, Seller Performance; đặc tả tại `document/Demo (2).pdf` và `document/Demo (3).pdf` |
 | Framework | [draw.io](diagrams/olist-bi-dss-framework.drawio) | Kiến trúc từ nguồn đến quyết định |
 
 ## MySQL và ba lớp dữ liệu
 
 `stg_*` giữ bản nạp từ CSV; `CleanGeography`, `CleanProducts` và `Order*Totals` chuẩn hóa/tổng hợp; `Dim*`/`Fact*` là kho phân tích. Về chức năng có thể **liên hệ** với Bronze–Silver–Gold. Repo hiện dùng **một schema MySQL**, chưa triển khai Medallion như ba lớp lưu trữ/quản trị độc lập. `ETL*` và `DataQualityIssues` giữ bằng chứng; `Demo*` phục vụ phát lại. Các bảng này có phụ thuộc trong ETL, dashboard hoặc kiểm toán, nên chưa có bảng được xác nhận là dư để xóa.
 
-[Kiểm kê schema và quyết định giữ/xóa](docs/mysql-schema-audit.md): 32 bảng, 6 view, không có đối tượng không phân loại.
+[Kiểm kê schema và quyết định giữ/xóa](docs/mysql-schema-audit.md): 33 bảng, 6 view (gồm `DemoActionLog`), không có đối tượng không phân loại.
 
 ## Số liệu nền đã đối soát
 

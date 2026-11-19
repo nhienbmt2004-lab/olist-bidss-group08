@@ -12,12 +12,17 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 PBIP_ROOT = ROOT / "powerbi/pbip_project"
 REQUIRED = (
-    "README.md", "requirements-etl.txt", "requirements-forecast.txt",
+    "README.md", "AGENTS.md", "requirements-etl.txt", "requirements-forecast.txt",
     "scripts/build_mysql_dw.py", "scripts/run_mysql_eda.py",
     "scripts/export_mysql_evidence.py", "scripts/mysql_dss.py",
     "scripts/forecast_late_delivery.py", "scripts/replay_olist_mysql.py",
     "scripts/audit_mysql_schema.py",
-    "scripts/streamlit_late_risk_demo.py", "scripts/run_mysql_demo_cycle.py",
+    "scripts/streamlit_late_risk_demo.py", "scripts/streamlit_dss_app.py",
+    "scripts/streamlit_dss_core.py", "scripts/streamlit_dss_data.py",
+    "scripts/export_streamlit_snapshot.py",
+    "scripts/run_mysql_demo_cycle.py",
+    "document/Demo (2).pdf", "document/Demo (3).pdf",
+    "docs/giai-thich-demo-streamlit.md",
     "sql/mysql/01_schema.sql", "sql/mysql/02_transform.sql",
     "sql/mysql/03_views.sql", "sql/mysql/04_operational_replay.sql",
     "diagrams/olist-bi-dss-framework.drawio",

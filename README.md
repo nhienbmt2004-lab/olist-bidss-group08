@@ -12,7 +12,7 @@
 | EDA theo 5 câu hỏi kinh doanh | [EDA evidence](docs/evidence/mysql/eda/README.md) và [run_mysql_eda.py](scripts/run_mysql_eda.py) |
 | Dashboard 6 trang đang chỉnh sửa | [Power BI Project](powerbi/pbip_project/G8_Olist_Overview_MySQL.pbip) |
 | Bản PBIX MySQL lưu trước bản PBIP | [G8_Olist_Overview_MySQL.pbix](powerbi/G8_Olist_Overview_MySQL.pbix) |
-| Demo cảnh báo giao trễ sớm | [streamlit_late_risk_demo.py](scripts/streamlit_late_risk_demo.py) và [giải thích demo](docs/giai-thich-demo-streamlit.md) |
+| Demo RouteOps phát lại lịch sử | [streamlit_late_risk_demo.py](scripts/streamlit_late_risk_demo.py), đặc tả giao diện trong `document/Demo (2).pdf` và `document/Demo (3).pdf`, cùng [hướng dẫn ba màn hình](docs/giai-thich-demo-streamlit.md) |
 
 **Dùng PBIP làm bản Power BI chính:** PBIP được lưu sau PBIX MySQL và chứa sáu trang BQ đã chỉnh. PBIX chỉ là snapshot cũ hơn; khi cần PBIX mới, mở PBIP trong Power BI Desktop rồi **Save As → Power BI report (*.pbix)**. Không lấy PBIX cũ làm bản báo cáo cuối nếu chưa xuất lại từ PBIP.
 
@@ -54,7 +54,7 @@ python scripts/audit_mysql_schema.py
 python scripts/validate_project.py
 ```
 
-`export_mysql_evidence.py`, `run_mysql_eda.py`, `mysql_dss.py` và `forecast_late_delivery.py` đọc MySQL, ghi bằng chứng vào `docs/evidence/mysql/` và hình vào `notebooks/eda_output/`. Riêng `publish_mysql_forecast.py` **ghi lại bảng phục vụ dự báo Power BI** `PowerBIForecastMonthly`; `run_mysql_demo_cycle.py` ghi và đặt lại **chỉ các bảng `Demo*`**. Chi tiết đối soát: [mysql-migration.md](docs/mysql-migration.md).
+`export_mysql_evidence.py`, `run_mysql_eda.py`, `mysql_dss.py` và `forecast_late_delivery.py` đọc MySQL, ghi bằng chứng vào `docs/evidence/mysql/` và hình vào `notebooks/eda_output/`. Riêng `publish_mysql_forecast.py` **ghi lại bảng phục vụ dự báo Power BI** `PowerBIForecastMonthly`; `run_mysql_demo_cycle.py` ghi và đặt lại các bảng sự kiện/checkpoint/batch `Demo*`. Nhật ký quyết định mô phỏng `DemoActionLog` được giữ riêng qua các chu kỳ và lọc theo lượt replay hiện tại. Chi tiết đối soát: [mysql-migration.md](docs/mysql-migration.md).
 
 `notebooks/olist_bi_dss.ipynb` là bản phân tích CSV lịch sử giữ để tham khảo các phép DSS; **EDA chính để báo cáo hiện tại là kết quả chạy lại từ MySQL** bằng `run_mysql_eda.py`.
 
@@ -68,13 +68,17 @@ Mở project Power BI tại [PBIP](powerbi/pbip_project/G8_Olist_Overview_MySQL.
 python -m streamlit run scripts/streamlit_late_risk_demo.py
 ```
 
-Mở `http://localhost:8501`. Nếu muốn tab micro-batch tự thay đổi, ở terminal thứ hai chạy:
+Mở `http://localhost:8501`. Demo có ba màn hình trong thanh điều hướng bên trái: Route Overview, Route Detail và Seller Performance. Đồng hồ điều khiển ngày quan sát lịch sử; không phải nguồn đơn hàng live.
+
+Nếu muốn chạy micro-batch MySQL riêng, ở terminal thứ hai chạy:
 
 ```powershell
 python scripts/run_mysql_demo_cycle.py
 ```
 
-Runner phát lại tối đa 500 sự kiện mỗi lô, cách 5 giây, từ đơn mua tháng 07/2018. Nó chỉ đặt lại bảng `Demo*` khi chạy vòng mới. Điểm mô hình đã tính trước trên **các đơn kiểm thử lịch sử đã giao và có nhãn**; đơn chưa có kết quả giao chưa được chấm điểm trong demo offline này. Không có học lại hoặc scoring live theo lô. Xem [tài liệu demo](docs/giai-thich-demo-streamlit.md) và [kiểm toán phương pháp](docs/evidence/mysql/forecast_late_delivery/methodology_audit.md).
+Runner phát lại các đơn mua tháng 03/2018, tối đa 500 sự kiện mỗi lô, cách 5 giây. Đây là phần micro-batch riêng với RouteOps. Bản đồ geohash thể hiện nơi khách nhận; màu ô kế thừa OTD của tuyến, không phải KPI riêng cho ô. Năm vùng nền suy ra từ `StateCode` vì `DimGeography` không có cột `Region`.
+
+Các bảng để kiểm tra số liệu demo tại **15/03/2018** được xuất ở [output/streamlit_2018-03-15/](output/streamlit_2018-03-15/). Tạo lại bằng `python scripts/export_streamlit_snapshot.py --as-of-date 2018-03-15`; bảng đối soát nằm ở [backend_reconciliation.csv](output/streamlit_2018-03-15/backend_reconciliation.csv), màu và OTD tuyến của từng ô ở [map_geohash_cells.csv](output/streamlit_2018-03-15/map_geohash_cells.csv).
 
 ## Kiểm tra và giới hạn
 

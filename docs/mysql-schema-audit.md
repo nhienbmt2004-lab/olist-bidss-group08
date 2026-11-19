@@ -1,6 +1,6 @@
 # Kiểm kê schema MySQL và quyết định giữ/xóa
 
-Kiểm tra ngày 16/11/2026 bằng `python scripts/audit_mysql_schema.py`, chỉ đọc schema `olist_bi_group08`. [Danh sách 38 đối tượng và số dòng chính xác](evidence/mysql/schema_inventory.csv) gồm **32 bảng, 6 view**; không có đối tượng ngoài các nhóm thiết kế.
+Kiểm tra lại ngày 17/11/2026 bằng `python scripts/audit_mysql_schema.py`, chỉ đọc schema `olist_bi_group08`. [Danh sách 39 đối tượng và số dòng tại lúc chạy](evidence/mysql/schema_inventory.csv) gồm **33 bảng, 6 view**; không có đối tượng ngoài các nhóm thiết kế. Số dòng `Demo*` thay đổi khi replay chạy.
 
 | Nhóm | Số bảng/view | Vì sao giữ |
 | --- | ---: | --- |
@@ -10,7 +10,8 @@ Kiểm tra ngày 16/11/2026 bằng `python scripts/audit_mysql_schema.py`, chỉ
 | `Fact*` | 4 bảng | Fact đơn giao, item, thanh toán và review; nguồn KPI/EDA/DSS/Power BI. |
 | `ETL*`, `DataQualityIssues` | 4 bảng | Log lần chạy, các bước, đối soát và vấn đề chất lượng dữ liệu. |
 | `PowerBIForecastMonthly` | 1 bảng | Nguồn của partition `ForecastMonthly` trong PBIP; hiện 46 dòng. |
-| `Demo*` | 3 bảng | Sự kiện phát lại, checkpoint và log batch cho Streamlit; tại lúc kiểm tra có 23.983 sự kiện/48 lô. |
+| `DemoOrderEvent`, `DemoReplayCheckpoint`, `DemoReplayBatch` | 3 bảng | Sự kiện phát lại, checkpoint và log batch cho Streamlit. |
+| `DemoActionLog` | 1 bảng | Nhật ký đề xuất xử lý mô phỏng, giữ qua các lượt replay và lọc theo lượt hiện tại. |
 | `vw_*` | 6 view | KPI lịch sử, seller và trạng thái/KPI demo. |
 
 **Kết luận:** không có bảng hoặc view nào được chứng minh là dư; **không xóa đối tượng MySQL**. Xóa `Dim*`/`Fact*` làm hỏng Power BI, xóa `stg_*`/bảng trung gian làm mất khả năng tái lập và đối soát, xóa `Demo*` làm hỏng màn hình micro-batch. Những schema khác trong MySQL Server không thuộc đồ án và không được đụng tới.
