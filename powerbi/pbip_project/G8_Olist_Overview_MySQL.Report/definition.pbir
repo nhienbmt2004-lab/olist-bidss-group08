@@ -1,8 +1,0 @@
-{
-  "version": "4.0",
-  "datasetReference": {
-    "byPath": {
-      "path": "../G8_Olist_Overview_MySQL.SemanticModel"
-    }
-  }
-}

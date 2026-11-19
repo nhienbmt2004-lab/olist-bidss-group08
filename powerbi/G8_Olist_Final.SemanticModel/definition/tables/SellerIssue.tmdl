@@ -1,0 +1,19 @@
+table SellerIssue
+	lineageTag: bf8bea0e-7b10-586e-bed1-1a2caa6fa800
+
+	column Issue
+		dataType: string
+		lineageTag: 080ecb6e-2eed-4b44-8cfa-1a7df4778f6a
+		sourceColumn: [Issue]
+		sortByColumn: Sort
+
+	column Sort
+		dataType: int64
+		isHidden
+		lineageTag: 7db8f6c6-0d61-4473-897e-459724dc723f
+		sourceColumn: [Sort]
+
+	partition SellerIssue = calculated
+		mode: import
+		source = DATATABLE("Issue", STRING, "Sort", INTEGER, {{"Giao trễ >10%", 1}, {"Review <4,0", 2}, {"Hủy đơn ≥1%", 3}})
+

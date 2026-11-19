@@ -1,0 +1,901 @@
+table FactOrderItem
+	lineageTag: 3245a1e1-f488-4742-8385-722fbd028289
+
+	/// BIZ-02
+	measure 'GMV at Risk' = CALCULATE([GMV], FILTER('FactOrderItem', 'FactOrderItem'[IsOnTime] == FALSE() || (NOT ISBLANK('FactOrderItem'[ReviewScore]) && 'FactOrderItem'[ReviewScore] <= 2)))
+		formatString: #,0.00
+		displayFolder: 3.5 Quy mô và rủi ro
+		lineageTag: 9e5c1b15-b954-4371-9f47-d2f75b790504
+
+	/// BQ4
+	measure 'GMV YoY (T1-T8)' = VAR g18 = CALCULATE([GMV], REMOVEFILTERS('DimDate'), 'DimDate'[YearNumber] = 2018, 'DimDate'[MonthNumber] <= 8) VAR g17 = CALCULATE([GMV], REMOVEFILTERS('DimDate'), 'DimDate'[YearNumber] = 2017, 'DimDate'[MonthNumber] <= 8) RETURN DIVIDE(g18 - g17, g17)
+		formatString: 0.0%
+		displayFolder: 3.5 Quy mô và rủi ro
+		lineageTag: 93a9add6-cb13-4e59-a5d2-0d752e521522
+
+	/// Điều kiện chấm điểm >= 30
+	measure 'Delivered Orders (Item)' = CALCULATE(DISTINCTCOUNT('FactOrderItem'[OrderId]), NOT ISBLANK('FactOrderItem'[IsOnTime]))
+		formatString: #,0
+		displayFolder: 3.5 SEL Người bán
+		lineageTag: f0a764cf-af08-4310-8e29-8acbca86015c
+
+	measure 'Late Orders (Item)' = CALCULATE(DISTINCTCOUNT('FactOrderItem'[OrderId]), 'FactOrderItem'[IsOnTime] == FALSE())
+		formatString: #,0
+		displayFolder: 3.5 SEL Người bán
+		lineageTag: eaffa681-33e7-41c1-83ff-89fc978f9ee7
+
+	measure 'OTD (Item)' = DIVIDE([Delivered Orders (Item)] - [Late Orders (Item)], [Delivered Orders (Item)])
+		formatString: 0.00%
+		displayFolder: 3.5 SEL Người bán
+		lineageTag: 40c31095-94e3-4161-a5e7-e7cd27ca98b2
+
+	measure 'Review (Item)' = AVERAGEX(FILTER(ADDCOLUMNS(VALUES('FactOrderItem'[OrderId]), "@r", CALCULATE(MAX('FactOrderItem'[ReviewScore]))), NOT ISBLANK([@r])), [@r])
+		formatString: 0.00
+		displayFolder: 3.5 SEL Người bán
+		lineageTag: abc4ec14-aea4-49ad-943d-72e36e67adae
+
+	/// SEL-01
+	measure 'Handover On-time %' = DIVIDE(CALCULATE(COUNTROWS('FactOrderItem'), 'FactOrderItem'[HandoverOnTime] = 1), CALCULATE(COUNTROWS('FactOrderItem'), NOT ISBLANK('FactOrderItem'[HandoverOnTime])))
+		formatString: 0.00%
+		displayFolder: 3.5 SEL Người bán
+		lineageTag: a67e3f5f-6282-452f-8bb6-9a87b765a1ad
+
+	measure 'Avg Delay Days (Item)' = AVERAGEX(FILTER(ADDCOLUMNS(VALUES('FactOrderItem'[OrderId]), "@d", CALCULATE(MAX('FactOrderItem'[DelayDays]))), [@d] > 0), [@d])
+		formatString: 0.0
+		displayFolder: 3.5 SEL Người bán
+		lineageTag: 466e01ed-d99a-48ca-8e8d-d0287751c351
+
+	/// SEL-02 theo KPI Dictionary: chỉ trạng thái canceled
+	measure 'Seller Cancellation Rate' = DIVIDE(CALCULATE(DISTINCTCOUNT('FactOrderItem'[OrderId]), 'FactOrderItem'[OrderStatus] = "canceled"), [Sales Orders])
+		formatString: 0.00%
+		displayFolder: 3.5 SEL Người bán
+		lineageTag: 6936e91f-a57b-4bf9-bd8a-c4af09cca809
+
+	/// L = 3,0; U = 4,5
+	measure S_Review = VAR x = [Review (Item)] RETURN IF(NOT ISBLANK(x), 100 * MIN(1, MAX(0, (x - 3.0) / (4.5 - 3.0))))
+		formatString: 0.0
+		displayFolder: 3.5 Scorecard SEL-03
+		lineageTag: 00bb9df4-de92-4f12-8516-77f31793d063
+
+	/// L = 80%; U = 97%
+	measure S_OTD = VAR x = [OTD (Item)] RETURN IF(NOT ISBLANK(x), 100 * MIN(1, MAX(0, (x - 0.80) / (0.97 - 0.80))))
+		formatString: 0.0
+		displayFolder: 3.5 Scorecard SEL-03
+		lineageTag: c3d8bf51-f076-4ffa-8095-1b605c3f44b2
+
+	/// L = 80%; U = 97%
+	measure S_Handover = VAR x = [Handover On-time %] RETURN IF(NOT ISBLANK(x), 100 * MIN(1, MAX(0, (x - 0.80) / (0.97 - 0.80))))
+		formatString: 0.0
+		displayFolder: 3.5 Scorecard SEL-03
+		lineageTag: ff7cf2ee-460e-474a-a07f-c1b0d69b6f21
+
+	/// L = 14 ngày; U = 1 ngày
+	measure S_Delay = VAR d = COALESCE([Avg Delay Days (Item)], 0) RETURN 100 * MIN(1, MAX(0, (14 - d) / (14 - 1)))
+		formatString: 0.0
+		displayFolder: 3.5 Scorecard SEL-03
+		lineageTag: ea2ac7bb-42b8-43f5-bb52-103941b27d09
+
+	/// L = 2%; U = 0%
+	measure S_Cancel = VAR c = COALESCE([Seller Cancellation Rate], 0) RETURN 100 * MIN(1, MAX(0, (0.02 - c) / 0.02))
+		formatString: 0.0
+		displayFolder: 3.5 Scorecard SEL-03
+		lineageTag: 483c0aea-b3de-447f-8b1c-a48736fe02ad
+
+	measure 'SEL-03 Score' = IF(HASONEVALUE('DimSeller'[SellerId]) && [Delivered Orders (Item)] >= 30, 0.30 * [S_Review] + 0.25 * [S_OTD] + 0.25 * [S_Handover] + 0.10 * [S_Delay] + 0.10 * [S_Cancel])
+		formatString: 0.0
+		displayFolder: 3.5 Scorecard SEL-03
+		lineageTag: 0c0a7439-912a-4ac9-b2d9-fbcf98ad83dc
+
+	measure 'Seller Grade' = VAR s = [SEL-03 Score] RETURN IF(HASONEVALUE('DimSeller'[SellerId]), SWITCH(TRUE(), ISBLANK(s), "Chưa xếp hạng", s >= 85, "A", s >= 70, "B", s >= 50, "C", "D"))
+		displayFolder: 3.5 Scorecard SEL-03
+		lineageTag: eab9b0c0-255a-4818-be1c-7ec805c8a1c4
+
+	measure 'Seller Action' = SWITCH([Seller Grade], "A", "Ưu tiên", "B", "Duy trì", "C", "Cảnh báo và hỗ trợ", "D", "Đề xuất hạn chế")
+		displayFolder: 3.5 Scorecard SEL-03
+		lineageTag: 525012d9-ee3a-4a78-b748-d554b30dd6e9
+
+	measure 'Grade Color' = SWITCH([Seller Grade], "A", "#2E7D32", "B", "#1F6FB2", "C", "#E0A100", "D", "#C62828", "#9E9E9E")
+		displayFolder: 3.5 Scorecard SEL-03
+		lineageTag: d198ff4c-c315-4069-be98-8387d0775b69
+
+	measure 'Sellers Eligible' = COUNTROWS(FILTER(VALUES('DimSeller'[SellerId]), [Delivered Orders (Item)] >= 30))
+		formatString: #,0
+		displayFolder: 3.5 Scorecard SEL-03
+		lineageTag: 778261bb-e237-4755-948f-1838d6390be8
+
+	measure 'Avg SEL-03' = AVERAGEX(FILTER(VALUES('DimSeller'[SellerId]), [Delivered Orders (Item)] >= 30), [SEL-03 Score])
+		formatString: 0.0
+		displayFolder: 3.5 Scorecard SEL-03
+		lineageTag: 1f87444f-d95a-494e-bac7-156dabcc8d1d
+
+	measure 'Sellers by Grade' = VAR g = SELECTEDVALUE('GradeBand'[Grade]) RETURN COUNTROWS(FILTER(VALUES('DimSeller'[SellerId]), [Seller Grade] = g))
+		formatString: #,0
+		displayFolder: 3.5 Scorecard SEL-03
+		lineageTag: 6ebbd41d-d6d7-47db-8a0d-b6d5ce5ac541
+
+	measure 'GMV by Grade' = VAR g = SELECTEDVALUE('GradeBand'[Grade]) RETURN SUMX(FILTER(VALUES('DimSeller'[SellerId]), [Seller Grade] = g), [GMV])
+		formatString: #,0
+		displayFolder: 3.5 Scorecard SEL-03
+		lineageTag: 19b7685d-8779-429c-88c1-9e4f6e33a6cb
+
+	measure 'Share Grade C-D' = DIVIDE(COUNTROWS(FILTER(VALUES('DimSeller'[SellerId]), [Seller Grade] IN {"C", "D"})), [Sellers Eligible])
+		formatString: 0.0%
+		displayFolder: 3.5 Scorecard SEL-03
+		lineageTag: 44898f1d-613a-4a4f-a272-7921ad72d005
+
+	measure 'GMV at Risk C-D' = SUMX(FILTER(VALUES('DimSeller'[SellerId]), [Seller Grade] IN {"C", "D"}), [GMV at Risk])
+		formatString: #,0
+		displayFolder: 3.5 Scorecard SEL-03
+		lineageTag: e072eb9c-c435-4215-b454-0628eaf9d942
+
+	measure 'Seller Alert' = IF([Delivered Orders (Item)] >= 30 && ([Seller Grade] IN {"C", "D"} || [Handover On-time %] < 0.90), 1, 0)
+		formatString: 0
+		displayFolder: 3.5 Alert
+		lineageTag: 11ba9204-c924-4d0b-b50f-42125e42d829
+
+	measure GMV = SUM('FactOrderItem'[Price])
+		formatString: #,0.00
+		lineageTag: e89a2c95-cc82-4d94-9c16-97e340a12727
+
+	measure Freight = SUM('FactOrderItem'[FreightValue])
+		formatString: #,0.00
+		lineageTag: 031a6f35-6cc9-4ada-9120-b64d6e1751d8
+
+	measure 'Order Items' = COUNTROWS('FactOrderItem')
+		formatString: #,0
+		lineageTag: 92db0d14-b219-4f1d-8bdb-a7cdf4c228e8
+
+	measure 'Sales Orders' = DISTINCTCOUNT('FactOrderItem'[OrderId])
+		formatString: #,0
+		lineageTag: 4a83c24e-a84e-4735-81a1-7bf4e15f7f61
+
+	measure AOV = DIVIDE([GMV], [Sales Orders])
+		formatString: #,0.00
+		lineageTag: fe1f0209-f9a7-47f1-83be-7894b9c1c3ef
+
+	measure 'Freight Ratio' = DIVIDE([Freight], [GMV])
+		formatString: 0.00%
+		lineageTag: 8d451d70-c106-4219-b962-45e49a0f25cd
+
+	measure 'GMV at Risk %' = DIVIDE ( [GMV at Risk], [GMV] )
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: 29cf1e34-83c9-47b5-a0b4-86e4a3ec52d1
+
+	measure 'Sellers Alerted' = COUNTROWS(FILTER(VALUES('DimSeller'[SellerId]), [Seller Alert] = 1))
+		formatString: #,0
+		displayFolder: 4.0 Dashboard v2
+		lineageTag: 0d6f30cf-cf95-4f99-b0e2-666fe29775cb
+
+	measure 'Late Handover Share' = DIVIDE(CALCULATE(DISTINCTCOUNT('FactOrderItem'[OrderId]), 'FactOrderItem'[IsOnTime] == FALSE(), 'FactOrderItem'[HandoverOnTime] = 0), [Late Orders (Item)])
+		formatString: 0.0%
+		displayFolder: 4.0 Dashboard v2
+		lineageTag: 432a35a9-096a-4b57-bc57-4b81dcedf95d
+
+	measure 'Late Cause' = VAR s = [Late Handover Share] RETURN IF(ISBLANK(s), BLANK(), IF(s >= 0.5, "Người bán", "Vận chuyển"))
+		displayFolder: 4.0 Dashboard v2
+		lineageTag: 3393ad36-8005-4c66-aa37-8af5e27dcc4d
+
+	measure 'Sub GMV' = VAR n = [Sales Orders] RETURN IF(ISBLANK(n), BLANK(), FORMAT(n, "#,0", "vi-VN") & " đơn | YoY " & FORMAT([GMV YoY (T1-T8)], "+0.0%;-0.0%", "vi-VN"))
+		displayFolder: 4.0 Dashboard v2
+		lineageTag: eba7482b-ef08-4486-bb57-24bc206310d1
+
+	measure 'Sub Risk' = VAR x = DIVIDE([GMV at Risk], [GMV]) RETURN IF(ISBLANK(x), BLANK(), FORMAT(x, "0.0%", "vi-VN") & " tổng GMV")
+		displayFolder: 4.0 Dashboard v2
+		lineageTag: f3c31fdb-bbf6-44d9-8bea-e0eccaf9f1e6
+
+	measure 'Sub Seller' = VAR n = [Sellers Alerted] RETURN IF(ISBLANK(n), BLANK(), FORMAT(n, "#,0", "vi-VN") & " người bán cần xử lý")
+		displayFolder: 4.0 Dashboard v2
+		lineageTag: 208733dc-ca14-46a1-8dd1-890c6f946ccd
+
+	measure 'Sub Handover' = VAR s = [Late Handover Share] RETURN IF(ISBLANK(s), BLANK(), FORMAT(s, "0.0%", "vi-VN") & " đơn trễ do bàn giao")
+		displayFolder: 4.0 Dashboard v2
+		lineageTag: b864b7a1-fc9e-41fe-8c22-fabdacfc0ecd
+
+	measure Total_Sellers_1 = DISTINCTCOUNT(DimSeller[SellerId])
+		formatString: 0
+		lineageTag: c4312129-5afa-4b01-84e9-1b6ad21c98c8
+
+	measure Avg_GMV_Per_Seller = DIVIDE(SUM(FactOrderItem[price]), [Total_Sellers_1], 0)
+		lineageTag: 9f996344-e805-4272-9ce7-99b5c6f89855
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	/// Used by Seller Performance scatter/card/table. DimSeller filters FactOrderItem.
+	measure Seller_Late_Rate = DIVIDE(COALESCE([Late Orders (Item)], 0), [Delivered Orders (Item)])
+		formatString: 0.00%
+		lineageTag: 96f02071-45ae-4b71-90f2-9532f3b8a95c
+
+	/// Used by Product/Category table and Seller Performance card/table.
+	/// Review (Item) deduplicates OrderId inside the current seller/category filter.
+	measure Avg_Seller_Review = [Review (Item)]
+		formatString: 0.00
+		lineageTag: f9794439-4d97-45fe-ba2a-75f4b0425624
+
+	measure Total_Products_Sold = COUNT(FactOrderItem[OrderId])
+		formatString: 0
+		lineageTag: 53ec7c79-18e6-4808-8793-61c3b33b54bc
+
+	measure Category_Revenue_Share_% =
+			
+			DIVIDE(
+			    SUM(FactOrderItem[price]),
+			    CALCULATE(SUM(FactOrderItem[price]), ALL(DimCategory)),
+			    0
+			)
+		lineageTag: 11bb5cb0-e011-4ab0-8c68-bd8265b781e3
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Avg_Category_Discount_% =
+			
+			AVERAGEX(
+			    FactOrderItem,
+			    DIVIDE(FactOrderItem[Price] - FactOrderItem[Price], FactOrderItem[Price], 0)
+			)
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: 0c06636f-1298-4f8d-acc9-fc750a9067ee
+
+	measure Avg_Unit_Price = AVERAGE(FactOrderItem[Price])
+		lineageTag: 12d9e97d-bba6-4a07-8413-1f3f4bf1f8d5
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Seller Score 4.2' =
+			VAR Ready = [Seller Score Data Status 4.2] = "Đủ dữ liệu"
+			RETURN IF(Ready, ROUND(0.30 * [S_Review] + 0.25 * [S_OTD] + 0.25 * [S_Handover] + 0.10 * [S_Delay] + 0.10 * [S_Cancel], 4))
+		formatString: 0.0
+		displayFolder: DSS Seller Scoring
+		lineageTag: 8bb36b18-906f-4f18-90e9-9daf1345a3a2
+
+	measure 'Seller Rank 4.2' =
+			VAR CurrentScore = [Seller Score 4.2]
+			VAR Candidates =
+				FILTER(
+					ADDCOLUMNS(
+						ALLSELECTED('DimSeller'[SellerId]),
+						"@SellerScore", CALCULATE([Seller Score 4.2])
+					),
+					NOT ISBLANK('DimSeller'[SellerId])
+						&& NOT ISBLANK([@SellerScore])
+				)
+			RETURN
+				IF(
+					ISINSCOPE('DimSeller'[SellerId])
+						&& HASONEVALUE('DimSeller'[SellerId])
+						&& NOT ISBLANK(CurrentScore),
+					RANKX(Candidates, [@SellerScore], CurrentScore, DESC, DENSE),
+					BLANK()
+				)
+		formatString: 0
+		displayFolder: DSS Seller Ranking
+		lineageTag: e6fd3327-1175-46ae-905f-f4bafcb09cd1
+
+	measure 'Seller Grade 4.2' =
+			VAR ScoreValue = [Seller Score 4.2]
+			RETURN
+				IF(
+					HASONEVALUE('DimSeller'[SellerId])
+						&& NOT ISBLANK(SELECTEDVALUE('DimSeller'[SellerId])),
+					SWITCH(
+						TRUE(),
+						ISBLANK(ScoreValue), "Chưa đủ dữ liệu",
+						ScoreValue >= 85, "A",
+						ScoreValue >= 70, "B",
+						ScoreValue >= 50, "C",
+						"D"
+					),
+					BLANK()
+				)
+		displayFolder: DSS Seller Ranking
+		lineageTag: 1521abac-c062-4a04-ab3c-d756d2c2f54e
+
+	measure 'Seller Action 4.2' =
+			SWITCH(
+				[Seller Grade 4.2],
+				"A", "Ưu tiên",
+				"B", "Duy trì",
+				"C", "Cảnh báo và hỗ trợ",
+				"D", "Đề xuất hạn chế",
+				"Chưa đủ dữ liệu", "Kiểm tra dữ liệu",
+				BLANK()
+			)
+		displayFolder: DSS Seller Ranking
+		lineageTag: f5f3ef2d-c4ca-456e-a0ef-78f955f07fa8
+
+	/// Seller-context KPI; denominator is distinct orders with known IsOnTime, not all sales orders.
+	measure 'Seller Late Rate 4.2' =
+			VAR DeliveredOrders =
+				CALCULATE(
+					DISTINCTCOUNT('FactOrderItem'[OrderId]),
+					KEEPFILTERS(NOT ISBLANK('FactOrderItem'[IsOnTime]))
+				)
+			VAR LateOrders =
+				CALCULATE(
+					DISTINCTCOUNT('FactOrderItem'[OrderId]),
+					KEEPFILTERS('FactOrderItem'[IsOnTime] == FALSE())
+				)
+			RETURN
+				DIVIDE(COALESCE(LateOrders, 0), DeliveredOrders)
+		formatString: 0.00%
+		displayFolder: DSS Threshold Alert
+		lineageTag: a0c2203b-b00d-4a09-9902-b369fc83b831
+
+	/// Reuses order-deduplicated review from FactOrderItem; not Avg_Seller_Review from FactReview.
+	measure 'Seller Review Score 4.2' = [Review (Item)]
+		formatString: 0.00
+		displayFolder: DSS Threshold Alert
+		lineageTag: d934ad5a-46ae-40f2-8978-3823d1523556
+
+	/// Canceled only, consistent with SEL-02. Orders without seller items cannot be attributed.
+	measure 'Seller Cancellation Rate 4.2' =
+			VAR SalesOrders = [Sales Orders]
+			VAR MissingStatusRows =
+				COUNTROWS(
+					FILTER(
+						'FactOrderItem',
+						ISBLANK('FactOrderItem'[OrderStatus])
+							|| 'FactOrderItem'[OrderStatus] = ""
+					)
+				)
+			VAR CancelledOrders =
+				CALCULATE(
+					DISTINCTCOUNT('FactOrderItem'[OrderId]),
+					KEEPFILTERS('FactOrderItem'[OrderStatus] = "canceled")
+				)
+			RETURN
+				IF(
+					SalesOrders > 0 && COALESCE(MissingStatusRows, 0) = 0,
+					DIVIDE(COALESCE(CancelledOrders, 0), SalesOrders),
+					BLANK()
+				)
+		formatString: 0.00%
+		displayFolder: DSS Threshold Alert
+		lineageTag: 7777540d-1750-4385-8363-1047c391bf7b
+
+	/// Alert policy: >=30 OTD-known orders (Seller eligibility reused), >=1 reviewed order.
+	/// No new minimum review coverage is assumed. Missing data takes precedence over traffic-light levels.
+	measure 'Seller Alert Data Status 4.2' =
+			VAR SingleSeller =
+				HASONEVALUE('DimSeller'[SellerId])
+					&& NOT ISBLANK(SELECTEDVALUE('DimSeller'[SellerId]))
+			VAR SalesOrders = [Sales Orders]
+			VAR DeliveredOrders =
+				CALCULATE(
+					DISTINCTCOUNT('FactOrderItem'[OrderId]),
+					KEEPFILTERS(NOT ISBLANK('FactOrderItem'[IsOnTime]))
+				)
+			VAR ReviewedOrders =
+				CALCULATE(
+					DISTINCTCOUNT('FactOrderItem'[OrderId]),
+					KEEPFILTERS(NOT ISBLANK('FactOrderItem'[ReviewScore]))
+				)
+			VAR InvalidReviewRows =
+				COUNTROWS(
+					FILTER(
+						'FactOrderItem',
+						NOT ISBLANK('FactOrderItem'[ReviewScore])
+							&& ('FactOrderItem'[ReviewScore] < 1 || 'FactOrderItem'[ReviewScore] > 5)
+					)
+				)
+			VAR LateValue = [Seller Late Rate 4.2]
+			VAR ReviewValue = [Seller Review Score 4.2]
+			VAR CancelValue = [Seller Cancellation Rate 4.2]
+			VAR MissingReasons =
+				IF(COALESCE(SalesOrders, 0) = 0, "Không có đơn có item; ", "")
+					& IF(COALESCE(DeliveredOrders, 0) < 30, "Dưới 30 đơn đủ thông tin OTD; ", "")
+					& IF(COALESCE(ReviewedOrders, 0) = 0, "Không có review; ", "")
+					& IF(COALESCE(InvalidReviewRows, 0) > 0, "Review ngoài khoảng 1-5; ", "")
+					& IF(ISBLANK(LateValue) || LateValue < 0 || LateValue > 1, "Late Rate thiếu hoặc không hợp lệ; ", "")
+					& IF(ISBLANK(ReviewValue), "Review Score thiếu; ", "")
+					& IF(ISBLANK(CancelValue) || CancelValue < 0 || CancelValue > 1, "Cancellation Rate thiếu hoặc không hợp lệ (kiểm tra OrderStatus); ", "")
+			RETURN
+				IF(
+					SingleSeller,
+					IF(MissingReasons = "", "Đủ dữ liệu", LEFT(MissingReasons, LEN(MissingReasons) - 2)),
+					BLANK()
+				)
+		displayFolder: DSS Threshold Alert
+		lineageTag: 5b2007f7-c9a8-4797-b544-56ba1fa19e0a
+
+	/// Threshold policy requiring group confirmation; not an industry standard.
+	/// Late: Green <=10%, Yellow >10% and <20%, Red >=20% (Late Target / heatmap anchors).
+	/// Review: Green >=4, Yellow >=3 and <4, Red <3 (3 from S_Review; 4 is provisional).
+	/// Cancel: Green <1%, Yellow >=1% and <2%, Red >=2% (2% from S_Cancel; 1% is provisional).
+	measure 'Seller Alert Level 4.2' =
+			VAR DataStatus = [Seller Alert Data Status 4.2]
+			VAR LateValue = [Seller Late Rate 4.2]
+			VAR ReviewValue = [Seller Review Score 4.2]
+			VAR CancelValue = [Seller Cancellation Rate 4.2]
+			RETURN
+				IF(
+					NOT ISBLANK(DataStatus),
+					SWITCH(
+						TRUE(),
+						DataStatus <> "Đủ dữ liệu", "Chưa đủ dữ liệu",
+						LateValue >= 0.20 || ReviewValue < 3.0 || CancelValue >= 0.02, "Red",
+						LateValue > 0.10 || ReviewValue < 4.0 || CancelValue >= 0.01, "Yellow",
+						"Green"
+					),
+					BLANK()
+				)
+		displayFolder: DSS Threshold Alert
+		lineageTag: 62e5439b-3e51-441e-ae63-215a824c8a3e
+
+	/// Lists every breached KPI, not only the KPI determining the worst level.
+	measure 'Seller Alert Reason 4.2' =
+			VAR AlertLevel = [Seller Alert Level 4.2]
+			VAR LateValue = [Seller Late Rate 4.2]
+			VAR ReviewValue = [Seller Review Score 4.2]
+			VAR CancelValue = [Seller Cancellation Rate 4.2]
+			VAR Breaches =
+				IF(
+					LateValue > 0.10,
+					"Late Rate " & FORMAT(LateValue, "0.00%") & IF(LateValue >= 0.20, " >= 20% (Red); ", " > 10% (Yellow); "),
+					""
+				)
+					& IF(
+						ReviewValue < 4.0,
+						"Review " & FORMAT(ReviewValue, "0.00") & IF(ReviewValue < 3.0, " < 3 (Red); ", " < 4 (Yellow); "),
+						""
+					)
+					& IF(
+						CancelValue >= 0.01,
+						"Cancellation " & FORMAT(CancelValue, "0.00%") & IF(CancelValue >= 0.02, " >= 2% (Red); ", " >= 1% (Yellow); "),
+						""
+					)
+			RETURN
+				SWITCH(
+					TRUE(),
+					ISBLANK(AlertLevel), BLANK(),
+					AlertLevel = "Chưa đủ dữ liệu", [Seller Alert Data Status 4.2],
+					AlertLevel = "Green", "Trong ngưỡng: Late <= 10%; Review >= 4; Cancellation < 1%",
+					LEFT(Breaches, MAX(0, LEN(Breaches) - 2))
+				)
+		displayFolder: DSS Threshold Alert
+		lineageTag: f68e6f85-31e0-4f64-a014-d89d1a5867a0
+
+	measure 'Sellers Red 4.2' =
+			COALESCE(
+				COUNTROWS(
+					FILTER(
+						VALUES('DimSeller'[SellerId]),
+						NOT ISBLANK('DimSeller'[SellerId])
+							&& [Seller Alert Level 4.2] = "Red"
+					)
+				),
+				0
+			)
+		formatString: 0
+		displayFolder: DSS Threshold Alert
+		lineageTag: d2f3643e-71cc-4f78-8cab-41337897cbe7
+
+	measure 'Sellers Yellow 4.2' =
+			COALESCE(
+				COUNTROWS(
+					FILTER(
+						VALUES('DimSeller'[SellerId]),
+						NOT ISBLANK('DimSeller'[SellerId])
+							&& [Seller Alert Level 4.2] = "Yellow"
+					)
+				),
+				0
+			)
+		formatString: 0
+		displayFolder: DSS Threshold Alert
+		lineageTag: 1eb03d30-4b57-4d44-9ae9-1b060b6a075e
+
+	measure 'DSS Sellers Requiring Action' =
+			COALESCE(
+				COUNTROWS(
+					FILTER(
+						VALUES('DimSeller'[SellerId]),
+						NOT ISBLANK('DimSeller'[SellerId])
+							&& [Seller Alert Level 4.2] IN {"Red", "Yellow"}
+							&& NOT ISBLANK([GMV]) && [GMV] >= 0 && [Sales Orders] > 0
+					)
+				),
+				0
+			)
+		formatString: 0
+		displayFolder: DSS Exception Prioritization
+		lineageTag: 14c784a3-67ef-4496-8ea0-c3bdd8f8de49
+
+	measure 'DSS Average Seller Score' =
+			AVERAGEX(
+				FILTER(VALUES('DimSeller'[SellerId]), NOT ISBLANK('DimSeller'[SellerId])),
+				[Seller Score 4.2]
+			)
+		formatString: 0.0
+		displayFolder: DSS Report Support
+		lineageTag: 11775646-9370-4725-afce-ac222812bd81
+
+	measure 'DSS Eligible Sellers' =
+			COALESCE(
+				COUNTROWS(
+					FILTER(
+						VALUES('DimSeller'[SellerId]),
+						NOT ISBLANK('DimSeller'[SellerId]) && NOT ISBLANK([Seller Score 4.2])
+					)
+				),
+				0
+			)
+		formatString: #,0
+		displayFolder: DSS Report Support
+		lineageTag: 764bf795-c231-4cbf-923a-184cb337dc71
+
+	measure 'DSS Alert Eligible Sellers' =
+			CALCULATE(
+				COALESCE(
+					COUNTROWS(
+						FILTER(
+							VALUES('DimSeller'[SellerId]),
+							NOT ISBLANK('DimSeller'[SellerId])
+								&& [Seller Alert Data Status 4.2] = "Đủ dữ liệu"
+						)
+					),
+					0
+				),
+				REMOVEFILTERS('DSSAlertBand')
+			)
+		formatString: #,0
+		displayFolder: DSS Report Support
+		lineageTag: 51c92645-b44e-4ef1-99fc-f1e783f51e62
+
+	measure 'Seller Score Data Status 4.2' =
+			VAR SingleSeller = HASONEVALUE('DimSeller'[SellerId]) && NOT ISBLANK(SELECTEDVALUE('DimSeller'[SellerId]))
+			VAR SalesOrders = [Sales Orders]
+			VAR DeliveredOrders = [Delivered Orders (Item)]
+			VAR ReviewValue = [Seller Review Score 4.2]
+			VAR HandoverValue = [Handover On-time %]
+			VAR InvalidReviewRows = COUNTROWS(FILTER('FactOrderItem', NOT ISBLANK('FactOrderItem'[ReviewScore]) && ('FactOrderItem'[ReviewScore] < 1 || 'FactOrderItem'[ReviewScore] > 5)))
+			VAR InvalidHandoverRows = COUNTROWS(FILTER('FactOrderItem', NOT ISBLANK('FactOrderItem'[HandoverOnTime]) && NOT ('FactOrderItem'[HandoverOnTime] IN {0, 1})))
+			VAR InvalidDelayRows = COUNTROWS(FILTER('FactOrderItem', NOT ISBLANK('FactOrderItem'[IsOnTime]) && (ISBLANK('FactOrderItem'[DelayDays]) || 'FactOrderItem'[DelayDays] < 0 || ('FactOrderItem'[IsOnTime] == FALSE() && 'FactOrderItem'[DelayDays] <= 0) || ('FactOrderItem'[IsOnTime] == TRUE() && 'FactOrderItem'[DelayDays] > 0))))
+			VAR Reasons =
+			    IF(COALESCE(SalesOrders, 0) = 0, "Không có đơn có item; ", "")
+			    & IF(COALESCE(DeliveredOrders, 0) < 30, "Dưới 30 đơn đủ thông tin OTD; ", "")
+			    & IF(ISBLANK(ReviewValue), "Thiếu đánh giá; ", "")
+			    & IF(COALESCE(InvalidReviewRows, 0) > 0, "Review ngoài khoảng 1-5; ", "")
+			    & IF(ISBLANK(HandoverValue), "Thiếu dữ liệu bàn giao; ", "")
+			    & IF(COALESCE(InvalidHandoverRows, 0) > 0, "Bàn giao ngoài mã 0/1; ", "")
+			    & IF(COALESCE(InvalidDelayRows, 0) > 0, "DelayDays thiếu hoặc mâu thuẫn OTD; ", "")
+			    & IF(ISBLANK([Seller Cancellation Rate 4.2]), "Thiếu trạng thái đơn; ", "")
+			RETURN IF(SingleSeller, IF(Reasons = "", "Đủ dữ liệu", LEFT(Reasons, LEN(Reasons) - 2)))
+		displayFolder: DSS Report Support
+		lineageTag: 10813877-503e-4bdc-b330-6cd8b839afd6
+
+	/// Dedicated to section 4.2; no model, ETL or shared KPI changes.
+	measure 'Seller Reviewed Orders 4.2' = CALCULATE(DISTINCTCOUNT('FactOrderItem'[OrderId]), KEEPFILTERS(NOT ISBLANK('FactOrderItem'[ReviewScore])))
+		formatString: #,0
+		displayFolder: DSS Report Support
+		lineageTag: 5be58705-c71b-480a-b2d2-d9677dac03d7
+
+	/// Dedicated to section 4.2; no model, ETL or shared KPI changes.
+	measure 'Seller Handover Coverage 4.2' = DIVIDE(CALCULATE(COUNTROWS('FactOrderItem'), KEEPFILTERS(NOT ISBLANK('FactOrderItem'[HandoverOnTime]))), COUNTROWS('FactOrderItem'))
+		formatString: 0.0%
+		displayFolder: DSS Report Support
+		lineageTag: 12b96d90-566c-4bc5-aecc-c488d9ab4637
+
+	measure 'Seller Action Group 4.2' =
+			VAR SingleSeller = HASONEVALUE('DimSeller'[SellerId]) && NOT ISBLANK(SELECTEDVALUE('DimSeller'[SellerId]))
+			VAR ScoreValue = [Seller Score 4.2]
+			VAR GradeValue = [Seller Grade 4.2]
+			VAR AlertValue = [Seller Alert Level 4.2]
+			RETURN
+				IF(
+					SingleSeller,
+					SWITCH(
+						TRUE(),
+						ISBLANK(ScoreValue), "Not Scored",
+						AlertValue = "Red" || GradeValue = "D", "Investigate",
+						AlertValue = "Yellow" || GradeValue = "C", "Warning",
+						GradeValue = "B" && AlertValue = "Green", "Support",
+						GradeValue = "A" && AlertValue = "Green", "Maintain",
+						BLANK()
+					),
+					BLANK()
+				)
+		displayFolder: DSS Seller Ranking
+		lineageTag: cb84a09b-4dd4-4e4d-bac7-0919a2fb4a4d
+
+	measure 'BQ4 GMV 2017 Jan-Aug' = CALCULATE([GMV], REMOVEFILTERS('DimDate'), 'DimDate'[YearNumber] = 2017, 'DimDate'[MonthNumber] >= 1, 'DimDate'[MonthNumber] <= 8)
+		formatString: #,0
+		lineageTag: fb8e0320-f3bc-4cc8-bfc4-05d43d5979c1
+
+	measure 'BQ4 GMV 2018 Jan-Aug' = CALCULATE([GMV], REMOVEFILTERS('DimDate'), 'DimDate'[YearNumber] = 2018, 'DimDate'[MonthNumber] >= 1, 'DimDate'[MonthNumber] <= 8)
+		formatString: #,0
+		lineageTag: 61d075af-530f-42ba-9218-e24c5d15f6ad
+
+	measure 'BQ4 Reviewed Orders 2018 Jan-Aug' = CALCULATE(COUNTROWS(FILTER(VALUES('FactOrderItem'[OrderId]), NOT ISBLANK(CALCULATE(MAX('FactOrderItem'[ReviewScore]))))), REMOVEFILTERS('DimDate'), 'DimDate'[YearNumber] = 2018, 'DimDate'[MonthNumber] >= 1, 'DimDate'[MonthNumber] <= 8)
+		formatString: #,0
+		lineageTag: 6171c6b4-dcb9-427f-97e9-f222ab2aa457
+
+	measure 'BQ4 Review 2018 Jan-Aug' = CALCULATE([Review (Item)], REMOVEFILTERS('DimDate'), 'DimDate'[YearNumber] = 2018, 'DimDate'[MonthNumber] >= 1, 'DimDate'[MonthNumber] <= 8)
+		formatString: 0.000
+		lineageTag: 70b51c96-85ab-4099-a5e1-b449c8b1f4a6
+
+	measure 'BQ4 GMV Growth %' = VAR PriorGMV = [BQ4 GMV 2017 Jan-Aug] VAR CurrentGMV = [BQ4 GMV 2018 Jan-Aug] VAR Reviews = [BQ4 Reviewed Orders 2018 Jan-Aug] RETURN IF(PriorGMV >= 10000 && CurrentGMV >= 20000 && Reviews >= 100, DIVIDE(CurrentGMV - PriorGMV, PriorGMV))
+		formatString: 0.00%
+		lineageTag: 4a8c6a58-5eb6-440a-a79f-a15913a06813
+
+	measure 'SS Active Sellers' = COUNTROWS(FILTER(VALUES('DimSeller'[SellerId]), NOT ISBLANK('DimSeller'[SellerId]) && [Sales Orders] > 0))
+		formatString: #,0
+		displayFolder: Seller Story / Presentation
+		lineageTag: b6495bb4-3ce5-54de-b21f-68647ccf35d1
+
+	measure 'SS Grade CD' = COALESCE(COUNTROWS(FILTER(VALUES('DimSeller'[SellerId]), [Seller Grade 4.2] IN {"C","D"})), 0)
+		formatString: #,0
+		displayFolder: Seller Story / Presentation
+		lineageTag: 778f2ef6-68c5-555e-b603-7a5e7318026e
+
+	measure 'SS Grade CD Share' = DIVIDE([SS Grade CD], [DSS Eligible Sellers])
+		formatString: 0.0%
+		displayFolder: Seller Story / Presentation
+		lineageTag: e4bd20fd-353f-5b61-8f17-790bed53e498
+
+	measure 'SS Risk Exceptions' = SUMX(FILTER(VALUES('DimSeller'[SellerId]), [Seller Alert Level 4.2] IN {"Red","Yellow"}), [GMV at Risk])
+		formatString: #,0
+		displayFolder: Seller Story / Presentation
+		lineageTag: d2955083-321d-5918-9e3d-06ceadaa7008
+
+	measure 'SS Risk Exceptions Card' = IF([DSS Alert Eligible Sellers] > 0, "R$ " & FORMAT(DIVIDE([SS Risk Exceptions], 1000000), "0.00") & "M", "—")
+		displayFolder: Seller Story / Presentation
+		lineageTag: 74d43012-3987-5114-a7e4-4e6fa8d2da6a
+
+	measure 'SS Eligibility Caption' = VAR TotalSellers=[SS Active Sellers] RETURN IF(TotalSellers>0,FORMAT(DIVIDE([DSS Eligible Sellers],TotalSellers),"0.0%","vi-VN") & " trong " & FORMAT(TotalSellers,"#,0","vi-VN") & " seller","Chưa có seller giao dịch")
+		displayFolder: Seller Story / Presentation
+		lineageTag: 91275b67-713a-553d-be67-76490548af5c
+
+	measure 'SS Risk Caption' = VAR TotalGMV=[GMV] VAR RiskAmount=COALESCE([SS Risk Exceptions],0) RETURN IF(TotalGMV>0,FORMAT(DIVIDE(RiskAmount,TotalGMV),"0.0%","vi-VN") & " tổng GMV","Chưa có GMV")
+		displayFolder: Seller Story / Presentation
+		lineageTag: 73763ecb-d8a6-5557-8ce3-4c1fdea79a90
+
+	measure 'SS Grade Count' = VAR g = SELECTEDVALUE(GradeBand[Grade]) VAR Sellers = FILTER(VALUES(DimSeller[SellerId]), NOT ISBLANK(DimSeller[SellerId]) && NOT ISBLANK([Seller Score 4.2]) && (ISBLANK(g) || [Seller Grade 4.2] = g)) RETURN SUMX(Sellers, 1)
+		formatString: #,0
+		displayFolder: Seller Story / Presentation
+		lineageTag: 93974370-c554-51fe-beb2-ee162669d155
+
+	measure 'SS Grade GMV' = VAR g = SELECTEDVALUE(GradeBand[Grade]) VAR Sellers = FILTER(VALUES(DimSeller[SellerId]), NOT ISBLANK(DimSeller[SellerId]) && NOT ISBLANK([Seller Score 4.2]) && (ISBLANK(g) || [Seller Grade 4.2] = g)) RETURN SUMX(Sellers, [GMV])
+		formatString: #,0
+		displayFolder: Seller Story / Presentation
+		lineageTag: d781bd53-a5f9-5871-a24e-86e8edf8a4e3
+
+	measure 'SS Component Review' = VAR g = SELECTEDVALUE(GradeBand[Grade]) VAR Sellers = FILTER(VALUES(DimSeller[SellerId]), NOT ISBLANK(DimSeller[SellerId]) && NOT ISBLANK([Seller Score 4.2]) && (ISBLANK(g) || [Seller Grade 4.2] = g)) RETURN AVERAGEX(Sellers, 100 * MIN(1, MAX(0, DIVIDE([Seller Review Score 4.2] - 3, 1.5))))
+		formatString: 0.0
+		displayFolder: Seller Story / Presentation
+		lineageTag: d5d33819-1136-55ad-8be6-728ff9e19e8d
+
+	measure 'SS Component OTD' = VAR g = SELECTEDVALUE(GradeBand[Grade]) VAR Sellers = FILTER(VALUES(DimSeller[SellerId]), NOT ISBLANK(DimSeller[SellerId]) && NOT ISBLANK([Seller Score 4.2]) && (ISBLANK(g) || [Seller Grade 4.2] = g)) RETURN AVERAGEX(Sellers, 100 * MIN(1, MAX(0, DIVIDE([OTD (Item)] - 0.8, 0.17))))
+		formatString: 0.0
+		displayFolder: Seller Story / Presentation
+		lineageTag: 94c47f61-4f86-5615-910f-fad4a856fa06
+
+	measure 'SS Component Handover' = VAR g = SELECTEDVALUE(GradeBand[Grade]) VAR Sellers = FILTER(VALUES(DimSeller[SellerId]), NOT ISBLANK(DimSeller[SellerId]) && NOT ISBLANK([Seller Score 4.2]) && (ISBLANK(g) || [Seller Grade 4.2] = g)) RETURN AVERAGEX(Sellers, 100 * MIN(1, MAX(0, DIVIDE([Handover On-time %] - 0.8, 0.17))))
+		formatString: 0.0
+		displayFolder: Seller Story / Presentation
+		lineageTag: 23bdeb67-5e74-5bc9-a0f3-15005d30ca36
+
+	measure 'SS Component Delay' = VAR g = SELECTEDVALUE(GradeBand[Grade]) VAR Sellers = FILTER(VALUES(DimSeller[SellerId]), NOT ISBLANK(DimSeller[SellerId]) && NOT ISBLANK([Seller Score 4.2]) && (ISBLANK(g) || [Seller Grade 4.2] = g)) RETURN AVERAGEX(Sellers, 100 * MIN(1, MAX(0, DIVIDE(14 - IF(COALESCE([Late Orders (Item)],0) = 0, 0, [Avg Delay Days (Item)]), 13))))
+		formatString: 0.0
+		displayFolder: Seller Story / Presentation
+		lineageTag: 0bcb581f-2c91-5ad2-8168-e67bbdab69b7
+
+	measure 'SS Component Cancel' = VAR g = SELECTEDVALUE(GradeBand[Grade]) VAR Sellers = FILTER(VALUES(DimSeller[SellerId]), NOT ISBLANK(DimSeller[SellerId]) && NOT ISBLANK([Seller Score 4.2]) && (ISBLANK(g) || [Seller Grade 4.2] = g)) RETURN AVERAGEX(Sellers, 100 * MIN(1, MAX(0, DIVIDE(0.02 - [Seller Cancellation Rate 4.2], 0.02))))
+		formatString: 0.0
+		displayFolder: Seller Story / Presentation
+		lineageTag: 45fb11ef-6902-582f-afe1-9a21ae1cbc63
+
+	measure 'SS Component Value' = SWITCH(SELECTEDVALUE(SellerMetric[Metric]), "Review · 30%", [SS Component Review], "Điểm OTD · 25%", [SS Component OTD], "Bàn giao · 25%", [SS Component Handover], "Ngày trễ · 10%", [SS Component Delay], "Hủy đơn · 10%", [SS Component Cancel])
+		formatString: 0.0
+		displayFolder: Seller Story / Presentation
+		lineageTag: 7be0c25d-c347-5f34-9c8e-4ad51e6abf46
+
+	measure 'SS Component Color' = VAR x=[SS Component Value] RETURN IF(ISBLANK(x),"#CBD2E2",IF(x<70,"#D64545","#29469B"))
+		displayFolder: Seller Story / Decision
+		lineageTag: 8c32a34e-5dbc-490e-a6c9-24b91d19784f
+
+	measure 'SS Specific Breaches' = IF(HASONEVALUE(DimSeller[SellerId]), VAR l=[Seller Late Rate 4.2] VAR r=[Seller Review Score 4.2] VAR c=[Seller Cancellation Rate 4.2] VAR t=UNION(ROW("B", l>0.10,"T","Trễ " & FORMAT(l,"0.0%")), ROW("B",r<4,"T","Review " & FORMAT(r,"0.00")), ROW("B",c>=0.01,"T","Hủy " & FORMAT(c,"0.00%"))) RETURN CONCATENATEX(FILTER(t,[B]),[T]," · "))
+		displayFolder: Seller Story / Decision
+		lineageTag: 7e520897-e514-4e75-b142-315e76e27075
+
+	measure 'SS Action Count Caption' = FORMAT([Sellers Red 4.2],"#,0","vi-VN") & " rủi ro cao | " & FORMAT([Sellers Yellow 4.2],"#,0","vi-VN") & " theo dõi"
+		displayFolder: Seller Story / Decision
+		lineageTag: b3d8bd07-e407-443b-aaec-c32562587fa3
+
+	measure 'SS Scatter Score' = IF(NOT ISBLANK([Seller Score 4.2]) && [GMV]>0,[Seller Score 4.2])
+		formatString: 0.0
+		displayFolder: Seller Story / Decision
+		lineageTag: 4feb57be-80a4-4073-a9f5-faf9c584a34f
+
+	measure 'SS Scatter GMV' = IF(NOT ISBLANK([Seller Score 4.2]) && [GMV]>0,[GMV])
+		formatString: #,0
+		displayFolder: Seller Story / Decision
+		lineageTag: acbc2b2f-9a6e-4512-aded-e53fb7687ddc
+
+	measure 'SS Median Seller GMV' = VAR p=CALCULATETABLE(ADDCOLUMNS(VALUES(DimSeller[SellerId]),"@Score",CALCULATE([Seller Score 4.2]),"@GMV",CALCULATE([GMV])), REMOVEFILTERS(DimSeller[SellerId]), REMOVEFILTERS(DimSeller[SellerCode]), REMOVEFILTERS(DimSeller[SellerDisplay])) RETURN MEDIANX(FILTER(p,NOT ISBLANK([@Score]) && [@GMV]>0),[@GMV])
+		formatString: #,0
+		displayFolder: Seller Story / Decision
+		lineageTag: 84aa43c8-7cfd-42b1-aa0e-b042a946eca0
+
+	measure 'SS Grade Risk GMV' = VAR g=SELECTEDVALUE(GradeBand[Grade]) VAR s=FILTER(VALUES(DimSeller[SellerId]),NOT ISBLANK([Seller Score 4.2]) && (ISBLANK(g)||[Seller Grade 4.2]=g)) RETURN SUMX(s,[GMV at Risk])
+		formatString: #,0
+		displayFolder: Seller Story / Decision
+		lineageTag: 66170f19-63f0-4dd1-9a44-45854847379f
+
+	measure 'SS Grade Risk Share' = DIVIDE([SS Grade Risk GMV],[SS Grade GMV])
+		formatString: 0.0%
+		displayFolder: Seller Story / Decision
+		lineageTag: 94a48b7c-85f8-43d4-a253-4222e258a0d9
+
+	measure 'SS Risk Share' = DIVIDE([GMV at Risk],[GMV])
+		formatString: 0.0%
+		displayFolder: Seller Story / Decision
+		lineageTag: 7a20fd0d-6762-4214-86d8-b4512f0f131d
+
+	measure 'SS Grade Color' = IF(SELECTEDVALUE(GradeBand[Grade]) IN {"C","D"},"#D64545","#4E85EB")
+		displayFolder: Seller Story / Decision
+		lineageTag: 7e1595dd-b954-4a18-824a-1e1d374de96b
+
+	measure 'SS Top8 Risk' = VAR CurrentSeller=SELECTEDVALUE(DimSeller[SellerId]) VAR p=CALCULATETABLE(ADDCOLUMNS(VALUES(DimSeller[SellerId]),"@Grade",CALCULATE([Seller Grade 4.2]),"@Risk",CALCULATE([GMV at Risk])), REMOVEFILTERS(DimSeller[SellerId]), REMOVEFILTERS(DimSeller[SellerCode]), REMOVEFILTERS(DimSeller[SellerDisplay])) VAR topS=TOPN(8,FILTER(p,[@Grade] IN {"C","D"} && [@Risk]>0),[@Risk],DESC,DimSeller[SellerId],ASC) RETURN IF(CONTAINS(topS,DimSeller[SellerId],CurrentSeller),[GMV at Risk])
+		formatString: #,0
+		displayFolder: Seller Story / Decision
+		lineageTag: e956a120-2b23-4451-b590-39d10cdf5a40
+
+	measure 'SS Scatter Color' = IF([Seller Score 4.2]<50,"#C93640",IF([Seller Score 4.2]<70,"#7485A8","#4E85EB"))
+		displayFolder: Seller Story / Decision
+		lineageTag: 1ecd345b-53a3-4325-aca0-641fce629727
+
+	measure 'SS Score Context' = VAR ScoreValue=[DSS Average Seller Score] RETURN IF(ISBLANK(ScoreValue),"Chưa đủ dữ liệu","Mốc hạng B: 70 | " & FORMAT(ScoreValue-70,"+0.0;-0.0;0.0","vi-VN") & " điểm")
+		displayFolder: Seller Story / Decision
+		lineageTag: ab1f73e7-3e93-4bb2-ad9b-a725e3264959
+
+	measure 'SS Score Status Color' = VAR x=[DSS Average Seller Score] RETURN IF(ISBLANK(x),"#6B7390",IF(x<70,"#C93640","#29469B"))
+		displayFolder: Seller Story / Decision
+		lineageTag: cce50862-4013-46cf-9f73-070259bf309c
+
+	measure 'SS CD Seller Context' = IF([DSS Eligible Sellers]>0,FORMAT([SS Grade CD],"#,0","vi-VN") & "/" & FORMAT([DSS Eligible Sellers],"#,0","vi-VN") & " seller được chấm","Chưa có seller đủ điều kiện")
+		displayFolder: Seller Story / Decision
+		lineageTag: 017b9a82-da3a-4d02-9f89-b9abbc397d1f
+
+	measure 'SS Top8 Risk Label' = IF(NOT ISBLANK([SS Top8 Risk]),FORMAT(DIVIDE([SS Top8 Risk],1000),"0.0") & "K  |  " & FORMAT([SS Risk Share],"0.0%"))
+		displayFolder: Seller Story / Decision
+		lineageTag: 20aec538-f411-424f-992f-6ff80a586794
+
+	measure 'SS Risk Bar Axis End' = VAR PeakRisk=CALCULATE(MAXX(FILTER(VALUES(DimSeller[SellerId]),[Seller Grade 4.2] IN {"C","D"}),[GMV at Risk]),REMOVEFILTERS(DimSeller[SellerId]),REMOVEFILTERS(DimSeller[SellerCode]),REMOVEFILTERS(DimSeller[SellerDisplay])) RETURN IF(PeakRisk>0,PeakRisk*1.32)
+		formatString: #,0
+		displayFolder: Seller Story / Decision
+		lineageTag: 17690caf-97ef-4b0b-b733-0fad75c9bf0d
+
+	measure 'Seller Quality Rank' =
+			VAR CurrentScore = [Seller Score 4.2]
+			VAR Candidates = FILTER(ADDCOLUMNS(ALLSELECTED('DimSeller'), "@Score", CALCULATE([Seller Score 4.2])), NOT ISBLANK('DimSeller'[SellerId]) && NOT ISBLANK([@Score]))
+			RETURN IF(HASONEVALUE('DimSeller'[SellerId]) && NOT ISBLANK(CurrentScore) && (ISINSCOPE('DimSeller'[SellerDisplay]) || ISINSCOPE('DimSeller'[SellerId])), RANKX(Candidates, [@Score], CurrentScore, DESC, DENSE))
+		formatString: 0
+		displayFolder: Seller Scorecard
+		lineageTag: 11c85c1c-fea3-4fb0-a44e-a75f104e674e
+
+	measure 'SC Orders' = IF(ISCROSSFILTERED('DimSeller') || ISCROSSFILTERED('SellerGeography') || ISCROSSFILTERED('DimProduct') || ISCROSSFILTERED('DimCategory'), CALCULATE(COUNTROWS('FactOrderDelivery'), KEEPFILTERS(TREATAS(VALUES('FactOrderItem'[OrderId]), 'FactOrderDelivery'[OrderId]))), COUNTROWS('FactOrderDelivery'))
+		formatString: #,0
+		displayFolder: Seller Scorecard / Muc 3.5
+		lineageTag: 0b868f6b-cc03-45a5-a89a-4d8f802c2c6b
+
+	measure 'SC Eligible Orders' = CALCULATE([SC Orders], NOT ISBLANK('FactOrderDelivery'[IsOnTime]))
+		formatString: #,0
+		displayFolder: Seller Scorecard / Muc 3.5
+		lineageTag: cd31705e-21f9-4487-b49f-460f491b9819
+
+	measure 'SC Late Orders' = CALCULATE([SC Orders], 'FactOrderDelivery'[IsOnTime] == FALSE())
+		formatString: #,0
+		displayFolder: Seller Scorecard / Muc 3.5
+		lineageTag: 3a7fc661-6628-4afa-9665-9fb9fe8cdc31
+
+	measure 'SC OTD' = DIVIDE([SC Eligible Orders] - [SC Late Orders], [SC Eligible Orders])
+		formatString: 0.00%
+		displayFolder: Seller Scorecard / Muc 3.5
+		lineageTag: 7c0a6c77-6a62-4aaf-8b8e-fee534a4206d
+
+	measure 'SC OTD Alert' = IF([SC Eligible Orders] >= 100 && NOT ISBLANK([SC OTD]) && [SC OTD] < 0.90, 1, 0)
+		formatString: 0
+		displayFolder: Seller Scorecard / Muc 3.5
+		lineageTag: fa64f0a7-9896-4726-b847-db6d1531766b
+
+	measure 'SC GMV Risk CD' = SUMX(FILTER(VALUES('DimSeller'[SellerId]), [Seller Grade 4.2] IN {"C","D"}), [GMV at Risk])
+		formatString: #,0.00
+		displayFolder: Seller Scorecard / Muc 3.5
+		lineageTag: 846b18cb-c66d-4812-ab7b-73d24acabf84
+
+	column OrderId
+		dataType: string
+		lineageTag: 5f523f43-5ac9-4a22-aa78-e79f49a27518
+		sourceColumn: OrderId
+
+	column PurchaseDateKey
+		dataType: int64
+		isHidden
+		lineageTag: 160bf160-74b2-46bc-abaf-ef61725c7692
+		sourceColumn: PurchaseDateKey
+
+	column CustomerKey
+		dataType: int64
+		isHidden
+		lineageTag: def466b9-d1cb-4a59-b739-8b5ad2ef993e
+		sourceColumn: CustomerKey
+
+	column SellerKey
+		dataType: int64
+		isHidden
+		lineageTag: a0b469ba-2c22-497b-a4da-b8a63e334cd0
+		sourceColumn: SellerKey
+
+	column ProductKey
+		dataType: int64
+		isHidden
+		lineageTag: f94dd803-db03-42bf-87df-2e6933c39c84
+		sourceColumn: ProductKey
+
+	column Price
+		dataType: double
+		lineageTag: 662e1efe-04fc-4c3a-bc1a-21b362bf2e58
+		summarizeBy: sum
+		sourceColumn: Price
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column FreightValue
+		dataType: double
+		lineageTag: ac1b0ff6-1e3a-4cce-92ea-94eb3d906ef3
+		summarizeBy: sum
+		sourceColumn: FreightValue
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column OrderStatus
+		dataType: string
+		lineageTag: 6486aaea-1654-4ba3-a169-6d6cf1209318
+		sourceColumn: OrderStatus
+
+	column IsOnTime
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 6f668702-0eb6-471c-8d69-ec35637777c8
+		summarizeBy: none
+		sourceColumn: IsOnTime
+
+		annotation SummarizationSetBy = Automatic
+
+	column DelayDays
+		dataType: int64
+		lineageTag: 2c1681d4-8d6c-4f43-9dee-263bdedf198f
+		sourceColumn: DelayDays
+
+	column ReviewScore
+		dataType: double
+		lineageTag: 9fa5dc42-849e-44c8-884f-976e9d6a3d01
+		summarizeBy: sum
+		sourceColumn: ReviewScore
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column HandoverOnTime
+		dataType: int64
+		lineageTag: b5781a55-95b4-43f7-8eae-73ee8c504f6c
+		sourceColumn: HandoverOnTime
+
+	column Route = RELATED('SellerGeography'[StateCode]) & " > " & RELATED('CustomerGeography'[StateCode])
+		dataType: string
+		lineageTag: fd771b08-3100-4676-9d85-45fce8219018
+
+	partition FactOrderItem = m
+		mode: import
+		source =
+				let
+					Source = MySQL.Database("127.0.0.1:3306", "olist_bi_group08", [Query="SELECT i.OrderId,i.PurchaseDateKey,i.CustomerKey,i.SellerKey,i.ProductKey,i.Price,i.FreightValue,o.OrderStatus,o.IsOnTime,o.DelayDays,o.ReviewScore,CASE WHEN s.order_delivered_carrier_date='' OR i.ShippingLimitDate IS NULL THEN NULL WHEN STR_TO_DATE(s.order_delivered_carrier_date,'%Y-%m-%d %H:%i:%s')<=i.ShippingLimitDate THEN 1 ELSE 0 END AS HandoverOnTime FROM FactOrderItem i JOIN FactOrderDelivery o ON o.OrderId=i.OrderId JOIN stg_Orders s ON s.order_id=i.OrderId", ReturnSingleDatabase=true]),
+					Typed = Table.TransformColumnTypes(Source, {{"IsOnTime", type logical}})
+				in
+					Typed
+

@@ -1,0 +1,19 @@
+table SellerMetric
+	lineageTag: f415692d-0776-57d9-94fc-432170de21f3
+
+	column Metric
+		dataType: string
+		lineageTag: 052c2e77-7c6c-4895-abc6-bebbe13b5aa9
+		sourceColumn: [Metric]
+		sortByColumn: Sort
+
+	column Sort
+		dataType: int64
+		isHidden
+		lineageTag: 17434976-e70e-4800-b3fc-4c60c9c1ec1e
+		sourceColumn: [Sort]
+
+	partition SellerMetric = calculated
+		mode: import
+		source = DATATABLE("Metric", STRING, "Sort", INTEGER, {{"Review · 30%", 1}, {"Điểm OTD · 25%", 2}, {"Bàn giao · 25%", 3}, {"Ngày trễ · 10%", 4}, {"Hủy đơn · 10%", 5}})
+
