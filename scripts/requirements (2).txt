@@ -1,0 +1,8 @@
+# Thư viện cho app Streamlit (Streamlit Cloud đọc file này vì nằm cùng thư mục với file chạy chính)
+streamlit>=1.40,<2
+pandas>=2.2,<3
+numpy>=1.26,<3
+plotly>=5.20,<7
+folium>=0.17,<1
+streamlit-folium>=0.24,<1
+PyMySQL[rsa]>=1.1,<2

@@ -27,6 +27,16 @@ from streamlit_dss_data import historical_deliveries, route_lookup, state_centro
 ROOT = Path(__file__).resolve().parents[1]
 LOG_PATH = ROOT / "temp" / "streamlit_dss_actions.log"
 FALLBACK_HISTORY_PATH = ROOT / "data" / "processed" / "streamlit_history_fallback.csv"
+# Bản nén được commit lên GitHub để app chạy trên Streamlit Cloud (không có MySQL).
+CLOUD_SNAPSHOT_PATH = ROOT / "data" / "streamlit" / "streamlit_history_fallback.csv.gz"
+
+
+def snapshot_path() -> Path | None:
+    """Ưu tiên snapshot cục bộ mới nhất, sau đó đến bản nén trên GitHub."""
+    for path in (FALLBACK_HISTORY_PATH, CLOUD_SNAPSHOT_PATH):
+        if path.is_file():
+            return path
+    return None
 LOG_PATH.parent.mkdir(exist_ok=True)
 logging.basicConfig(filename=LOG_PATH, level=logging.INFO,
                     format="%(asctime)s %(levelname)s %(message)s")
@@ -103,10 +113,11 @@ def get_history() -> pd.DataFrame:
         frame = history.merge(lookup, on="OrderId", how="left", validate="one_to_one")
         source = "MySQL"
     except Exception:
-        if not FALLBACK_HISTORY_PATH.is_file():
+        path = snapshot_path()
+        if path is None:
             raise
-        logging.exception("MySQL unavailable; loading local fallback snapshot")
-        frame = pd.read_csv(FALLBACK_HISTORY_PATH, low_memory=False)
+        logging.exception("MySQL unavailable; loading fallback snapshot %s", path)
+        frame = pd.read_csv(path, low_memory=False)
         source = "CSV fallback"
 
     if "ReviewAt" not in frame:
@@ -129,6 +140,9 @@ def get_history() -> pd.DataFrame:
         try:
             FALLBACK_HISTORY_PATH.parent.mkdir(parents=True, exist_ok=True)
             frame.to_csv(FALLBACK_HISTORY_PATH, index=False, date_format="%Y-%m-%d %H:%M:%S")
+            CLOUD_SNAPSHOT_PATH.parent.mkdir(parents=True, exist_ok=True)
+            frame.to_csv(CLOUD_SNAPSHOT_PATH, index=False, date_format="%Y-%m-%d %H:%M:%S",
+                         compression={"method": "gzip", "mtime": 0})
         except OSError:
             logging.exception("Could not update local Streamlit fallback snapshot")
     return frame
@@ -139,10 +153,11 @@ def get_state_centroids() -> pd.DataFrame:
     try:
         return state_centroids()
     except Exception:
-        if not FALLBACK_HISTORY_PATH.is_file():
+        path = snapshot_path()
+        if path is None:
             raise
         logging.exception("MySQL geography unavailable; deriving map centers from fallback snapshot")
-        history = pd.read_csv(FALLBACK_HISTORY_PATH, low_memory=False)
+        history = pd.read_csv(path, low_memory=False)
         points = history[["CustomerState", "CustomerLatitude", "CustomerLongitude"]].copy()
         points["CustomerLatitude"] = pd.to_numeric(points.CustomerLatitude, errors="coerce")
         points["CustomerLongitude"] = pd.to_numeric(points.CustomerLongitude, errors="coerce")
@@ -1109,12 +1124,16 @@ def render_app():
 
 
     if history.attrs.get("data_source") == "CSV fallback":
-        snapshot_time = pd.Timestamp(FALLBACK_HISTORY_PATH.stat().st_mtime, unit="s")
-        st.warning(
-            "MySQL unavailable. Using the local CSV backup "
-            f"(saved {snapshot_time:%d/%m/%Y %H:%M}); data may be stale. "
-            "Reload after MySQL is available to fetch current data."
-        )
+        if snapshot_path() == FALLBACK_HISTORY_PATH:
+            snapshot_time = pd.Timestamp(FALLBACK_HISTORY_PATH.stat().st_mtime, unit="s")
+            st.warning(
+                "MySQL unavailable. Using the local CSV backup "
+                f"(saved {snapshot_time:%d/%m/%Y %H:%M}); data may be stale. "
+                "Reload after MySQL is available to fetch current data."
+            )
+        else:
+            # Trên Streamlit Cloud: dữ liệu là bản chụp từ MySQL của nhóm.
+            st.sidebar.caption("Dữ liệu: snapshot Olist xuất từ MySQL của nhóm.")
 
     route_options = sorted(history.loc[history.RouteEligible, "RouteId"].dropna().unique().tolist())
     if not route_options:
